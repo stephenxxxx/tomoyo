@@ -2316,6 +2316,9 @@ static int __ccs_open_permission(struct dentry *dentry, struct vfsmount *mnt,
 	if (d_is_dir(dentry))
 		return 0;
 #endif
+	/* Sockets can't be opened by open(). */
+	if (S_ISSOCK(d_inode(dentry)->i_mode))
+		return 0;
 	buf.name = NULL;
 	r.mode = CCS_CONFIG_DISABLED;
 	idx = ccs_read_lock();
@@ -2846,6 +2849,9 @@ static int __ccs_unlink_permission(struct dentry *dentry, struct vfsmount *mnt)
 static int __ccs_getattr_permission(struct vfsmount *mnt,
 				    struct dentry *dentry)
 {
+	/* It is not safe to call ccs_get_socket_name(). */
+	if (S_ISSOCK(d_inode(dentry)->i_mode))
+		return 0;
 	return ccs_path_perm(CCS_TYPE_GETATTR, dentry, mnt, NULL);
 }
 
@@ -3233,6 +3239,8 @@ static int ccs_check_inet_address(const struct sockaddr *addr,
 				  struct ccs_addr_info *address)
 {
 	struct ccs_inet_addr_info *i = &address->inet;
+	if (addr_len < offsetofend(struct sockaddr, sa_family))
+		return 0;
 	switch (addr->sa_family) {
 	case AF_INET6:
 		if (addr_len < SIN6_LEN_RFC2133)
@@ -3319,6 +3327,8 @@ static int ccs_check_unix_address(struct sockaddr *addr,
 				  struct ccs_addr_info *address)
 {
 	struct ccs_unix_addr_info *u = &address->unix0;
+	if (addr_len < offsetofend(struct sockaddr, sa_family))
+		return 0;
 	if (addr->sa_family != AF_UNIX)
 		return 0;
 	u->addr = ((struct sockaddr_un *) addr)->sun_path;
