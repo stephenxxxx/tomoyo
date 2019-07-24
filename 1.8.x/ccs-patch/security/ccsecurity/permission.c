@@ -3598,7 +3598,7 @@ static int __ccs_socket_post_recvmsg_permission(struct sock *sk,
 				addr_len = u->len;
 				memcpy(&addr, u->name, addr_len);
 			} else {
-				addr_len = 0;
+				addr_len = sizeof(addr.ss_family);
 				addr.ss_family = AF_UNIX;
 			}
 			if (ccs_check_unix_address((struct sockaddr *) &addr,

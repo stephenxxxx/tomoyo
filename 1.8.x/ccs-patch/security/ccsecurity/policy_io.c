@@ -5505,7 +5505,11 @@ void ccs_transition_failed(const char *domainname)
 {
 	printk(KERN_WARNING
 	       "ERROR: Unable to transit to '%s' domain.\n", domainname);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 3, 0)
 	force_sig(SIGKILL, current);
+#else
+	force_sig(SIGKILL);
+#endif
 }
 
 /**
