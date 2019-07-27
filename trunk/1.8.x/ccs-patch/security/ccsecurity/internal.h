@@ -191,11 +191,6 @@ struct path {
 	})
 #endif
 
-#ifndef offsetofend
-#define offsetofend(TYPE, MEMBER)				\
-	(offsetof(TYPE, MEMBER) + sizeof(((TYPE *)0)->MEMBER))
-#endif
-
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0)
 #define f_vfsmnt f_path.mnt
 #endif

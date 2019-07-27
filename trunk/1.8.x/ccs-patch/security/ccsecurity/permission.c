@@ -3254,8 +3254,8 @@ static int ccs_check_inet_address(const struct sockaddr *addr,
 				  struct ccs_addr_info *address)
 {
 	struct ccs_inet_addr_info *i = &address->inet;
-	if (addr_len < offsetofend(struct sockaddr, sa_family))
-		return 0;
+	if (addr_len < sizeof(addr->sa_family))
+		goto skip;
 	switch (addr->sa_family) {
 	case AF_INET6:
 		if (addr_len < SIN6_LEN_RFC2133)
@@ -3342,7 +3342,7 @@ static int ccs_check_unix_address(struct sockaddr *addr,
 				  struct ccs_addr_info *address)
 {
 	struct ccs_unix_addr_info *u = &address->unix0;
-	if (addr_len < offsetofend(struct sockaddr, sa_family))
+	if (addr_len < sizeof(addr->sa_family))
 		return 0;
 	if (addr->sa_family != AF_UNIX)
 		return 0;
