@@ -93,6 +93,13 @@ int ccs_sb_pivotroot(const struct path *old_path, const struct path *new_path)
 	return ccs_pivot_root_permission(old_path, new_path);
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+int ccs_move_mount(const struct path *from_path, const struct path *to_path)
+{
+	return ccs_move_mount_permission(from_path, to_path);
+}
+#endif
+
 int ccs_path_unlink(const struct path *dir, struct dentry *dentry)
 {
 	return ccs_unlink_permission(dentry, dir->mnt);
@@ -245,6 +252,9 @@ EXPORT_SYMBOL(ccs_path_rename);
 static struct security_hook_list ccsecurity_hooks[] = {
 	LSM_HOOK_INIT(settime, ccs_settime),
 	LSM_HOOK_INIT(sb_mount, ccs_sb_mount),
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+	LSM_HOOK_INIT(move_mount, ccs_move_mount),
+#endif
 	LSM_HOOK_INIT(sb_umount, ccs_sb_umount),
 	LSM_HOOK_INIT(sb_pivotroot, ccs_sb_pivotroot),
 	LSM_HOOK_INIT(inode_getattr, ccs_inode_getattr),

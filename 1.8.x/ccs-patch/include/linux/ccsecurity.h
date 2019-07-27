@@ -78,6 +78,10 @@ struct ccsecurity_operations {
 	int (*mount_permission) (const char *dev_name, const struct path *path,
 				 const char *type, unsigned long flags,
 				 void *data_page);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+	int (*move_mount_permission) (const struct path *from_path,
+				      const struct path *to_path);
+#endif
 #else
 	int (*chroot_permission) (struct nameidata *nd);
 	int (*pivot_root_permission) (struct nameidata *old_nd,
@@ -193,6 +197,16 @@ static inline int ccs_mount_permission(const char *dev_name,
 		     unsigned long, void *) = ccsecurity_ops.mount_permission;
 	return func ? func(dev_name, path, type, flags, data_page) : 0;
 }
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+static inline int ccs_move_mount_permission(const struct path *from_path,
+					    const struct path *to_path)
+{
+	int (*func) (const struct path *, const struct path *) =
+		ccsecurity_ops.move_mount_permission;
+	return func ? func(from_path, to_path) : 0;
+}
+#endif
 
 #else
 
@@ -446,6 +460,14 @@ static inline int ccs_mount_permission(const char *dev_name,
 {
 	return 0;
 }
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+static inline int ccs_move_mount_permission(const struct path *from_path,
+					    const struct path *to_path)
+{
+	return 0;
+}
+#endif
 
 #else
 

@@ -276,6 +276,10 @@ static int __ccs_mknod_permission(struct dentry *dentry, struct vfsmount *mnt,
 static int __ccs_mount_permission(const char *dev_name,
 				  const struct path *path, const char *type,
 				  unsigned long flags, void *data_page);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+static int __ccs_move_mount_permission(const struct path *from_path,
+				       const struct path *to_path);
+#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 30)
 static int __ccs_open_exec_permission(struct dentry *dentry,
 				      struct vfsmount *mnt);
@@ -1701,6 +1705,9 @@ void __init ccs_permission_init(void)
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
 	ccsecurity_ops.mount_permission = __ccs_mount_permission;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+	ccsecurity_ops.move_mount_permission = __ccs_move_mount_permission;
+#endif
 #else
 	ccsecurity_ops.mount_permission = ccs_old_mount_permission;
 #endif
@@ -2024,6 +2031,14 @@ static int ccs_old_mount_permission(const char *dev_name, struct nameidata *nd,
 	return __ccs_mount_permission(dev_name, &path, type, flags, data_page);
 }
 
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+static int __ccs_move_mount_permission(const struct path *from_path,
+				       const struct path *to_path)
+{
+	return -ENOSYS; /* For now. */
+}
 #endif
 
 /**
