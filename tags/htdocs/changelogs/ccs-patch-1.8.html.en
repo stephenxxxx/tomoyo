@@ -29,6 +29,52 @@
 
 <div id="changelogs">
 
+<h4>ChangeLog for ccs-patch 1.8.6</h4>
+
+<pre>
+Fix 2019/07/27
+
+    @ Change pathname calculation for read-only filesystems.
+
+      Commit 5625f2e3266319fd ("TOMOYO: Change pathname for non-rename()able
+      filesystems.") intended to be applied to filesystems where the content is
+      not controllable from the userspace (e.g. proc, sysfs, securityfs), based
+      on an assumption that such filesystems do not support rename() operation.
+
+      But it turned out that read-only filesystems also do not support rename()
+      operation despite the content is controllable from the userspace, and that
+      commit is annoying TOMOYO users who want to use e.g. squashfs as the root
+      filesystem due to use of local name which does not start with '/'.
+
+      Therefore, based on an assumption that filesystems which require the
+      device argument upon mount() request is an indication that the content
+      is controllable from the userspace, do not use local name if a filesystem
+      does not support rename() operation but requires the device argument upon
+      mount() request.
+
+    @ Reject move_mount() system call for now.
+
+      Commit 2db154b3ea8e14b0 ("vfs: syscall: Add move_mount(2) to move mounts
+      around") introduced security_move_mount() LSM hook, but we missed that
+      TOMOYO and AppArmor did not implement hooks for checking move_mount(2).
+      Since unchecked mount manipulation is not acceptable, for now pretend
+      as if move_mount(2) is unavailable.
+
+    @ Don't check open/getattr permission on sockets.
+
+      syzbot found that use of SOCKET_I()-&gt;sk from open() can result in
+      use after free problem, for socket's inode is still reachable via
+      /proc/pid/fd/n despite destruction of SOCKET_I()-&gt;sk already completed.
+
+      But there is no point with calling security_file_open() on sockets
+      because open("/proc/pid/fd/n", !O_PATH) on sockets fails with -ENXIO.
+
+      There is some point with calling security_inode_getattr() on sockets
+      because stat("/proc/pid/fd/n") and fstat(open("/proc/pid/fd/n", O_PATH))
+      are valid. But since information which can be protected by checking
+      security_inode_getattr() on sockets is trivial, let's not check it.
+</pre>
+
 <h4>ChangeLog for ccs-patch 1.8.5</h4>
 
 <pre>
