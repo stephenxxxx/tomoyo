@@ -3297,3 +3297,5 @@ Fix 2019/07/27
       because stat("/proc/pid/fd/n") and fstat(open("/proc/pid/fd/n", O_PATH))
       are valid. But since information which can be protected by checking
       security_inode_getattr() on sockets is trivial, let's not check it.
+
+Version 1.8.6   2019/08/20   Bug fix release.
