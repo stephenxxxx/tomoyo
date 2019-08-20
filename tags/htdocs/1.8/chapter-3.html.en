@@ -181,7 +181,7 @@ Linux kernel 4.0 and later are supported from the linux-4 tree.<br>
 Linux kernel 5.0 and later are supported from the linux-5 tree.</p>
 
 <p>Extract the kernel source and go to the extracted directory.<br>
-In the operations below, "$VERSION.$PATCHLEVEL.diff" should for example be replaced with "5.0.diff" if using Linux kernel 5.0.13 :</p>
+In the operations below, "$VERSION.$PATCHLEVEL.diff" should for example be replaced with "5.2.diff" if using Linux kernel 5.2.9 :</p>
 
 <pre class="command">
 $ wget -O ccs-patch-1.8.6-20190820.tar.gz 'https://osdn.jp/frs/redir.php?m=jaist&amp;f=/tomoyo/49684/ccs-patch-1.8.6-20190820.tar.gz'
