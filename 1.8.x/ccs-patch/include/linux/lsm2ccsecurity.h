@@ -27,7 +27,7 @@ int ccs_inode_getattr(const struct path *path);
 #endif
 int ccs_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
 int ccs_file_fcntl(struct file *file, unsigned int cmd, unsigned long arg);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0) || (defined(RHEL_MAJOR) && RHEL_MAJOR == 8)
 int ccs_file_open(struct file *file);
 #else
 int ccs_file_open(struct file *file, const struct cred *cred);
