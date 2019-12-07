@@ -2335,9 +2335,6 @@ static int __ccs_open_permission(struct dentry *dentry, struct vfsmount *mnt,
 	if (d_is_dir(dentry))
 		return 0;
 #endif
-	/* Sockets can't be opened by open(). */
-	if (S_ISSOCK(d_inode(dentry)->i_mode))
-		return 0;
 	buf.name = NULL;
 	r.mode = CCS_CONFIG_DISABLED;
 	idx = ccs_read_lock();
@@ -2868,9 +2865,6 @@ static int __ccs_unlink_permission(struct dentry *dentry, struct vfsmount *mnt)
 static int __ccs_getattr_permission(struct vfsmount *mnt,
 				    struct dentry *dentry)
 {
-	/* It is not safe to call ccs_get_socket_name(). */
-	if (S_ISSOCK(d_inode(dentry)->i_mode))
-		return 0;
 	return ccs_path_perm(CCS_TYPE_GETATTR, dentry, mnt, NULL);
 }
 
