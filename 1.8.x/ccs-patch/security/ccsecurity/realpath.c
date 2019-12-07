@@ -15,8 +15,6 @@
 
 /***** SECTION1: Constants definition *****/
 
-#define SOCKFS_MAGIC 0x534F434B
-
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
 #define s_fs_info u.generic_sbp
 #endif
@@ -37,29 +35,9 @@ static char *ccs_get_dentry_path(struct dentry *dentry, char * const buffer,
 				 const int buflen);
 static char *ccs_get_local_path(struct dentry *dentry, char * const buffer,
 				const int buflen);
-static char *ccs_get_socket_name(const struct path *path, char * const buffer,
-				 const int buflen);
 static int ccs_const_part_length(const char *filename);
 
 /***** SECTION4: Standalone functions section *****/
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-
-/**
- * SOCKET_I - Get "struct socket".
- *
- * @inode: Pointer to "struct inode".
- *
- * Returns pointer to "struct socket".
- *
- * This is for compatibility with older kernels.
- */
-static inline struct socket *SOCKET_I(struct inode *inode)
-{
-	return inode->i_sock ? &inode->u.socket_i : NULL;
-}
-
-#endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)
 
@@ -471,33 +449,6 @@ out:
 }
 
 /**
- * ccs_get_socket_name - Get the name of a socket.
- *
- * @path:   Pointer to "struct path".
- * @buffer: Pointer to buffer to return value in.
- * @buflen: Sizeof @buffer.
- *
- * Returns the buffer.
- */
-static char *ccs_get_socket_name(const struct path *path, char * const buffer,
-				 const int buflen)
-{
-	struct inode *inode = d_backing_inode(path->dentry);
-	struct socket *sock = inode ? SOCKET_I(inode) : NULL;
-	struct sock *sk = sock ? sock->sk : NULL;
-	if (sk) {
-		snprintf(buffer, buflen, "socket:[family=%u:type=%u:"
-			 "protocol=%u]", sk->sk_family, sk->sk_type,
-			 sk->sk_protocol);
-	} else {
-		snprintf(buffer, buflen, "socket:[unknown]");
-	}
-	return buffer;
-}
-
-#define SOCKFS_MAGIC 0x534F434B
-
-/**
  * ccs_realpath - Returns realpath(3) of the given pathname but ignores chroot'ed root.
  *
  * @path: Pointer to "struct path".
@@ -527,13 +478,8 @@ char *ccs_realpath(const struct path *path)
 			break;
 		/* To make sure that pos is '\0' terminated. */
 		buf[buf_len - 1] = '\0';
-		/* Get better name for socket. */
-		if (sb->s_magic == SOCKFS_MAGIC) {
-			pos = ccs_get_socket_name(path, buf, buf_len - 1);
-			goto encode;
-		}
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 22)
-		/* For "pipe:[\$]". */
+		/* For "pipe:[\$]" and "socket:[\$]". */
 		if (dentry->d_op && dentry->d_op->d_dname) {
 			pos = dentry->d_op->d_dname(dentry, buf, buf_len - 1);
 			goto encode;

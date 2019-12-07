@@ -195,10 +195,6 @@ struct path {
 #define f_vfsmnt f_path.mnt
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0)
-#define d_inode(dentry) (dentry)->d_inode
-#endif
-
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 14)
 
 /**
