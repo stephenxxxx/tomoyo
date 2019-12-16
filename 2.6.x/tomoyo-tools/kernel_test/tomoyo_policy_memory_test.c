@@ -112,8 +112,8 @@ static const char * const domain_testcases[] = {
 	"file execute /bin/true7 exec.realpath=@foo",
 	"file execute /bin/true8 "
 	"exec.argv[0]=\"test8\" exec.realpath=\"/bin/true8\"",
-	"file ioctl socket:[family=2:type=2:protocol=17] 0-35122",
-	"file ioctl socket:[family=2:type=2:protocol=17] 35122-35124 "
+	"file ioctl socket:[\\$] 0-35122",
+	"file ioctl socket:[\\$] 35122-35124 "
 	"task.uid=0",
 	"file link /tmp/link_source_test /tmp/link_dest_test",
 	"file mkblock /tmp/mknod_blk_test 0600 1 0",
