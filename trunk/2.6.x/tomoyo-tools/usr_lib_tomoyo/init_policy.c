@@ -745,8 +745,6 @@ static void make_path_group(void)
 	echo("path_group ANY_PATHNAME \\*:/\\{\\*\\}/");
 	echo("path_group ANY_PATHNAME \\*:/\\{\\*\\}/\\*");
 	echo("path_group ANY_PATHNAME \\*:[\\$]");
-	echo("path_group ANY_PATHNAME "
-	     "socket:[family=\\$:type=\\$:protocol=\\$]");
 	echo("path_group ANY_DIRECTORY /");
 	echo("path_group ANY_DIRECTORY /\\{\\*\\}/");
 	echo("path_group ANY_DIRECTORY \\*:/");

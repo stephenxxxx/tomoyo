@@ -634,8 +634,7 @@ static void stage_file_test(void)
 		close(fd);
 	unlink2(filename);
 
-	policy = "file ioctl socket:[family=2:type=2:protocol=17] "
-		"35122-35124 task.uid=0";
+	policy = "file ioctl socket:[\\$] 35122-35124 task.uid=0";
 	write_domain_policy(policy, 0);
 	fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
 	memset(&ifreq, 0, sizeof(ifreq));
@@ -643,8 +642,7 @@ static void stage_file_test(void)
 		 "lo");
 	show_result(ioctl(fd, 35123, &ifreq), 1);
 	write_domain_policy(policy, 1);
-	policy = "file ioctl "
-		"socket:[family=2:type=2:protocol=17] 0-35122";
+	policy = "file ioctl socket:[\\$] 0-35122";
 	write_domain_policy(policy, 0);
 	show_result(ioctl(fd, 35123, &ifreq), 0);
 	write_domain_policy(policy, 1);

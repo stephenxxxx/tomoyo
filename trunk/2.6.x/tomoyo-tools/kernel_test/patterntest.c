@@ -457,8 +457,7 @@ static const struct {
 	{ "/usr/local/", "/usr/\\*/", 1 },
 	{ "/usr/local/", "/usr/\\*\\*\\@\\*/", 1 },
 	{ "pipe:[12345]", "pipe:[\\$]", 1 },
-	{ "socket:[family=1:type=2:protocol=3]",
-	  "socket:[family=1:type=2:protocol=\\$]", 1 },
+	{ "socket:[12345]", "socket:[\\$]", 1 },
 	{ "https://tomoyo.osdn.jp/", "\\*/\\*/\\*/", 1 },
 	{ "https://tomoyo.osdn.jp/index.html", "\\*/\\*/\\*/\\*", 1 },
 	{ "https://tomoyo.osdn.jp/index.html",
@@ -495,8 +494,7 @@ static const struct {
 	{ "https://tomoyo.osdn.jp/", "\\*/\\*/\\*/\?", 0 },
 	{ "https://tomoyo.osdn.jp/index.html", "\\*/\\*/\\*/\\@", 0 },
 	{ "https://tomoyo.osdn.jp/index.html", "https://\\*/\\@", 0 },
-	{ "socket:[family=1:type=2:protocol=3]",
-	  "/\\{\\*\\}/socket:[\\*]", 0 },
+	{ "socket:[12345]", "/\\{\\*\\}/socket:[\\*]", 0 },
 	{ NULL, NULL, 0 }
 };
 
