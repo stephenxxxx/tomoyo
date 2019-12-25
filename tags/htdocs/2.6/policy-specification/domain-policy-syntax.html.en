@@ -352,10 +352,10 @@ file rename /etc/mtab.tmp /etc/mtab
 
 <p>This directive allows the domain to make an ioctl request with the specified command number. For information on the ioctl command numbers, refer to manuals provided by each module with ioctl functionality.</p>
 
-<p>This example allows the domain to issue an ioctl request with command number 0x8915 (i.e. SIOCGIFADDR request) on sockets with family = 2, type = 2, protocol = 17 (i.e. UDP/IPv4 sockets):</p>
+<p>This example allows the domain to issue an ioctl request with command number 0x8915 (i.e. SIOCGIFADDR request) on sockets:</p>
 
 <pre>
-file ioctl socket:[family=2:type=2:protocol=17] 0x8915
+file ioctl socket:[\$] 0x8915
 </pre>
 
 <p>This example allows the domain to issue an ioctl request with command numbers between 10000 and 20000 on "/dev/null":</p>

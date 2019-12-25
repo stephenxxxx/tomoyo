@@ -10,17 +10,17 @@ die () {
 
 cd /tmp/ || die "Can't chdir to /tmp/ ."
 
-if [ ! -r kernel-2.6.32-754.24.3.el6.src.rpm ]
+if [ ! -r kernel-2.6.32-754.25.1.el6.src.rpm ]
 then
-    wget http://vault.centos.org/centos/6/updates/Source/SPackages/kernel-2.6.32-754.24.3.el6.src.rpm || die "Can't download source package."
+    wget http://vault.centos.org/centos/6/updates/Source/SPackages/kernel-2.6.32-754.25.1.el6.src.rpm || die "Can't download source package."
 fi
-LANG=C rpm --checksig kernel-2.6.32-754.24.3.el6.src.rpm | grep -F ': rsa sha1 (md5) pgp md5 OK' || die "Can't verify signature."
-rpm -ivh kernel-2.6.32-754.24.3.el6.src.rpm || die "Can't install source package."
+LANG=C rpm --checksig kernel-2.6.32-754.25.1.el6.src.rpm | grep -F ': rsa sha1 (md5) pgp md5 OK' || die "Can't verify signature."
+rpm -ivh kernel-2.6.32-754.25.1.el6.src.rpm || die "Can't install source package."
 
 cd ~/rpmbuild/SOURCES/ || die "Can't chdir to ~/rpmbuild/SOURCES/ ."
-if [ ! -r ccs-patch-1.8.6-20191111.tar.gz ]
+if [ ! -r ccs-patch-1.8.6-20191225.tar.gz ]
 then
-    wget -O ccs-patch-1.8.6-20191111.tar.gz 'https://osdn.jp/frs/redir.php?f=/tomoyo/49684/ccs-patch-1.8.6-20191111.tar.gz' || die "Can't download patch."
+    wget -O ccs-patch-1.8.6-20191225.tar.gz 'https://osdn.jp/frs/redir.php?f=/tomoyo/49684/ccs-patch-1.8.6-20191225.tar.gz' || die "Can't download patch."
 fi
 
 cd ~/rpmbuild/SPECS/ || die "Can't chdir to ~/rpmbuild/SPECS/ ."
@@ -33,9 +33,9 @@ patch << "EOF" || die "Can't patch spec file."
  # by setting the define to ".local" or ".bz123456"
  #
 -# % define buildid .local
-+%define buildid _tomoyo_1.8.6
++%define buildid _tomoyo_1.8.6p1
  
- %define distro_build 754.24.3
+ %define distro_build 754.25.1
  %define kabi_build 754
 @@ -438,7 +438,7 @@
  # Packages that need to be installed before the kernel is, because the %post
@@ -69,7 +69,7 @@ patch << "EOF" || die "Can't patch spec file."
  ApplyOptionalPatch linux-kernel-test.patch
  
 +# TOMOYO Linux
-+tar -zxf %_sourcedir/ccs-patch-1.8.6-20191111.tar.gz
++tar -zxf %_sourcedir/ccs-patch-1.8.6-20191225.tar.gz
 +patch -sp1 < patches/ccs-patch-2.6.32-centos-6.diff
 +
  # Any further pre-build tree manipulations happen here.
