@@ -774,7 +774,7 @@ cat /proc/ccs/domain_policy</p>
 
 <table border="1">
 <tr><td>Example</td><td>Permitted access</td></tr>
-<tr><td>file ioctl socket:[family=2:type=2:protocol=17] 35093</td><td>Allow sockets with protocol family 2, type 2, protocol 17 to do IOCTL request with command number 35093.</td></tr>
+<tr><td>file ioctl socket:[\$] 35093</td><td>Allow sockets to do IOCTL request with command number 35093.</td></tr>
 <tr><td>file ioctl /dev/null 10000-20000</td><td>Allow /dev/null to do IOCTL request with command number between 10000 and 20000.</td></tr>
 </table>
 

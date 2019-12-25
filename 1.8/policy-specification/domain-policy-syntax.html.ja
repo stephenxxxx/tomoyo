@@ -352,10 +352,10 @@ file rename /etc/mtab.tmp /etc/mtab
 
 <p>このディレクティブは、指定されたパス名に対して指定されたコマンド番号の ioctl 要求を行うことを許可します。 ioctl のコマンド番号については、対象となるモジュールの ioctl 機能の説明を参照してください。</p>
 
-<p>以下の例ではファミリーが２、タイプが２、プロトコルが１７のソケット（ＵＤＰ／ＩＰｖ４ソケット）に対して、 0x8915 番の ioctl 要求（ SIOCGIFADDR 要求）を行うことを許可しています：</p>
+<p>以下の例ではソケットに対して、 0x8915 番の ioctl 要求（ SIOCGIFADDR 要求）を行うことを許可しています：</p>
 
 <pre>
-file ioctl socket:[family=2:type=2:protocol=17] 0x8915
+file ioctl socket:[\$] 0x8915
 </pre>
 
 <p>以下の例では /dev/null に対して 10000 ～ 20000 番の ioctl 要求を行うことを許可しています：</p>
