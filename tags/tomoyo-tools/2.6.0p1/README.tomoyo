@@ -1,0 +1,17 @@
+About this package:
+
+This package contains userland programs for TOMOYO Linux version 2.6.
+This package is released under the GPLv2.
+
+https://tomoyo.osdn.jp/
+
+ChangeLog:
+
+Version 2.6.0   2019/03/05   Major update release.
+
+  Adjust to TOMOYO 2.6.
+
+Version 2.6.0p1 2020/01/01   Bug fix release.
+
+  /usr/lib/tomoyo/init_policy
+    Remove "socket:[family=\\$:type=\\$:protocol=\\$]" from ANY_PATHNAME group.
