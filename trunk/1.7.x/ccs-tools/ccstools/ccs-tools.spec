@@ -131,7 +131,7 @@ rm -rf $RPM_BUILD_ROOT
 - Minor update release.
 - Added manpage.
 
-* Thu Oct 19 2007 1.5.1-1
+* Fri Oct 19 2007 1.5.1-1
 - Minor update release.
 
 * Thu Sep 20 2007 1.5.0-1
