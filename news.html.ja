@@ -34,6 +34,12 @@
 
 <div id="news-archive">
 
+<p class="timestamp"><a name="20191225">２０１９年１２月２５日</a></p>
+<h4>ccs-patch 1.8.6p1 がリリースされました。</h4>
+<p class="article">パス名の計算ルールの変更をしました。</p>
+
+<br>
+
 <p class="timestamp"><a name="20190820">２０１９年８月２０日</a></p>
 <h4>ccs-patch 1.8.6 がリリースされました。</h4>
 <p class="article">パス名の計算ルールの変更と２つの不具合の修正をしました。</p>

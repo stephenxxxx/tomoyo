@@ -32,6 +32,15 @@
 <h4>ChangeLog for ccs-patch 1.8.6</h4>
 
 <pre>
+Fix 2019/12/07
+
+    @ Don't use nifty names on sockets.
+
+      Revert "Don't check open/getattr permission on sockets.", and then
+      get rid of special handling of sockets. As a side effect of this patch,
+      "socket:[family=\$:type=\$:protocol=\$]" in the policy files has to be
+      rewritten to "socket:[\$]".
+
 Fix 2019/07/27
 
     @ Change pathname calculation for read-only filesystems.
