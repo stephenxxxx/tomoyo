@@ -32,6 +32,11 @@
 <h4>ChangeLog for tomoyo-tools 2.6.0</h4>
 
 <pre>
+Version 2.6.0p1 2020/01/01   Bug fix release.
+
+  /usr/lib/tomoyo/init_policy
+    Remove "socket:[family=\\$:type=\\$:protocol=\\$]" from ANY_PATHNAME group.
+
 Version 2.6.0 2019/03/05   Bug fix release.
 
   Adjust to TOMOYO 2.6.

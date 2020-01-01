@@ -66,6 +66,12 @@
 </h3>
 <hr>
 
+<p class="timestamp"><a name="20200101">1th January, 2020</a></p>
+<h4>ccs-tools 1.8.6 and tomoyo-tools 2.6.0p1 released</h4>
+<p class="article">An updated ccs-tools for the 1.8.x branch and tomoyo-tools for the 2.5.x branch followed change of pathname calculation rule.</p>
+
+<br>
+
 <p class="timestamp"><a name="20191225">25th December, 2019</a></p>
 <h4>ccs-patch 1.8.6p1 released</h4>
 <p class="article">An updated ccs-patch for the 1.8.x branch changed pathname calculation rule.</p>
@@ -93,12 +99,6 @@
 <p class="timestamp"><a name="20170102">2th January, 2017</a></p>
 <h4>ccs-tools 1.8.5p1 and tomoyo-tools 2.5.0p8 released</h4>
 <p class="article">An updated ccs-tools for the 1.8.x branch and tomoyo-tools for the 2.5.x branch fixed a few bugs in policy editor.</p>
-
-<br>
-
-<p class="timestamp"><a name="20151111">11th November, 2015</a></p>
-<h4>ccs-patch 1.8.5 and ccs-tools 1.8.5 released</h4>
-<p class="article">An updated ccs-patch for the 1.8.x branch changed memory allocation rules.</p>
 
 </div><!-- news -->
 

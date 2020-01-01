@@ -34,6 +34,12 @@
 
 <div id="news-archive">
 
+<p class="timestamp"><a name="20200101">２０２０年１月１日</a></p>
+<h4>ccs-tools 1.8.6 と tomoyo-tools 2.6.0p1 がリリースされました。</h4>
+<p class="article">パス名の計算ルールの変更に追随しました。</p>
+
+<br>
+
 <p class="timestamp"><a name="20191225">２０１９年１２月２５日</a></p>
 <h4>ccs-patch 1.8.6p1 がリリースされました。</h4>
 <p class="article">パス名の計算ルールの変更をしました。</p>
