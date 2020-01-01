@@ -1,6 +1,6 @@
 About this package:
 
-This package contains userland programs for TOMOYO Linux version 1.8.4.
+This package contains userland programs for TOMOYO Linux version 1.8.6.
 This package is released under the GPLv2.
 
 https://tomoyo.osdn.jp/
@@ -804,3 +804,8 @@ Version 1.8.5p1 2017/01/02   Bug fix release.
   /usr/sbin/ccs-editpolicy
     Create namespaces when creating domains.
     Add profile number when copying profiles.
+
+Version 1.8.6 2020/01/01   Bug fix release.
+
+  /usr/lib/ccs/init_policy
+    Remove "socket:[family=\\$:type=\\$:protocol=\\$]" from ANY_PATHNAME group.
