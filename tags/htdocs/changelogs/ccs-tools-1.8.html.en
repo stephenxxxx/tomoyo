@@ -29,6 +29,15 @@
 
 <div id="changelogs">
 
+<h4>ChangeLog for ccs-tools 1.8.6</h4>
+
+<pre>
+Version 1.8.6 2020/01/01   Bug fix release.
+
+  /usr/lib/ccs/init_policy
+    Remove "socket:[family=\\$:type=\\$:protocol=\\$]" from ANY_PATHNAME group.
+</pre>
+
 <h4>ChangeLog for ccs-tools 1.8.5</h4>
 
 <pre>
