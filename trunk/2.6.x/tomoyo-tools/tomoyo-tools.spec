@@ -2,7 +2,7 @@ Summary: Userspace tools for TOMOYO Linux 2.6.x
 
 Name: tomoyo-tools
 Version: 2.6.0
-Release: 1
+Release: 2
 License: GPL
 Group: System Environment/Kernel
 ExclusiveOS: Linux
@@ -15,9 +15,9 @@ Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 ##
 # BuildRequires: ncurses-devel
 Requires: ncurses
-Conflicts: tomoyo-tools < 2.6.0-1
+Conflicts: tomoyo-tools < 2.6.0-2
 
-Source0: https://osdn.dl.osdn.jp/tomoyo/70710/tomoyo-tools-2.6.0-20190305.tar.gz
+Source0: https://osdn.dl.osdn.jp/tomoyo/70710/tomoyo-tools-2.6.0-20200101.tar.gz
 
 %description
 This package contains userspace tools for administrating TOMOYO Linux 2.6.x.
@@ -52,6 +52,9 @@ ldconfig || true
 /usr/share/man/man8/*
 
 %changelog
+* Wed Jan 01 2020 2.6.0-2
+- Remove "socket:[family=\\$:type=\\$:protocol=\\$]" from ANY_PATHNAME group.
+
 * Tue Mar 05 2019 2.6.0-1
 - Adjust to TOMOYO 2.6.
 

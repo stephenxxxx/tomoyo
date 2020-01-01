@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2005-2011  NTT DATA CORPORATION
  *
- * Version: 2.6.0   2019/03/05
+ * Version: 2.6.0+   2020/01/01
  *
  * Usage: Run this program using init= boot option.
  *
