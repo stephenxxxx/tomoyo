@@ -1265,7 +1265,7 @@ static DEFINE_SPINLOCK(ccs_log_lock);
 static unsigned int ccs_log_count;
 
 /* Counter for number of updates. */
-static unsigned int ccs_stat_updated[CCS_MAX_POLICY_STAT];
+static atomic_t ccs_stat_updated[CCS_MAX_POLICY_STAT];
 
 /* Timestamp counter for last updated. */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0)
@@ -5151,10 +5151,7 @@ static void ccs_update_stat(const u8 index)
 	struct timeval tv;
 #endif
 
-	/*
-	 * I don't use atomic operations because race condition is not fatal.
-	 */
-	ccs_stat_updated[index]++;
+	atomic_inc(&ccs_stat_updated[index]);
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
 	do_gettimeofday(&tv);
 	ccs_stat_modified[index] = tv.tv_sec;
@@ -5180,7 +5177,7 @@ static void ccs_read_stat(struct ccs_io_buffer *head)
 		return;
 	for (i = 0; i < CCS_MAX_POLICY_STAT; i++) {
 		ccs_io_printf(head, "Policy %-30s %10u", ccs_policy_headers[i],
-			      ccs_stat_updated[i]);
+			      atomic_read(&ccs_stat_updated[i]));
 		if (ccs_stat_modified[i]) {
 			struct ccs_time stamp;
 			ccs_convert_time(ccs_stat_modified[i], &stamp);
