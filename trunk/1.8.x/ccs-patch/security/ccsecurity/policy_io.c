@@ -518,7 +518,11 @@ static void ccs_addprintf(char *buffer, int len, const char *fmt, ...)
 	__printf(3, 4);
 static void ccs_addprintf(char *buffer, int len, const char *fmt, ...);
 static void ccs_check_profile(void);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
 static void ccs_convert_time(time_t time, struct ccs_time *stamp);
+#else
+static void ccs_convert_time(time64_t time, struct ccs_time *stamp);
+#endif
 static void ccs_init_policy_namespace(struct ccs_policy_namespace *ns);
 static void ccs_io_printf(struct ccs_io_buffer *head, const char *fmt, ...)
 	__printf(2, 3);
@@ -668,6 +672,7 @@ do {									\
 
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
 /**
  * ccs_convert_time - Convert time_t to YYYY/MM/DD hh/mm/ss.
  *
@@ -707,6 +712,28 @@ static void ccs_convert_time(time_t time, struct ccs_time *stamp)
 	stamp->month = ++m;
 	stamp->day = ++time;
 }
+#else
+/**
+ * ccs_convert_time - Convert time_t to YYYY/MM/DD hh/mm/ss.
+ *
+ * @time:  Seconds since 1970/01/01 00:00:00.
+ * @stamp: Pointer to "struct ccs_time".
+ *
+ * Returns nothing.
+ */
+static void ccs_convert_time(time64_t time, struct ccs_time *stamp)
+{
+	struct tm tm;
+
+	time64_to_tm(time, 0, &tm);
+	stamp->sec = tm.tm_sec;
+	stamp->min = tm.tm_min;
+	stamp->hour = tm.tm_hour;
+	stamp->day = tm.tm_mday;
+	stamp->month = tm.tm_mon + 1;
+	stamp->year = tm.tm_year + 1900;
+}
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 4, 23)
 #if !defined(RHEL_VERSION) || RHEL_VERSION != 3
@@ -1237,11 +1264,15 @@ static DEFINE_SPINLOCK(ccs_log_lock);
 /* Length of "stuct list_head ccs_log". */
 static unsigned int ccs_log_count;
 
-/* Timestamp counter for last updated. */
+/* Counter for number of updates. */
 static unsigned int ccs_stat_updated[CCS_MAX_POLICY_STAT];
 
-/* Counter for number of updates. */
+/* Timestamp counter for last updated. */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0)
 static unsigned int ccs_stat_modified[CCS_MAX_POLICY_STAT];
+#else
+static time64_t ccs_stat_modified[CCS_MAX_POLICY_STAT];
+#endif
 
 /* Operations for /proc/ccs/self_domain interface. */
 static
@@ -5118,18 +5149,19 @@ static void ccs_update_stat(const u8 index)
 {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
 	struct timeval tv;
+#endif
+
+	/*
+	 * I don't use atomic operations because race condition is not fatal.
+	 */
+	ccs_stat_updated[index]++;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
 	do_gettimeofday(&tv);
-	/*
-	 * I don't use atomic operations because race condition is not fatal.
-	 */
-	ccs_stat_updated[index]++;
 	ccs_stat_modified[index] = tv.tv_sec;
-#else
-	/*
-	 * I don't use atomic operations because race condition is not fatal.
-	 */
-	ccs_stat_updated[index]++;
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0)
 	ccs_stat_modified[index] = get_seconds();
+#else
+	ccs_stat_modified[index] = ktime_get_real_seconds();
 #endif
 }
 
@@ -5354,8 +5386,10 @@ static char *ccs_print_header(struct ccs_request_info *r)
 		do_gettimeofday(&tv);
 		ccs_convert_time(tv.tv_sec, &stamp);
 	}
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
 	ccs_convert_time(get_seconds(), &stamp);
+#else
+	ccs_convert_time(ktime_get_real_seconds(), &stamp);
 #endif
 	pos = snprintf(buffer, ccs_buffer_len - 1,
 		       "#%04u/%02u/%02u %02u:%02u:%02u# profile=%u mode=%s "
