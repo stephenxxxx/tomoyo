@@ -1275,6 +1275,14 @@ static time64_t ccs_stat_modified[CCS_MAX_POLICY_STAT];
 #endif
 
 /* Operations for /proc/ccs/self_domain interface. */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
+static const struct proc_ops ccs_self_operations = {
+#ifdef CONFIG_CCSECURITY_TASK_DOMAIN_TRANSITION
+	.proc_write = ccs_write_self,
+#endif
+	.proc_read  = ccs_read_self,
+};
+#else
 static
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 17)
 const
@@ -1285,8 +1293,18 @@ struct file_operations ccs_self_operations = {
 #endif
 	.read  = ccs_read_self,
 };
+#endif
 
 /* Operations for /proc/ccs/ interface. */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
+static const struct proc_ops ccs_operations = {
+	.proc_open    = ccs_open,
+	.proc_release = ccs_release,
+	.proc_poll    = ccs_poll,
+	.proc_read    = ccs_read,
+	.proc_write   = ccs_write,
+};
+#else
 static
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 17)
 const
@@ -1298,6 +1316,7 @@ struct file_operations ccs_operations = {
 	.read    = ccs_read,
 	.write   = ccs_write,
 };
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
 
