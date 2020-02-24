@@ -23,12 +23,14 @@ libccstools.so: ccstools.c ccstools.h
 	ln -sf libccstools.so.3.0.3 libccstools.so
 
 .c:
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< -lccstools -L. 
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< -lccstools -L.
 
 ccs-editpolicy: ccstools.h editpolicy*.c readline.h /usr/include/curses.h libccstools.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-editpolicy editpolicy*.c -lncurses -ltinfo -lccstools -L. -DCOLOR_ON || \
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-editpolicy editpolicy*.c -lncurses -lccstools -L. -DCOLOR_ON
 
 ccs-queryd: ccstools.h ccs-queryd.c readline.h /usr/include/curses.h libccstools.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-queryd ccs-queryd.c -lncurses -ltinfo -lccstools -L. || \
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-queryd ccs-queryd.c -lncurses -lccstools -L.
 
 install: all
