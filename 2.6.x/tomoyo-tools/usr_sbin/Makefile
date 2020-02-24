@@ -23,12 +23,14 @@ libtomoyotools.so: tomoyotools.c tomoyotools.h
 	ln -sf libtomoyotools.so.3.0.3 libtomoyotools.so
 
 .c:
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< -ltomoyotools -L. 
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< -ltomoyotools -L.
 
 tomoyo-editpolicy: tomoyotools.h editpolicy*.c readline.h /usr/include/curses.h libtomoyotools.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-editpolicy editpolicy*.c -lncurses -ltinfo -ltomoyotools -L. -DCOLOR_ON || \
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-editpolicy editpolicy*.c -lncurses -ltomoyotools -L. -DCOLOR_ON
 
 tomoyo-queryd: tomoyotools.h tomoyo-queryd.c readline.h /usr/include/curses.h libtomoyotools.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-queryd tomoyo-queryd.c -lncurses -ltinfo -ltomoyotools -L. || \
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-queryd tomoyo-queryd.c -lncurses -ltomoyotools -L.
 
 install: all
