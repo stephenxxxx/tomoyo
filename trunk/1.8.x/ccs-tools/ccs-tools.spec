@@ -17,7 +17,7 @@ Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires: ncurses
 Conflicts: ccs-tools < 1.8.6-1
 
-Source0: https://osdn.dl.osdn.jp/tomoyo/49693/ccs-tools-1.8.6-20200101.tar.gz
+Source0: https://osdn.dl.osdn.jp/tomoyo/49693/ccs-tools-1.8.6-20200229.tar.gz
 
 %description
 This package contains userspace tools for administrating TOMOYO Linux 1.8.x.
