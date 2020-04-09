@@ -1479,13 +1479,7 @@ bool ccs_dump_page(struct linux_binprm *bprm, unsigned long pos,
 	}
 	/* Same with put_arg_page(page) in fs/exec.c */
 #ifdef CCS_BPRM_MMU
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
-	unpin_user_page(page);
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
-	put_user_page(page);
-#else
 	put_page(page);
-#endif
 #endif
 	return true;
 }
