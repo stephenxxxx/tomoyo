@@ -18,9 +18,9 @@ LANG=C rpm --checksig kernel-4.18.0-147.5.1.el8_1.src.rpm | grep -F ': digests s
 rpm -ivh kernel-4.18.0-147.5.1.el8_1.src.rpm || die "Can't install source package."
 
 cd ~/rpmbuild/SOURCES/ || die "Can't chdir to ~/rpmbuild/SOURCES/ ."
-if [ ! -r ccs-patch-1.8.6-20200229.tar.gz ]
+if [ ! -r ccs-patch-1.8.6-20200413.tar.gz ]
 then
-    wget -O ccs-patch-1.8.6-20200229.tar.gz 'https://osdn.jp/frs/redir.php?f=/tomoyo/49684/ccs-patch-1.8.6-20200229.tar.gz' || die "Can't download patch."
+    wget -O ccs-patch-1.8.6-20200413.tar.gz 'https://osdn.jp/frs/redir.php?f=/tomoyo/49684/ccs-patch-1.8.6-20200413.tar.gz' || die "Can't download patch."
 fi
 
 cd ~/rpmbuild/SPECS/ || die "Can't chdir to ~/rpmbuild/SPECS/ ."
@@ -33,7 +33,7 @@ patch << "EOF" || die "Can't patch spec file."
  %endif
  
 -# define buildid .local
-+%define buildid _tomoyo_1.8.6p1
++%define buildid _tomoyo_1.8.6p2
  
  %define rpmversion 4.18.0
  %define pkgrelease 147.5.1.el8_1
@@ -42,7 +42,7 @@ patch << "EOF" || die "Can't patch spec file."
  # END OF PATCH APPLICATIONS
  
 +# TOMOYO Linux
-+tar -zxf %_sourcedir/ccs-patch-1.8.6-20200229.tar.gz
++tar -zxf %_sourcedir/ccs-patch-1.8.6-20200413.tar.gz
 +patch -sp1 < patches/ccs-patch-4.18-centos-8.diff
 +
  # Any further pre-build tree manipulations happen here.

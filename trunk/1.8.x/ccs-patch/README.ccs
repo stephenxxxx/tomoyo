@@ -3308,3 +3308,9 @@ Fix 2019/12/07
       get rid of special handling of sockets. As a side effect of this patch,
       "socket:[family=\$:type=\$:protocol=\$]" in the policy files has to be
       rewritten to "socket:[\$]".
+
+Fix 2020/04/09
+
+    @ Fix wrong put_page() usage in ccs_dump_page().
+
+      ccs_dump_page() for 5.5+ was by error using wrong function to put page.
