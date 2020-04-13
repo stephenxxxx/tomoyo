@@ -32,6 +32,12 @@
 <h4>ChangeLog for ccs-patch 1.8.6</h4>
 
 <pre>
+Fix 2020/04/09
+
+    @ Fix wrong put_page() usage in ccs_dump_page().
+
+      ccs_dump_page() for 5.5+ was by error using wrong function to put page.
+
 Fix 2019/12/07
 
     @ Don't use nifty names on sockets.
