@@ -3313,4 +3313,4 @@ Fix 2020/04/09
 
     @ Fix wrong put_page() usage in ccs_dump_page().
 
-      ccs_dump_page() for 5.5+ was by error using wrong function to put page.
+      ccs_dump_page() for 5.6+ was by error using wrong function to put page.
