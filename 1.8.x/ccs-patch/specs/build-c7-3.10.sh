@@ -12,7 +12,7 @@ cd /tmp/ || die "Can't chdir to /tmp/ ."
 
 if [ ! -r kernel-3.10.0-1127.el7.src.rpm ]
 then
-    wget http://vault.centos.org/centos/7/cr/Source/SPackages/kernel-3.10.0-1127.el7.src.rpm || die "Can't download source package."
+    wget http://vault.centos.org/centos/7/os/Source/SPackages/kernel-3.10.0-1127.el7.src.rpm || die "Can't download source package."
 fi
 LANG=C rpm --checksig kernel-3.10.0-1127.el7.src.rpm | grep -F ': rsa sha1 (md5) pgp md5 OK' || die "Can't verify signature."
 rpm -ivh kernel-3.10.0-1127.el7.src.rpm || die "Can't install source package."
