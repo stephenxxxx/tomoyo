@@ -1538,10 +1538,15 @@ static const struct ccs_path_info *ccs_get_domainname
 	char *start = param->data;
 	char *pos = start;
 	while (*pos) {
-		if (*pos++ != ' ' || *pos++ == '/')
+		const char *cp;
+		if (*pos++ != ' ')
 			continue;
-		pos -= 2;
-		*pos++ = '\0';
+		cp = pos;
+		while (*cp && *cp != '/' && *cp != '.' && *cp != ' ')
+			cp++;
+		if (*cp != '.')
+			continue;
+		*(pos - 1) = '\0';
 		break;
 	}
 	param->data = pos;

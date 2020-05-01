@@ -408,7 +408,7 @@ u8 ccs_get_config(const u8 profile, const u8 index);
 void ccs_transition_failed(const char *domainname);
 void ccs_write_log(struct ccs_request_info *r, const char *fmt, ...);
 
-static bool ccs_correct_domain(const unsigned char *domainname);
+static bool ccs_correct_domain(const char *domainname);
 static bool ccs_correct_path(const char *filename);
 static bool ccs_correct_word(const char *string);
 static bool ccs_correct_word2(const char *string, size_t len);
@@ -1882,7 +1882,7 @@ static bool ccs_domain_def(const unsigned char *buffer)
  *
  * Returns true if @domainname follows the naming rules, false otherwise.
  */
-static bool ccs_correct_domain(const unsigned char *domainname)
+static bool ccs_correct_domain(const char *domainname)
 {
 	if (!domainname || !ccs_domain_def(domainname))
 		return false;
@@ -1890,15 +1890,18 @@ static bool ccs_correct_domain(const unsigned char *domainname)
 	if (!domainname++)
 		return true;
 	while (1) {
-		const unsigned char *cp = strchr(domainname, ' ');
-		if (!cp)
-			break;
-		if (*domainname != '/' ||
-		    !ccs_correct_word2(domainname, cp - domainname))
+		const char *cp = strchr(domainname, ' ');
+		const int len = cp ? cp - domainname : strlen(domainname);
+		if (len == 0)
+			return true;
+		cp = memchr(domainname, '/', len);
+		if (!cp || memchr(domainname, '.', cp - domainname) ||
+		    !ccs_correct_word2(domainname, len))
 			return false;
-		domainname = cp + 1;
+		domainname += len;
+		if (!*domainname++)
+			return true;
 	}
-	return ccs_correct_path(domainname);
 }
 
 /**
@@ -1943,10 +1946,15 @@ static const struct ccs_path_info *ccs_get_domainname
 	char *start = param->data;
 	char *pos = start;
 	while (*pos) {
-		if (*pos++ != ' ' || *pos++ == '/')
+		const char *cp;
+		if (*pos++ != ' ')
 			continue;
-		pos -= 2;
-		*pos++ = '\0';
+		cp = pos;
+		while (*cp && *cp != '/' && *cp != '.' && *cp != ' ')
+			cp++;
+		if (*cp != '.')
+			continue;
+		*(pos - 1) = '\0';
 		break;
 	}
 	param->data = pos;

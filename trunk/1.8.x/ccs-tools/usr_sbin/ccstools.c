@@ -549,16 +549,17 @@ _Bool ccs_correct_domain(const char *domainname)
 		return true;
 	while (1) {
 		const char *cp = strchr(domainname, ' ');
-		if (!cp)
-			break;
-		if (*domainname != '/' ||
-		    !ccs_correct_word2(domainname, cp - domainname))
-			goto out;
-		domainname = cp + 1;
+		const int len = cp ? cp - domainname : strlen(domainname);
+		if (len == 0)
+			return true;
+		cp = memchr(domainname, '/', len);
+		if (!cp || memchr(domainname, '.', cp - domainname) ||
+		    !ccs_correct_word2(domainname, len))
+			return false;
+		domainname += len;
+		if (!*domainname++)
+			return true;
 	}
-	return ccs_correct_path(domainname);
-out:
-	return false;
 }
 
 /**

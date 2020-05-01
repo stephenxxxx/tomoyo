@@ -3314,3 +3314,25 @@ Fix 2020/04/09
     @ Fix wrong put_page() usage in ccs_dump_page().
 
       ccs_dump_page() for 5.6+ was by error using wrong function to put page.
+
+Fix 2020/05/01
+
+    @ Loosen domainname validation.
+
+      Currently a domainname must start with "<$namespace>" followed by
+      zero or more repetitions of a pathname which starts with '/'.
+
+      But situation is getting more and more difficult to enforce use of
+      a pathname which starts with '/', for execve() request of a pathname
+      on e.g. some filesystems cause ccs_realpath() to return a pathname
+      in "$fsname:/$pathname" format.
+
+      Fortunately, since $fsname must not contain '.' since Linux 2.6.22,
+      ccs_correct_domain() can recognize a token which appears '/' before
+      '.' appears (e.g. proc:/self/exe ) as a pathname and a token which
+      appears '.' before '/' appears (e.g. exec.realpath="/bin/bash" ) as
+      a condition parameter.
+
+      Therefore, accept domainnames which contain pathnames which
+      do not start with '/' but contain '/' before '.' (e.g.
+      <kernel> /foo proc:/self/exe /bar ).
