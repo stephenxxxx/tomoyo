@@ -121,6 +121,7 @@ FILE *ccs_open_write(const char *filename);
 _Bool ccs_check_remote_host(void);
 _Bool ccs_close_write(FILE *fp);
 _Bool ccs_correct_domain(const char *domainname);
+_Bool ccs_correct_path2(const char *filename, const size_t len);
 _Bool ccs_correct_path(const char *filename);
 _Bool ccs_correct_word(const char *string);
 _Bool ccs_decode(const char *ascii, char *bin);

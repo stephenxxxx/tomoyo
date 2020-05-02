@@ -2104,7 +2104,7 @@ rerun:
 					goto out;
 				entry->transit = ccs_get_dqword(right_word);
 				if (!entry->transit ||
-				    (entry->transit->name[0] != '/' &&
+				    (!ccs_correct_path(entry->transit->name) &&
 				     !ccs_domain_def(entry->transit->name)))
 					goto out;
 			}
@@ -3823,7 +3823,7 @@ static int ccs_write_task(struct ccs_acl_param *param)
 		else
 			return -EINVAL;
 		handler = ccs_read_token(param);
-		if (!ccs_correct_path(handler))
+		if (*handler != '/' || !ccs_correct_path(handler))
 			return -EINVAL;
 		e.handler = ccs_get_name(handler);
 		if (e.handler->is_patterned)

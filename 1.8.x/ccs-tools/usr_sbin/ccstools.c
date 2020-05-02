@@ -500,6 +500,21 @@ _Bool ccs_correct_word(const char *string)
 }
 
 /**
+ * ccs_correct_path2 - Check whether the given pathname follows the naming rules.
+ *
+ * @filename: The pathname to check.
+ * @len:      Length of @filename.
+ *
+ * Returns true if @filename follows the naming rules, false otherwise.
+ */
+_Bool ccs_correct_path2(const char *filename, const size_t len)
+{
+	const char *cp1 = memchr(filename, '/', len);
+	const char *cp2 = memchr(filename, '.', len);
+	return cp1 && (!cp2 || (cp1 < cp2)) && ccs_correct_word2(filename, len);
+}
+
+/**
  * ccs_correct_path - Check whether the given pathname follows the naming rules.
  *
  * @filename: The pathname to check.
@@ -508,7 +523,7 @@ _Bool ccs_correct_word(const char *string)
  */
 _Bool ccs_correct_path(const char *filename)
 {
-	return *filename == '/' && ccs_correct_word(filename);
+	return ccs_correct_path2(filename, strlen(filename));
 }
 
 /**
@@ -552,9 +567,7 @@ _Bool ccs_correct_domain(const char *domainname)
 		const int len = cp ? cp - domainname : strlen(domainname);
 		if (len == 0)
 			return true;
-		cp = memchr(domainname, '/', len);
-		if (!cp || memchr(domainname, '.', cp - domainname) ||
-		    !ccs_correct_word2(domainname, len))
+		if (!ccs_correct_path2(domainname, len))
 			return false;
 		domainname += len;
 		if (!*domainname++)
