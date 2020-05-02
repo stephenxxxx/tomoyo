@@ -1849,7 +1849,10 @@ out:
  */
 static bool ccs_correct_path(const char *filename)
 {
-	return *filename == '/' && ccs_correct_word(filename);
+	const size_t len = strlen(filename);
+	const char *cp1 = memchr(filename, '/', len);
+	const char *cp2 = memchr(filename, '.', len);
+	return cp1 && (!cp2 || (cp1 < cp2)) && ccs_correct_word2(filename, len);
 }
 
 /**
@@ -2084,7 +2087,7 @@ rerun:
 					goto out;
 				entry->transit = ccs_get_dqword(right_word);
 				if (!entry->transit ||
-				    (entry->transit->name[0] != '/' &&
+				    (!ccs_correct_path(entry->transit->name) &&
 				     !ccs_domain_def(entry->transit->name)))
 					goto out;
 			}
@@ -3230,7 +3233,7 @@ static int ccs_write_task(struct ccs_acl_param *param)
 		else
 			return -EINVAL;
 		handler = ccs_read_token(param);
-		if (!ccs_correct_path(handler))
+		if (*handler != '/' || !ccs_correct_path(handler))
 			return -EINVAL;
 		e->handler = ccs_get_name(handler);
 		if (!e->handler)
@@ -5598,7 +5601,7 @@ static void ccs_update_task_domain(struct ccs_request_info *r)
 			return;
 	}
 	cp = acl->cond->transit->name;
-	if (*cp == '/')
+	if (!ccs_domain_def(cp))
 		snprintf(buf, CCS_EXEC_TMPSIZE - 1, "%s %s",
 			 ccs_current_domain()->domainname->name, cp);
 	else

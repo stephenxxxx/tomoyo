@@ -1635,18 +1635,18 @@ static void add_acl_domain_transition(char *line, const int index)
 {
 	static char domainname[4096];
 	
-	int pos;
+	char *cp = line;
 	/* Chop off condition part which follows domainname. */
-	for (pos = 0; line[pos]; pos++)
-		if (line[pos] == ' ' && line[pos + 1] != '/') {
-			line[pos] = '\0';
+	while (*cp)
+		if (*cp++ == ' ' && !ccs_correct_path2(cp, strcspn(cp, " "))) {
+			*--cp = '\0';
 			break;
 		}
 	if (!ccs_correct_domain(line))
 		return;
 	*ccs_alloc(w.jump_list, sizeof(char *), w.jump_list_len) =
 		ccs_strdup(line);
-	snprintf(domainname, sizeof(domainname) - 1, "%s  %s",
+	snprintf(domainname, sizeof(domainname) - 1, "%s %s",
 		 w.dp.list[index].domainname->name, get_last_word(line));
 	domainname[sizeof(domainname) - 1] = '\0';
 	ccs_normalize_line(domainname);
@@ -1791,7 +1791,7 @@ static void parse_domain_line(const struct ccs_path_info *ns, char *line,
 			if (parse_preference(line, cp, index))
 				return;
 		}
-		if ((exec && *line == '@') || ccs_correct_path(line))
+		if ((exec || *line == '/') && ccs_correct_path(line))
 			add_string_entry(line, index);
 	} else if (ccs_str_starts(line, "task auto_domain_transition ") ||
 		   ccs_str_starts(line, "task manual_domain_transition ")) {

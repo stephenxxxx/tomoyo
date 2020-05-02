@@ -248,7 +248,7 @@ static void ccs_check_condition(char *condition)
 			    pos[r_len - 1] != '"')
 				goto out;
 			pos[r_len - 1] = '\0';
-			if (pos[1] != '/' && !ccs_domain_def(pos + 1))
+			if (!ccs_correct_path(pos + 1) && !ccs_domain_def(pos + 1))
 				goto out;
 			goto next;
 		} else if (!strcmp(pos, "grant_log")) {
@@ -340,10 +340,9 @@ static _Bool ccs_check_domain(char *arg)
 {
 	char *cp = arg;
 	while (*cp) {
-		if (*cp++ != ' ' || *cp++ == '/')
+		if (*cp++ != ' ' || ccs_correct_path2(cp, strcspn(cp, " ")))
 			continue;
-		cp -= 2;
-		*cp++ = '\0';
+		*(cp - 1) = '\0';
 		break;
 	}
 	if (!ccs_correct_domain(arg))
@@ -515,7 +514,7 @@ static _Bool ccs_check_path_domain(char *arg)
 {
 	if (!strncmp(arg, "any ", 4))
 		ccs_prune_word(arg, arg + 4);
-	else if (*arg != '/' || !ccs_check_path(arg))
+	else if (!ccs_check_path(arg))
 		return false;
 	if (!strncmp(arg, "from ", 5))
 		ccs_prune_word(arg, arg + 5);
@@ -523,15 +522,10 @@ static _Bool ccs_check_path_domain(char *arg)
 		return true;
 	else
 		return false;
-	if (!strncmp(arg, "any", 3)) {
+	if (!strncmp(arg, "any", 3))
 		ccs_prune_word(arg, arg + 3);
-	} else if (*arg == '/') {
-		if (!ccs_check_path(arg))
-			return false;
-	} else {
-		if (!ccs_check_domain(arg))
-			return false;
-	}
+	else if (ccs_check_path(arg) || ccs_check_domain(arg))
+		return true;
 	return !*arg;
 }
 

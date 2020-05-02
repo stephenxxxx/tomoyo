@@ -211,9 +211,10 @@ static void tokenize(char *buffer, char *w[5], enum directive_type index)
 			if (!cp)
 				return;
 			while (*cp) {
-				if (*cp++ != ' ' || *cp++ == '/')
+				if (*cp++ != ' ' ||
+				    ccs_correct_path2(cp, strcspn(cp, " ")))
 					continue;
-				cp -= 2;
+				cp--;
 				break;
 			}
 			if (!*cp)
@@ -232,9 +233,10 @@ static void tokenize(char *buffer, char *w[5], enum directive_type index)
 		if (!cp)
 			return;
 		while (*cp) {
-			if (*cp++ != ' ' || *cp++ == '/')
+			if (*cp++ != ' ' ||
+			    ccs_correct_path2(cp, strcspn(cp, " ")))
 				continue;
-			cp -= 2;
+			cp--;
 			break;
 		}
 		if (!*cp)
