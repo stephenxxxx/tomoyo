@@ -511,7 +511,9 @@ _Bool ccs_correct_path2(const char *filename, const size_t len)
 {
 	const char *cp1 = memchr(filename, '/', len);
 	const char *cp2 = memchr(filename, '.', len);
-	return cp1 && (!cp2 || (cp1 < cp2)) && ccs_correct_word2(filename, len);
+	return cp1 && (!cp2 || (cp1 < cp2)) && ccs_correct_word2(filename, len)
+		&& (len < 24 ||
+		    memcmp(filename, "auto_domain_transition=\"", 24));
 }
 
 /**
@@ -569,9 +571,9 @@ _Bool ccs_correct_domain(const char *domainname)
 			return true;
 		if (!ccs_correct_path2(domainname, len))
 			return false;
-		domainname += len;
-		if (!*domainname++)
+		if (!cp)
 			return true;
+		domainname += len + 1;
 	}
 }
 

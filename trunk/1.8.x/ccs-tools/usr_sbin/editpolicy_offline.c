@@ -1533,14 +1533,13 @@ static const struct ccs_path_info *ccs_get_domainname
 	char *start = param->data;
 	char *pos = start;
 	while (*pos) {
-		const char *cp;
+		char *cp;
+		size_t len;
 		if (*pos++ != ' ')
 			continue;
-		cp = pos;
-		while (*cp && *cp != '/' && *cp != '.' && *cp != ' ')
-			cp++;
-		if (memchr(pos, '/', cp - pos + (*cp != '\0')) &&
-		    strncmp(pos, "auto_domain_transition=\"", 24))
+		cp = strchr(pos, ' ');
+		len = cp ? cp - pos : strlen(pos);
+		if (ccs_correct_path2(pos, len))
 			continue;
 		*(pos - 1) = '\0';
 		break;

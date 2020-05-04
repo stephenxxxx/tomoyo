@@ -1842,6 +1842,23 @@ out:
 }
 
 /**
+ * ccs_correct_path2 - Check whether the given pathname follows the naming rules.
+ *
+ * @filename: The pathname to check.
+ * @len:      Length of @filename.
+ *
+ * Returns true if @filename follows the naming rules, false otherwise.
+ */
+static bool ccs_correct_path2(const char *filename, const size_t len)
+{
+	const char *cp1 = memchr(filename, '/', len);
+	const char *cp2 = memchr(filename, '.', len);
+	return cp1 && (!cp2 || (cp1 < cp2)) && ccs_correct_word2(filename, len)
+		&& (len < 24 ||
+		    memcmp(filename, "auto_domain_transition=\"", 24));
+}
+
+/**
  * ccs_correct_path - Check whether the given pathname follows the naming rules.
  *
  * @filename: The pathname to check.
@@ -1850,10 +1867,7 @@ out:
  */
 static bool ccs_correct_path(const char *filename)
 {
-	const size_t len = strlen(filename);
-	const char *cp1 = memchr(filename, '/', len);
-	const char *cp2 = memchr(filename, '.', len);
-	return cp1 && (!cp2 || (cp1 < cp2)) && ccs_correct_word2(filename, len);
+	return ccs_correct_path2(filename, strlen(filename));
 }
 
 /**
@@ -1898,13 +1912,11 @@ static bool ccs_correct_domain(const char *domainname)
 		const int len = cp ? cp - domainname : strlen(domainname);
 		if (len == 0)
 			return true;
-		cp = memchr(domainname, '/', len);
-		if (!cp || memchr(domainname, '.', cp - domainname) ||
-		    !ccs_correct_word2(domainname, len))
+		if (!ccs_correct_path2(domainname, len))
 			return false;
-		domainname += len;
-		if (!*domainname++)
+		if (!cp)
 			return true;
+		domainname += len + 1;
 	}
 }
 
@@ -1950,14 +1962,13 @@ static const struct ccs_path_info *ccs_get_domainname
 	char *start = param->data;
 	char *pos = start;
 	while (*pos) {
-		const char *cp;
+		char *cp;
+		size_t len;
 		if (*pos++ != ' ')
 			continue;
-		cp = pos;
-		while (*cp && *cp != '/' && *cp != '.' && *cp != ' ')
-			cp++;
-		if (memchr(pos, '/', cp - pos + (*cp != '\0')) &&
-		    strncmp(pos, "auto_domain_transition=\"", 24))
+		cp = strchr(pos, ' ');
+		len = cp ? cp - pos : strlen(pos);
+		if (ccs_correct_path2(pos, len))
 			continue;
 		*(pos - 1) = '\0';
 		break;
