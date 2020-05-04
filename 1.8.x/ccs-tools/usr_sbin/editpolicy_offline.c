@@ -482,6 +482,7 @@ struct ccs_acl_info {
 	struct ccs_condition *cond; /* Maybe NULL. */
 	bool is_deleted;
 	u8 type; /* One of values in "enum ccs_acl_entry_type_index". */
+	u16 perm;
 } __attribute__((__packed__));
 
 /* Structure for holding a word. */
@@ -667,7 +668,6 @@ struct ccs_task_acl {
  */
 struct ccs_path_acl {
 	struct ccs_acl_info head; /* type = CCS_TYPE_PATH_ACL */
-	u16 perm; /* Bitmask of values in "enum ccs_path_acl_index". */
 	struct ccs_name_union name;
 };
 
@@ -676,7 +676,6 @@ struct ccs_path_acl {
  */
 struct ccs_path2_acl {
 	struct ccs_acl_info head; /* type = CCS_TYPE_PATH2_ACL */
-	u8 perm; /* Bitmask of values in "enum ccs_path2_acl_index". */
 	struct ccs_name_union name1;
 	struct ccs_name_union name2;
 };
@@ -687,7 +686,6 @@ struct ccs_path2_acl {
  */
 struct ccs_path_number_acl {
 	struct ccs_acl_info head; /* type = CCS_TYPE_PATH_NUMBER_ACL */
-	u8 perm; /* Bitmask of values in "enum ccs_path_number_acl_index". */
 	struct ccs_name_union name;
 	struct ccs_number_union number;
 };
@@ -695,7 +693,6 @@ struct ccs_path_number_acl {
 /* Structure for "file mkblock" and "file mkchar" directive. */
 struct ccs_mkdev_acl {
 	struct ccs_acl_info head; /* type = CCS_TYPE_MKDEV_ACL */
-	u8 perm; /* Bitmask of values in "enum ccs_mkdev_acl_index". */
 	struct ccs_name_union name;
 	struct ccs_number_union mode;
 	struct ccs_number_union major;
@@ -735,7 +732,6 @@ struct ccs_signal_acl {
 struct ccs_inet_acl {
 	struct ccs_acl_info head; /* type = CCS_TYPE_INET_ACL */
 	u8 protocol;
-	u8 perm; /* Bitmask of values in "enum ccs_network_acl_index" */
 	struct ccs_ipaddr_union address;
 	struct ccs_number_union port;
 };
@@ -744,7 +740,6 @@ struct ccs_inet_acl {
 struct ccs_unix_acl {
 	struct ccs_acl_info head; /* type = CCS_TYPE_UNIX_ACL */
 	u8 protocol;
-	u8 perm; /* Bitmask of values in "enum ccs_network_acl_index" */
 	struct ccs_name_union name;
 };
 
@@ -2269,7 +2264,7 @@ static inline bool ccs_same_acl_head(const struct ccs_acl_info *a,
  * @size:            Size of @new_entry in bytes.
  * @param:           Pointer to "struct ccs_acl_param".
  * @check_duplicate: Callback function to find duplicated entry.
- * @merge_duplicate: Callback function to merge duplicated entry. Maybe NULL.
+ * @merge_duplicate: Whether to merge duplicated entry.
  *
  * Returns 0 on success, negative value otherwise.
  */
@@ -2278,9 +2273,7 @@ static int ccs_update_domain(struct ccs_acl_info *new_entry, const int size,
 			     bool (*check_duplicate)
 			     (const struct ccs_acl_info *,
 			      const struct ccs_acl_info *),
-			     bool (*merge_duplicate)
-			     (struct ccs_acl_info *, struct ccs_acl_info *,
-			      const bool))
+			     bool merge_duplicate)
 {
 	const bool is_delete = param->is_delete;
 	int error = is_delete ? -ENOENT : -ENOMEM;
@@ -2293,8 +2286,7 @@ static int ccs_update_domain(struct ccs_acl_info *new_entry, const int size,
 		 * "task denied_execute_handler" entries.
 		 */
 		const bool pref = (new_entry->type == CCS_TYPE_PATH_ACL &&
-				   container_of(new_entry, struct ccs_path_acl, head)->perm
-				   == 1 << CCS_TYPE_EXECUTE) ||
+				   new_entry->perm == 1 << CCS_TYPE_EXECUTE) ||
 			new_entry->type == CCS_TYPE_AUTO_EXECUTE_HANDLER ||
 			new_entry->type == CCS_TYPE_DENIED_EXECUTE_HANDLER;
 		new_entry->cond = ccs_get_condition(param, pref);
@@ -2305,11 +2297,15 @@ static int ccs_update_domain(struct ccs_acl_info *new_entry, const int size,
 		if (!ccs_same_acl_head(entry, new_entry) ||
 		    !check_duplicate(entry, new_entry))
 			continue;
-		if (merge_duplicate)
-			entry->is_deleted = merge_duplicate(entry, new_entry,
-							    is_delete);
-		else
+		if (merge_duplicate) {
+			if (is_delete)
+				entry->perm &= ~new_entry->perm;
+			else
+				entry->perm |= new_entry->perm;
+			entry->is_deleted = !entry->perm;
+		} else {
 			entry->is_deleted = is_delete;
+		}
 		error = 0;
 		break;
 	}
@@ -2318,7 +2314,6 @@ static int ccs_update_domain(struct ccs_acl_info *new_entry, const int size,
 		list_add_tail(&entry->list, list);
 		error = 0;
 	}
-out:
 	ccs_put_condition(new_entry->cond);
 	return error;
 }
@@ -2538,29 +2533,6 @@ static bool ccs_same_path_acl(const struct ccs_acl_info *a,
 }
 
 /**
- * ccs_merge_path_acl - Merge duplicated "struct ccs_path_acl" entry.
- *
- * @a:         Pointer to "struct ccs_acl_info".
- * @b:         Pointer to "struct ccs_acl_info".
- * @is_delete: True for @a &= ~@b, false for @a |= @b.
- *
- * Returns true if @a is empty, false otherwise.
- */
-static bool ccs_merge_path_acl(struct ccs_acl_info *a, struct ccs_acl_info *b,
-			       const bool is_delete)
-{
-	u16 * const a_perm = &container_of(a, struct ccs_path_acl, head)->perm;
-	u16 perm = *a_perm;
-	const u16 b_perm = container_of(b, struct ccs_path_acl, head)->perm;
-	if (is_delete)
-		perm &= ~b_perm;
-	else
-		perm |= b_perm;
-	*a_perm = perm;
-	return !perm;
-}
-
-/**
  * ccs_update_path_acl - Update "struct ccs_path_acl" list.
  *
  * @perm:  Permission.
@@ -2572,15 +2544,14 @@ static int ccs_update_path_acl(const u16 perm, struct ccs_acl_param *param)
 {
 	struct ccs_path_acl e = {
 		.head.type = CCS_TYPE_PATH_ACL,
-		.perm = perm
+		.head.perm = perm
 	};
 	int error;
 	if (!ccs_parse_name_union(param, &e.name))
 		error = -EINVAL;
 	else
 		error = ccs_update_domain(&e.head, sizeof(e), param,
-					  ccs_same_path_acl,
-					  ccs_merge_path_acl);
+					  ccs_same_path_acl, true);
 	ccs_put_name_union(&e.name);
 	return error;
 }
@@ -2605,29 +2576,6 @@ static bool ccs_same_mkdev_acl(const struct ccs_acl_info *a,
 }
 
 /**
- * ccs_merge_mkdev_acl - Merge duplicated "struct ccs_mkdev_acl" entry.
- *
- * @a:         Pointer to "struct ccs_acl_info".
- * @b:         Pointer to "struct ccs_acl_info".
- * @is_delete: True for @a &= ~@b, false for @a |= @b.
- *
- * Returns true if @a is empty, false otherwise.
- */
-static bool ccs_merge_mkdev_acl(struct ccs_acl_info *a, struct ccs_acl_info *b,
-				const bool is_delete)
-{
-	u8 *const a_perm = &container_of(a, struct ccs_mkdev_acl, head)->perm;
-	u8 perm = *a_perm;
-	const u8 b_perm = container_of(b, struct ccs_mkdev_acl, head)->perm;
-	if (is_delete)
-		perm &= ~b_perm;
-	else
-		perm |= b_perm;
-	*a_perm = perm;
-	return !perm;
-}
-
-/**
  * ccs_update_mkdev_acl - Update "struct ccs_mkdev_acl" list.
  *
  * @perm:  Permission.
@@ -2639,7 +2587,7 @@ static int ccs_update_mkdev_acl(const u8 perm, struct ccs_acl_param *param)
 {
 	struct ccs_mkdev_acl e = {
 		.head.type = CCS_TYPE_MKDEV_ACL,
-		.perm = perm
+		.head.perm = perm
 	};
 	int error;
 	if (!ccs_parse_name_union(param, &e.name) ||
@@ -2649,8 +2597,7 @@ static int ccs_update_mkdev_acl(const u8 perm, struct ccs_acl_param *param)
 		error = -EINVAL;
 	else
 		error = ccs_update_domain(&e.head, sizeof(e), param,
-					  ccs_same_mkdev_acl,
-					  ccs_merge_mkdev_acl);
+					  ccs_same_mkdev_acl, true);
 	ccs_put_name_union(&e.name);
 	ccs_put_number_union(&e.mode);
 	ccs_put_number_union(&e.major);
@@ -2676,29 +2623,6 @@ static bool ccs_same_path2_acl(const struct ccs_acl_info *a,
 }
 
 /**
- * ccs_merge_path2_acl - Merge duplicated "struct ccs_path2_acl" entry.
- *
- * @a:         Pointer to "struct ccs_acl_info".
- * @b:         Pointer to "struct ccs_acl_info".
- * @is_delete: True for @a &= ~@b, false for @a |= @b.
- *
- * Returns true if @a is empty, false otherwise.
- */
-static bool ccs_merge_path2_acl(struct ccs_acl_info *a, struct ccs_acl_info *b,
-				const bool is_delete)
-{
-	u8 * const a_perm = &container_of(a, struct ccs_path2_acl, head)->perm;
-	u8 perm = *a_perm;
-	const u8 b_perm = container_of(b, struct ccs_path2_acl, head)->perm;
-	if (is_delete)
-		perm &= ~b_perm;
-	else
-		perm |= b_perm;
-	*a_perm = perm;
-	return !perm;
-}
-
-/**
  * ccs_update_path2_acl - Update "struct ccs_path2_acl" list.
  *
  * @perm:  Permission.
@@ -2710,7 +2634,7 @@ static int ccs_update_path2_acl(const u8 perm, struct ccs_acl_param *param)
 {
 	struct ccs_path2_acl e = {
 		.head.type = CCS_TYPE_PATH2_ACL,
-		.perm = perm
+		.head.perm = perm
 	};
 	int error;
 	if (!ccs_parse_name_union(param, &e.name1) ||
@@ -2718,8 +2642,7 @@ static int ccs_update_path2_acl(const u8 perm, struct ccs_acl_param *param)
 		error = -EINVAL;
 	else
 		error = ccs_update_domain(&e.head, sizeof(e), param,
-					  ccs_same_path2_acl,
-					  ccs_merge_path2_acl);
+					  ccs_same_path2_acl, true);
 	ccs_put_name_union(&e.name1);
 	ccs_put_name_union(&e.name2);
 	return error;
@@ -2745,32 +2668,6 @@ static bool ccs_same_path_number_acl(const struct ccs_acl_info *a,
 }
 
 /**
- * ccs_merge_path_number_acl - Merge duplicated "struct ccs_path_number_acl" entry.
- *
- * @a:         Pointer to "struct ccs_acl_info".
- * @b:         Pointer to "struct ccs_acl_info".
- * @is_delete: True for @a &= ~@b, false for @a |= @b.
- *
- * Returns true if @a is empty, false otherwise.
- */
-static bool ccs_merge_path_number_acl(struct ccs_acl_info *a,
-				      struct ccs_acl_info *b,
-				      const bool is_delete)
-{
-	u8 * const a_perm = &container_of(a, struct ccs_path_number_acl, head)
-		->perm;
-	u8 perm = *a_perm;
-	const u8 b_perm = container_of(b, struct ccs_path_number_acl, head)
-		->perm;
-	if (is_delete)
-		perm &= ~b_perm;
-	else
-		perm |= b_perm;
-	*a_perm = perm;
-	return !perm;
-}
-
-/**
  * ccs_update_path_number_acl - Update create/mkdir/mkfifo/mksock/ioctl/chmod/chown/chgrp ACL.
  *
  * @perm:  Permission.
@@ -2783,7 +2680,7 @@ static int ccs_update_path_number_acl(const u8 perm,
 {
 	struct ccs_path_number_acl e = {
 		.head.type = CCS_TYPE_PATH_NUMBER_ACL,
-		.perm = perm
+		.head.perm = perm
 	};
 	int error;
 	if (!ccs_parse_name_union(param, &e.name) ||
@@ -2791,8 +2688,7 @@ static int ccs_update_path_number_acl(const u8 perm,
 		error = -EINVAL;
 	else
 		error = ccs_update_domain(&e.head, sizeof(e), param,
-					  ccs_same_path_number_acl,
-					  ccs_merge_path_number_acl);
+					  ccs_same_path_number_acl, true);
 	ccs_put_name_union(&e.name);
 	ccs_put_number_union(&e.number);
 	return error;
@@ -2835,7 +2731,7 @@ static int ccs_update_mount_acl(struct ccs_acl_param *param)
 		error = -EINVAL;
 	else
 		error = ccs_update_domain(&e.head, sizeof(e), param,
-					  ccs_same_mount_acl, NULL);
+					  ccs_same_mount_acl, false);
 	ccs_put_name_union(&e.dev_name);
 	ccs_put_name_union(&e.dir_name);
 	ccs_put_name_union(&e.fs_type);
@@ -3113,52 +3009,6 @@ static bool ccs_same_unix_acl(const struct ccs_acl_info *a,
 }
 
 /**
- * ccs_merge_inet_acl - Merge duplicated "struct ccs_inet_acl" entry.
- *
- * @a:         Pointer to "struct ccs_acl_info".
- * @b:         Pointer to "struct ccs_acl_info".
- * @is_delete: True for @a &= ~@b, false for @a |= @b.
- *
- * Returns true if @a is empty, false otherwise.
- */
-static bool ccs_merge_inet_acl(struct ccs_acl_info *a, struct ccs_acl_info *b,
-			       const bool is_delete)
-{
-	u8 * const a_perm = &container_of(a, struct ccs_inet_acl, head)->perm;
-	u8 perm = *a_perm;
-	const u8 b_perm = container_of(b, struct ccs_inet_acl, head)->perm;
-	if (is_delete)
-		perm &= ~b_perm;
-	else
-		perm |= b_perm;
-	*a_perm = perm;
-	return !perm;
-}
-
-/**
- * ccs_merge_unix_acl - Merge duplicated "struct ccs_unix_acl" entry.
- *
- * @a:         Pointer to "struct ccs_acl_info".
- * @b:         Pointer to "struct ccs_acl_info".
- * @is_delete: True for @a &= ~@b, false for @a |= @b.
- *
- * Returns true if @a is empty, false otherwise.
- */
-static bool ccs_merge_unix_acl(struct ccs_acl_info *a, struct ccs_acl_info *b,
-			       const bool is_delete)
-{
-	u8 * const a_perm = &container_of(a, struct ccs_unix_acl, head)->perm;
-	u8 perm = *a_perm;
-	const u8 b_perm = container_of(b, struct ccs_unix_acl, head)->perm;
-	if (is_delete)
-		perm &= ~b_perm;
-	else
-		perm |= b_perm;
-	*a_perm = perm;
-	return !perm;
-}
-
-/**
  * ccs_write_inet_network - Write "struct ccs_inet_acl" list.
  *
  * @param: Pointer to "struct ccs_acl_param".
@@ -3177,8 +3027,8 @@ static int ccs_write_inet_network(struct ccs_acl_param *param)
 			break;
 	for (type = 0; type < CCS_MAX_NETWORK_OPERATION; type++)
 		if (ccs_permstr(operation, ccs_socket_keyword[type]))
-			e.perm |= 1 << type;
-	if (e.protocol == CCS_SOCK_MAX || !e.perm)
+			e.head.perm |= 1 << type;
+	if (e.protocol == CCS_SOCK_MAX || !e.head.perm)
 		return -EINVAL;
 	if (param->data[0] == '@') {
 		param->data++;
@@ -3193,7 +3043,7 @@ static int ccs_write_inet_network(struct ccs_acl_param *param)
 	    e.port.values[1] > 65535)
 		goto out;
 	error = ccs_update_domain(&e.head, sizeof(e), param, ccs_same_inet_acl,
-				  ccs_merge_inet_acl);
+				  true);
 out:
 	ccs_put_group(e.address.group);
 	ccs_put_number_union(&e.port);
@@ -3219,13 +3069,13 @@ static int ccs_write_unix_network(struct ccs_acl_param *param)
 			break;
 	for (type = 0; type < CCS_MAX_NETWORK_OPERATION; type++)
 		if (ccs_permstr(operation, ccs_socket_keyword[type]))
-			e.perm |= 1 << type;
-	if (e.protocol == CCS_SOCK_MAX || !e.perm)
+			e.head.perm |= 1 << type;
+	if (e.protocol == CCS_SOCK_MAX || !e.head.perm)
 		return -EINVAL;
 	if (!ccs_parse_name_union(param, &e.name))
 		return -EINVAL;
 	error = ccs_update_domain(&e.head, sizeof(e), param, ccs_same_unix_acl,
-				  ccs_merge_unix_acl);
+				  true);
 	ccs_put_name_union(&e.name);
 	return error;
 }
@@ -3265,7 +3115,7 @@ static int ccs_write_capability(struct ccs_acl_param *param)
 			   ccs_mac_keywords[ccs_c2mac[e.operation]]))
 			continue;
 		return ccs_update_domain(&e.head, sizeof(e), param,
-					 ccs_same_capability_acl, NULL);
+					 ccs_same_capability_acl, false);
 	}
 	return -EINVAL;
 }
@@ -3302,7 +3152,7 @@ static int ccs_write_env(struct ccs_acl_param *param)
 		return -EINVAL;
 	e.env = ccs_get_name(data);
 	error = ccs_update_domain(&e.head, sizeof(e), param,
-				  ccs_same_env_acl, NULL);
+				  ccs_same_env_acl, false);
 	ccs_put_name(e.env);
 	return error;
 }
@@ -3356,7 +3206,7 @@ static int ccs_write_ipc(struct ccs_acl_param *param)
 		error = -EINVAL;
 	else
 		error = ccs_update_domain(&e.head, sizeof(e), param,
-					  ccs_same_signal_acl, NULL);
+					  ccs_same_signal_acl, false);
 	ccs_put_name(e.domainname);
 	ccs_put_number_union(&e.sig);
 	return error;
@@ -3832,7 +3682,7 @@ static int ccs_write_task(struct ccs_acl_param *param)
 			error = -EINVAL; /* No patterns allowed. */
 		else
 			error = ccs_update_domain(&e.head, sizeof(e), param,
-						  ccs_same_handler_acl, NULL);
+						  ccs_same_handler_acl, false);
 		ccs_put_name(e.handler);
 	} else {
 		struct ccs_task_acl e = {
@@ -3844,7 +3694,7 @@ static int ccs_write_task(struct ccs_acl_param *param)
 			error = -EINVAL;
 		else
 			error = ccs_update_domain(&e.head, sizeof(e), param,
-						  ccs_same_task_acl, NULL);
+						  ccs_same_task_acl, false);
 		ccs_put_name(e.domainname);
 	}
 	return error;
@@ -4146,9 +3996,8 @@ static void ccs_print_entry(const struct ccs_acl_info *acl)
 	if (acl_type == CCS_TYPE_PATH_ACL) {
 		struct ccs_path_acl *ptr
 			= container_of(acl, typeof(*ptr), head);
-		const u16 perm = ptr->perm;
 		for (bit = 0; bit < CCS_MAX_PATH_OPERATION; bit++) {
-			if (!(perm & (1 << bit)))
+			if (!(acl->perm & (1 << bit)))
 				continue;
 			if (head.print_transition_related_only &&
 			    bit != CCS_TYPE_EXECUTE && !may_trigger_transition)
@@ -4187,9 +4036,8 @@ static void ccs_print_entry(const struct ccs_acl_info *acl)
 	} else if (acl_type == CCS_TYPE_MKDEV_ACL) {
 		struct ccs_mkdev_acl *ptr =
 			container_of(acl, typeof(*ptr), head);
-		const u8 perm = ptr->perm;
 		for (bit = 0; bit < CCS_MAX_MKDEV_OPERATION; bit++) {
-			if (!(perm & (1 << bit)))
+			if (!(acl->perm & (1 << bit)))
 				continue;
 			if (first) {
 				ccs_set_group("file ");
@@ -4208,9 +4056,8 @@ static void ccs_print_entry(const struct ccs_acl_info *acl)
 	} else if (acl_type == CCS_TYPE_PATH2_ACL) {
 		struct ccs_path2_acl *ptr =
 			container_of(acl, typeof(*ptr), head);
-		const u8 perm = ptr->perm;
 		for (bit = 0; bit < CCS_MAX_PATH2_OPERATION; bit++) {
-			if (!(perm & (1 << bit)))
+			if (!(acl->perm & (1 << bit)))
 				continue;
 			if (first) {
 				ccs_set_group("file ");
@@ -4227,9 +4074,8 @@ static void ccs_print_entry(const struct ccs_acl_info *acl)
 	} else if (acl_type == CCS_TYPE_PATH_NUMBER_ACL) {
 		struct ccs_path_number_acl *ptr =
 			container_of(acl, typeof(*ptr), head);
-		const u8 perm = ptr->perm;
 		for (bit = 0; bit < CCS_MAX_PATH_NUMBER_OPERATION; bit++) {
-			if (!(perm & (1 << bit)))
+			if (!(acl->perm & (1 << bit)))
 				continue;
 			if (first) {
 				ccs_set_group("file ");
@@ -4256,9 +4102,8 @@ static void ccs_print_entry(const struct ccs_acl_info *acl)
 	} else if (acl_type == CCS_TYPE_INET_ACL) {
 		struct ccs_inet_acl *ptr =
 			container_of(acl, typeof(*ptr), head);
-		const u8 perm = ptr->perm;
 		for (bit = 0; bit < CCS_MAX_NETWORK_OPERATION; bit++) {
-			if (!(perm & (1 << bit)))
+			if (!(acl->perm & (1 << bit)))
 				continue;
 			if (first) {
 				ccs_set_group("network inet ");
@@ -4281,9 +4126,8 @@ static void ccs_print_entry(const struct ccs_acl_info *acl)
 	} else if (acl_type == CCS_TYPE_UNIX_ACL) {
 		struct ccs_unix_acl *ptr =
 			container_of(acl, typeof(*ptr), head);
-		const u8 perm = ptr->perm;
 		for (bit = 0; bit < CCS_MAX_NETWORK_OPERATION; bit++) {
-			if (!(perm & (1 << bit)))
+			if (!(acl->perm & (1 << bit)))
 				continue;
 			if (first) {
 				ccs_set_group("network unix ");
