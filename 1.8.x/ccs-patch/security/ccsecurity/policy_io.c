@@ -491,7 +491,8 @@ static ssize_t ccs_read_self(struct file *file, char __user *buf, size_t count,
 static ssize_t ccs_write(struct file *file, const char __user *buf,
 			 size_t count, loff_t *ppos);
 static struct ccs_condition *ccs_commit_condition(struct ccs_condition *entry);
-static struct ccs_condition *ccs_get_condition(struct ccs_acl_param *param);
+static struct ccs_condition *ccs_get_condition(struct ccs_acl_param *param,
+					       const bool pref);
 static struct ccs_domain_info *ccs_find_domain(const char *domainname);
 static struct ccs_domain_info *ccs_find_domain_by_qid(unsigned int serial);
 static struct ccs_group *ccs_get_group(struct ccs_acl_param *param,
@@ -1955,7 +1956,8 @@ static const struct ccs_path_info *ccs_get_domainname
 		cp = pos;
 		while (*cp && *cp != '/' && *cp != '.' && *cp != ' ')
 			cp++;
-		if (*cp != '.')
+		if (memchr(pos, '/', cp - pos + (*cp != '\0')) &&
+		    strncmp(pos, "auto_domain_transition=\"", 24))
 			continue;
 		*(pos - 1) = '\0';
 		break;
@@ -2012,10 +2014,12 @@ done:
  * ccs_get_condition - Parse condition part.
  *
  * @param: Pointer to "struct ccs_acl_param".
+ * @pref:  Can include domain transition preference? 
  *
  * Returns pointer to "struct ccs_condition" on success, NULL otherwise.
  */
-static struct ccs_condition *ccs_get_condition(struct ccs_acl_param *param)
+static struct ccs_condition *ccs_get_condition(struct ccs_acl_param *param,
+					       const bool pref)
 {
 	struct ccs_condition *entry = NULL;
 	struct ccs_condition_element *condp = NULL;
@@ -2024,7 +2028,8 @@ static struct ccs_condition *ccs_get_condition(struct ccs_acl_param *param)
 	struct ccs_argv *argv = NULL;
 	struct ccs_envp *envp = NULL;
 	struct ccs_condition e = { };
-	char * const start_of_string = ccs_get_transit_preference(param, &e);
+	char * const start_of_string = pref ?
+		ccs_get_transit_preference(param, &e) : param->data;
 	char * const end_of_string = start_of_string + strlen(start_of_string);
 	char *pos;
 rerun:
@@ -3142,23 +3147,21 @@ static int ccs_update_acl(const int size, struct ccs_acl_param *param)
 	struct list_head * const list = param->list;
 	BUG_ON(size < sizeof(*entry));
 	if (param->data[0]) {
-		new_entry->cond = ccs_get_condition(param);
-		if (!new_entry->cond)
-			return -EINVAL;
 		/*
 		 * Domain transition preference is allowed for only
 		 * "file execute"/"task auto_execute_handler"/
 		 * "task denied_auto_execute_handler" entries.
 		 */
-		if (new_entry->cond->exec_transit &&
-		    !(new_entry->type == CCS_TYPE_PATH_ACL &&
-		      new_entry->perm == 1 << CCS_TYPE_EXECUTE)
+		const bool pref = (new_entry->type == CCS_TYPE_PATH_ACL &&
+				   new_entry->perm == 1 << CCS_TYPE_EXECUTE)
 #ifdef CONFIG_CCSECURITY_TASK_EXECUTE_HANDLER
-		    && new_entry->type != CCS_TYPE_AUTO_EXECUTE_HANDLER &&
-		    new_entry->type != CCS_TYPE_DENIED_EXECUTE_HANDLER
+			|| new_entry->type == CCS_TYPE_AUTO_EXECUTE_HANDLER
+			|| new_entry->type == CCS_TYPE_DENIED_EXECUTE_HANDLER
 #endif
-		    )
-			return -EINVAL;
+			;
+		new_entry->cond = ccs_get_condition(param, pref);
+		if (!new_entry->cond)
+			return error;
 	}
 	if (mutex_lock_interruptible(&ccs_policy_lock))
 		return -ENOMEM;
