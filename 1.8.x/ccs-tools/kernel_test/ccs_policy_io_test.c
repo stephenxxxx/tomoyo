@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2005-2011  NTT DATA CORPORATION
  *
- * Version: 1.8.6   2020/01/01
+ * Version: 1.8.7   2020/05/05
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License v2 as published by the
@@ -144,6 +144,36 @@ static void stage_policy_io_test(void)
 	policy_file = proc_policy_exception_policy;
 	policy_fp = exception_fp;
 	for (i = 0; i < 3; i++) {
+		try_io("acl_group 255 file execute /bin/true", 1);
+		try_io("acl_group 255 file execute /bin/true exec.realpath=\"/usr/bin/true\"", 1);
+		try_io("acl_group 255 file execute /bin/true exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true keep exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true initialize exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true reset exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true child exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true parent exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true /bin/true exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true bin/true exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true bin.true exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 0);
+		try_io("acl_group 255 file execute /bin/true usr/bin.true exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true usr.bin/true exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 0);
+		try_io("acl_group 255 file execute /bin/true <true> exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true <true> /true exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true <true> true/false exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 file execute /bin/true <true> /true /false /true exec.realpath=\"/usr/bin/true\" exec.argv[0]=\"true\"", 1);
+		try_io("acl_group 255 ipc signal 9 <kernel>", 1);
+		try_io("acl_group 255 ipc signal 9 <kernel> /bin/true", 1);
+		try_io("acl_group 255 ipc signal 9 <kernel> bin/true", 1);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true", 1);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr.bin/true", 0);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true auto_domain_transition=\"<true>\"", 1);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true auto_domain_transition=\"true.false\"", 0);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true auto_domain_transition=\"<true> /bin/false\"", 0);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true auto_domain_transition=\"/bin/true\"", 1);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true 0=0/1 auto_domain_transition=\"<true>\"", 1);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true 0=0/1 auto_domain_transition=\"true.false\"", 0);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true 0=0/1 auto_domain_transition=\"<true> /bin/false\"", 0);
+		try_io("acl_group 255 ipc signal 9 <kernel> usr/bin.true 0=0/1 auto_domain_transition=\"/bin/true\"", 1);
 		try_io("acl_group 0 file read /tmp/abc", 1);
 		try_io("acl_group 0 file read /tmp/abc\\*", 1);
 		try_io("acl_group 0 file read abc", 1);

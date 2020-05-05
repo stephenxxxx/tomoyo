@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2005-2012  NTT DATA CORPORATION
  *
- * Version: 1.8.6+   2020/04/13
+ * Version: 1.8.7   2020/05/05
  */
 
 #include "internal.h"
@@ -2422,7 +2422,7 @@ static void ccs_init_policy_namespace(struct ccs_policy_namespace *ns)
 		INIT_LIST_HEAD(&ns->group_list[idx]);
 	for (idx = 0; idx < CCS_MAX_POLICY; idx++)
 		INIT_LIST_HEAD(&ns->policy_list[idx]);
-	ns->profile_version = 20150505;
+	ns->profile_version = 20200505;
 	ccs_namespace_enabled = !list_empty(&ccs_namespace_list);
 	list_add_tail_rcu(&ns->namespace_list, &ccs_namespace_list);
 }
@@ -2496,19 +2496,21 @@ static void ccs_check_profile(void)
 	struct ccs_domain_info *domain;
 	const int idx = ccs_read_lock();
 	ccs_policy_loaded = true;
-	printk(KERN_INFO "CCSecurity: 1.8.6+   2020/04/13\n");
+	printk(KERN_INFO "CCSecurity: 1.8.7   2020/05/05\n");
 	list_for_each_entry_srcu(domain, &ccs_domain_list, list, &ccs_ss) {
 		const u8 profile = domain->profile;
 		struct ccs_policy_namespace *ns = domain->ns;
-		if (ns->profile_version == 20100903) {
+		if (ns->profile_version == 20100903 ||
+		    ns->profile_version == 20150505) {
 			static bool done;
 			if (!done)
 				printk(KERN_INFO "Converting profile version "
-				       "from %u to %u.\n", 20100903, 20150505);
+				       "from %u to %u.\n", ns->profile_version,
+				       20200505);
 			done = true;
-			ns->profile_version = 20150505;
+			ns->profile_version = 20200505;
 		}
-		if (ns->profile_version != 20150505)
+		if (ns->profile_version != 20200505)
 			printk(KERN_ERR
 			       "Profile version %u is not supported.\n",
 			       ns->profile_version);
@@ -5178,7 +5180,7 @@ static void ccs_read_version(struct ccs_io_buffer *head)
 {
 	if (head->r.eof)
 		return;
-	ccs_set_string(head, "1.8.6");
+	ccs_set_string(head, "1.8.7");
 	head->r.eof = true;
 }
 

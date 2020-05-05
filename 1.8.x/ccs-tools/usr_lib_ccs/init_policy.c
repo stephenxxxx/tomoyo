@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2005-2011  NTT DATA CORPORATION
  *
- * Version: 1.8.6   2020/01/01
+ * Version: 1.8.7   2020/05/05
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License v2 as published by the
@@ -855,8 +855,6 @@ static void make_exception_policy(void)
 	make_initializers();
 	make_init_scripts_as_aggregators();
 	make_systemd_exceptions();
-	/* Some applications do execve("/proc/self/exe"). */
-	fprintf(filp, "aggregator proc:/self/exe /proc/self/exe\n");
 	close_file(filp, chdir_policy(), "exception_policy.tmp",
 		   "exception_policy.conf");
 	filp = NULL;
@@ -924,7 +922,7 @@ static void make_profile(void)
 	fprintf(stderr, "Creating default profile... ");
 	if (file_only_profile)
 		file_only = "::file";
-	fprintf(fp, "PROFILE_VERSION=20150505\n");
+	fprintf(fp, "PROFILE_VERSION=20200505\n");
 	fprintf(fp, "0-COMMENT=-----Disabled Mode-----\n"
 		"0-PREFERENCE={ max_audit_log=%u max_learning_entry=%u "
 		"enforcing_penalty=%u }\n"

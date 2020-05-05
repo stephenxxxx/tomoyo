@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2005-2012  NTT DATA CORPORATION
  *
- * Version: 1.8.6   2020/01/01
+ * Version: 1.8.7   2020/05/05
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License v2 as published by the
@@ -785,7 +785,7 @@ struct ccs_policy_namespace {
 	struct list_head acl_group[CCS_MAX_ACL_GROUPS];
 	/* List for connecting to ccs_namespace_list list. */
 	struct list_head namespace_list;
-	/* Profile version. Currently only 20150505 is supported. */
+	/* Profile version. Currently only 20200505 is supported. */
 	unsigned int profile_version;
 	/* Name of this namespace (e.g. "<kernel>", "</usr/sbin/httpd>" ). */
 	const char *name;
@@ -2478,7 +2478,7 @@ static struct ccs_policy_namespace *ccs_assign_namespace(const char *domainname)
 		name[len] = '\0';
 		entry->name = name;
 	}
-	entry->profile_version = 20150505;
+	entry->profile_version = 20200505;
 	for (len = 0; len < CCS_MAX_ACL_GROUPS; len++)
 		INIT_LIST_HEAD(&entry->acl_group[len]);
 	ccs_namespace_enabled = !list_empty(&ccs_namespace_list);
