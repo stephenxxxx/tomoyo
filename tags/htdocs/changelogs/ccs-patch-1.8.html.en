@@ -29,6 +29,32 @@
 
 <div id="changelogs">
 
+<h4>ChangeLog for ccs-patch 1.8.7</h4>
+
+<pre>
+Fix 2020/05/01
+
+    @ Loosen domainname validation and pathname validation.
+
+      Currently a domainname must start with "&lt;$namespace&gt;" followed by
+      zero or more repetitions of a pathname which starts with '/'.
+
+      But situation is getting more and more difficult to enforce use of
+      a pathname which starts with '/', for execve() request of a pathname
+      on e.g. some filesystems cause ccs_realpath() to return a pathname
+      in "$fsname:/$pathname" format.
+
+      Fortunately, since $fsname must not contain '.' since Linux 2.6.22,
+      we can recognize a token which appears '/' before '.' appears (e.g.
+      proc:/self/exe ) as a pathname and a token which appears '.' before
+      '/' appears (e.g. exec.realpath="/bin/bash" ) as a condition parameter,
+      with an exception that a pathname cannot start with
+      auto_domain_transition=" because it is reserved as a delimiter string
+      for on-match domain transition. Also, we can recognize "&lt;$namespace&gt;"
+      followed by such tokens (e.g. &lt;kernel&gt; /foo proc:/self/exe /bar ) as
+      a domainname.
+</pre>
+
 <h4>ChangeLog for ccs-patch 1.8.6</h4>
 
 <pre>
