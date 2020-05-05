@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2005-2012  NTT DATA CORPORATION
  *
- * Version: 1.8.6   2019/08/20
+ * Version: 1.8.7   2020/05/05
  */
 
 #ifndef _SECURITY_CCSECURITY_INTERNAL_H
@@ -1525,7 +1525,7 @@ struct ccs_policy_namespace {
 	struct list_head acl_group[CCS_MAX_ACL_GROUPS];
 	/* List for connecting to ccs_namespace_list list. */
 	struct list_head namespace_list;
-	/* Profile version. Currently only 20150505 is supported. */
+	/* Profile version. Currently only 20200505 is supported. */
 	unsigned int profile_version;
 	/* Name of this namespace (e.g. "<kernel>", "</usr/sbin/httpd>" ). */
 	const char *name;

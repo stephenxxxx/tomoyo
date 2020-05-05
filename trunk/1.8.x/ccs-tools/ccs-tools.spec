@@ -1,7 +1,7 @@
 Summary: Userspace tools for TOMOYO Linux 1.8.x
 
 Name: ccs-tools
-Version: 1.8.6
+Version: 1.8.7
 Release: 1
 License: GPL
 Group: System Environment/Kernel
@@ -15,9 +15,9 @@ Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 ##
 # BuildRequires: ncurses-devel
 Requires: ncurses
-Conflicts: ccs-tools < 1.8.6-1
+Conflicts: ccs-tools < 1.8.7-1
 
-Source0: https://osdn.dl.osdn.jp/tomoyo/49693/ccs-tools-1.8.6-20200229.tar.gz
+Source0: https://osdn.dl.osdn.jp/tomoyo/49693/ccs-tools-1.8.7-20200505.tar.gz
 
 %description
 This package contains userspace tools for administrating TOMOYO Linux 1.8.x.
@@ -52,6 +52,10 @@ ldconfig || true
 /usr/share/man/man8/*
 
 %changelog
+* Tue May 05 2020 1.8.7-1
+- Loosen domainname validation and pathname validation (this change
+  requires ccs-patch 1.8.7-20200505 ).
+
 * Wed Jan 01 2020 1.8.6-1
 - Remove "socket:[family=\\$:type=\\$:protocol=\\$]" from ANY_PATHNAME group.
 
