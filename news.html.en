@@ -34,6 +34,12 @@
 
 <div id="news-archive">
 
+<p class="timestamp"><a name="20200505">5th May, 2020</a></p>
+<h4>ccs-patch 1.8.7 and ccs-tools 1.8.7 released</h4>
+<p class="article">An updated ccs-patch / ccs-tools for the 1.8.x branch loosened validity check of domainname and pathname.</p>
+
+<br>
+
 <p class="timestamp"><a name="20200101">1th January, 2020</a></p>
 <h4>ccs-tools 1.8.6 and tomoyo-tools 2.6.0p1 released</h4>
 <p class="article">An updated ccs-tools for the 1.8.x branch and tomoyo-tools for the 2.5.x branch followed change of pathname calculation rule.</p>

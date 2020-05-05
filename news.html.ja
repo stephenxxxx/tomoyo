@@ -34,6 +34,12 @@
 
 <div id="news-archive">
 
+<p class="timestamp"><a name="20200505">２０２０年５月５日</a></p>
+<h4>ccs-patch 1.8.7 と ccs-tools 1.8.7 がリリースされました。</h4>
+<p class="article">ドメイン名およびパス名の妥当性検査を緩めました。</p>
+
+<br>
+
 <p class="timestamp"><a name="20200101">２０２０年１月１日</a></p>
 <h4>ccs-tools 1.8.6 と tomoyo-tools 2.6.0p1 がリリースされました。</h4>
 <p class="article">パス名の計算ルールの変更に追随しました。</p>
