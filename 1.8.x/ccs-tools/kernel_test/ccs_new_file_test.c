@@ -113,6 +113,7 @@ static void mkfifo2(const char *pathname)
 
 static void stage_file_test(void)
 {
+	static int version_name[] = { CTL_KERN, KERN_VERSION };
 	static int name[] = { CTL_NET, NET_IPV4, NET_IPV4_LOCAL_PORT_RANGE };
 	int buffer[2] = { 32768, 61000 };
 	size_t size = sizeof(buffer);
@@ -149,34 +150,37 @@ static void stage_file_test(void)
 	set_profile(3, "file::unmount");
 	set_profile(3, "file::pivot_root");
 
-	policy = "file read proc:/sys/net/ipv4/ip_local_port_range "
-		"task.uid=0 task.gid=0";
-	write_domain_policy(policy, 0);
-	show_result(sysctl(name, 3, buffer, &size, 0, 0), 1);
-	write_domain_policy(policy, 1);
-	show_result(sysctl(name, 3, buffer, &size, 0, 0), 0);
+	if (sysctl(version_name, 2, NULL, NULL, 0, 0) != EOF ||
+	    errno != ENOSYS) {
+		policy = "file read proc:/sys/net/ipv4/ip_local_port_range "
+			"task.uid=0 task.gid=0";
+		write_domain_policy(policy, 0);
+		show_result(sysctl(name, 3, buffer, &size, 0, 0), 1);
+		write_domain_policy(policy, 1);
+		show_result(sysctl(name, 3, buffer, &size, 0, 0), 0);
 
-	policy = "file write proc:/sys/net/ipv4/ip_local_port_range "
-		"task.euid=0 0=0 1-100=10-1000";
-	write_domain_policy(policy, 0);
-	show_result(sysctl(name, 3, 0, 0, buffer, size), 1);
-	write_domain_policy(policy, 1);
-	show_result(sysctl(name, 3, 0, 0, buffer, size), 0);
+		policy = "file write proc:/sys/net/ipv4/ip_local_port_range "
+			"task.euid=0 0=0 1-100=10-1000";
+		write_domain_policy(policy, 0);
+		show_result(sysctl(name, 3, 0, 0, buffer, size), 1);
+		write_domain_policy(policy, 1);
+		show_result(sysctl(name, 3, 0, 0, buffer, size), 0);
 
-	policy = "file read proc:/sys/net/ipv4/ip_local_port_range "
-		"1!=10-100";
-	write_domain_policy(policy, 0);
-	policy = "file write proc:/sys/net/ipv4/ip_local_port_range "
-		"1!=10-100";
-	write_domain_policy(policy, 0);
-	show_result(sysctl(name, 3, buffer, &size, buffer, size), 1);
-	policy = "file read proc:/sys/net/ipv4/ip_local_port_range "
-		"1!=10-100";
-	write_domain_policy(policy, 1);
-	policy = "file write proc:/sys/net/ipv4/ip_local_port_range "
-		"1!=10-100";
-	write_domain_policy(policy, 1);
-	show_result(sysctl(name, 3, buffer, &size, buffer, size), 0);
+		policy = "file read proc:/sys/net/ipv4/ip_local_port_range "
+			"1!=10-100";
+		write_domain_policy(policy, 0);
+		policy = "file write proc:/sys/net/ipv4/ip_local_port_range "
+			"1!=10-100";
+		write_domain_policy(policy, 0);
+		show_result(sysctl(name, 3, buffer, &size, buffer, size), 1);
+		policy = "file read proc:/sys/net/ipv4/ip_local_port_range "
+			"1!=10-100";
+		write_domain_policy(policy, 1);
+		policy = "file write proc:/sys/net/ipv4/ip_local_port_range "
+			"1!=10-100";
+		write_domain_policy(policy, 1);
+		show_result(sysctl(name, 3, buffer, &size, buffer, size), 0);
+	}
 
 	policy = "file read /tmp/uselib "
 		"path1.uid=0 path1.parent.uid=0 10=10-100";
