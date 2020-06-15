@@ -242,7 +242,35 @@ static void ccs_load_policy(const char *filename)
 
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+
+/**
+ * ccs_start_execve - Load policy before calling search_binary_handler().
+ *
+ * @bprm: Pointer to "struct linux_binprm".
+ * @eep:  Pointer to "struct ccs_execve *".
+ *
+ * Returns 0 on success, negative value otherwise.
+ */
+static int ccs_start_execve(struct linux_binprm *bprm, struct ccs_execve **eep)
+{
+#ifndef CONFIG_CCSECURITY_OMIT_USERSPACE_LOADER
+	ccs_load_policy(bprm->filename);
+#endif
+	/*
+	 * ccs_load_policy() executes /sbin/ccs-init if bprm->filename is
+	 * /sbin/init. /sbin/ccs-init executes /etc/ccs/ccs-load-module to
+	 * load loadable kernel module. The loadable kernel module modifies
+	 * "struct ccsecurity_ops". Thus, we need to transfer control to
+	 * ccs_start_execve() in security/ccsecurity/permission.c
+	 * if "struct ccsecurity_ops" was modified.
+	 */
+	if (ccsecurity_ops.start_execve != ccs_start_execve)
+		return ccsecurity_ops.start_execve(bprm, eep);
+	return 0;
+}
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 
 /**
  * __ccs_search_binary_handler - Load policy before calling search_binary_handler().
@@ -337,7 +365,11 @@ EXPORT_SYMBOL_GPL(ccsecurity_exports);
 
 /* Members are updated by loadable kernel module. */
 struct ccsecurity_operations ccsecurity_ops = {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+	.start_execve = ccs_start_execve,
+#else
 	.search_binary_handler = __ccs_search_binary_handler,
+#endif
 #ifdef CONFIG_CCSECURITY_DISABLE_BY_DEFAULT
 	.disabled = 1,
 #endif

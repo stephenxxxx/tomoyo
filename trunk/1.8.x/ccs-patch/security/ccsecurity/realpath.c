@@ -689,6 +689,9 @@ const char *ccs_get_exe(void)
 	const char *cp;
 	if (!mm)
 		return NULL;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
+	exe_file = get_mm_exe_file(mm);
+#else
 	down_read(&mm->mmap_sem);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 26)
 	/* Not using get_mm_exe_file() as it is not exported. */
@@ -704,6 +707,7 @@ const char *ccs_get_exe(void)
 	if (exe_file)
 		get_file(exe_file);
 	up_read(&mm->mmap_sem);
+#endif
 	if (!exe_file)
 		return NULL;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)

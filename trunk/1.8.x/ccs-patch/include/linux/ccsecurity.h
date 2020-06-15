@@ -29,7 +29,13 @@ struct sock;
 struct sk_buff;
 struct msghdr;
 struct pid_namespace;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
+struct ccs_execve;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+/*
+ * Don't depend on prototype definition, for exec_binprm() is a static function
+ * which is implicitly inlined by compiler.
+ */
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 int search_binary_handler(struct linux_binprm *bprm);
 #else
 int search_binary_handler(struct linux_binprm *bprm, struct pt_regs *regs);
@@ -157,7 +163,10 @@ struct ccsecurity_operations {
 				   struct dentry *dentry);
 	int (*sigqueue_permission) (pid_t pid, int sig);
 	int (*tgsigqueue_permission) (pid_t tgid, pid_t pid, int sig);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+	int (*start_execve) (struct linux_binprm *bprm, struct ccs_execve **eep);
+	void (*finish_execve) (int retval, struct ccs_execve *ep);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 	int (*search_binary_handler) (struct linux_binprm *bprm);
 #else
 	int (*search_binary_handler) (struct linux_binprm *bprm,
@@ -421,7 +430,23 @@ static inline int ccs_chmod_permission(struct dentry *dentry,
 	return func ? func(dentry, mnt, mode) : 0;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+
+/* Define as a macro here, for exec_binprm() is a static function. */
+#define ccs_exec_binprm(bprm)					\
+({								\
+	struct ccs_execve *ee = NULL;				\
+	void (*func) (int, struct ccs_execve *);		\
+	int retval = ccsecurity_ops.start_execve(bprm, &ee);	\
+	if (!retval)						\
+		retval = exec_binprm(bprm);			\
+	func = ccsecurity_ops.finish_execve;			\
+	if (func)						\
+		func(retval, ee);				\
+	retval;							\
+})
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 
 static inline int ccs_search_binary_handler(struct linux_binprm *bprm)
 {
@@ -630,7 +655,12 @@ static inline int ccs_chmod_permission(struct dentry *dentry,
 	return 0;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+
+/* Define as a macro here, for exec_binprm() is a static function. */
+#define ccs_exec_binprm(bprm) exec_binprm(bprm)
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 
 static inline int ccs_search_binary_handler(struct linux_binprm *bprm)
 {

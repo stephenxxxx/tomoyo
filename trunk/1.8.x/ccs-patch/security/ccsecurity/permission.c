@@ -296,9 +296,9 @@ static int __ccs_rename_permission(struct dentry *old_dentry,
 				   struct dentry *new_dentry,
 				   struct vfsmount *mnt);
 static int __ccs_rmdir_permission(struct dentry *dentry, struct vfsmount *mnt);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
 static int __ccs_search_binary_handler(struct linux_binprm *bprm);
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
 static int __ccs_search_binary_handler(struct linux_binprm *bprm,
 				       struct pt_regs *regs);
 #endif
@@ -431,7 +431,40 @@ static bool ccs_check_task_acl(struct ccs_request_info *r,
 
 /***** SECTION4: Standalone functions section *****/
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+
+/**
+ * prepare_binprm - Read the first BINPRM_BUF_SIZE bytes.
+ *
+ * @bprm: Pointer to "struct linux_binprm".
+ *
+ * Same with prepare_binprm() in fs/exec.c
+ */
+static inline int prepare_binprm(struct linux_binprm *bprm)
+{
+	loff_t pos = 0;
+
+	memset(bprm->buf, 0, BINPRM_BUF_SIZE);
+	return kernel_read(bprm->file, bprm->buf, BINPRM_BUF_SIZE, &pos);
+}
+
+/**
+ * ccs_copy_argv - Wrapper for copy_string_kernel().
+ *
+ * @arg:  String to copy.
+ * @bprm: Pointer to "struct linux_binprm".
+ *
+ * Returns return value of copy_string_kernel().
+ */
+static inline int ccs_copy_argv(const char *arg, struct linux_binprm *bprm)
+{
+	const int ret = copy_string_kernel(arg, bprm);
+	if (ret >= 0)
+		bprm->argc++;
+	return ret;
+}
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
 
 /**
  * ccs_copy_argv - Wrapper for copy_strings_kernel().
@@ -1591,7 +1624,7 @@ static void ccs_finish_execve(int retval, struct ccs_execve *ee)
 	kfree(ee);
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
 
 /**
  * __ccs_search_binary_handler - Main routine for do_execve().
@@ -1623,7 +1656,7 @@ static int __ccs_search_binary_handler(struct linux_binprm *bprm)
 	return retval;
 }
 
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
 
 /**
  * __ccs_search_binary_handler - Main routine for do_execve().
@@ -1741,7 +1774,12 @@ void __init ccs_permission_init(void)
 	ccsecurity_ops.capable = __ccs_capable;
 	ccsecurity_ops.ptrace_permission = __ccs_ptrace_permission;
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+	ccsecurity_ops.finish_execve = ccs_finish_execve;
+	ccsecurity_ops.start_execve = ccs_start_execve;
+#else
 	ccsecurity_ops.search_binary_handler = __ccs_search_binary_handler;
+#endif
 }
 
 /**
