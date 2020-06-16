@@ -10,12 +10,12 @@ die () {
 
 cd /tmp/ || die "Can't chdir to /tmp/ ."
 
-if [ ! -r kernel-4.18.0-147.5.1.el8_1.src.rpm ]
+if [ ! -r kernel-4.18.0-193.6.3.el8_2.src.rpm ]
 then
-    wget http://vault.centos.org/8.1.1911/BaseOS/Source/SPackages/kernel-4.18.0-147.5.1.el8_1.src.rpm || die "Can't download source package."
+    wget http://vault.centos.org/8.2.2004/BaseOS/Source/SPackages/kernel-4.18.0-193.6.3.el8_2.src.rpm || die "Can't download source package."
 fi
-LANG=C rpm --checksig kernel-4.18.0-147.5.1.el8_1.src.rpm | grep -F ': digests signatures OK' || die "Can't verify signature."
-rpm -ivh kernel-4.18.0-147.5.1.el8_1.src.rpm || die "Can't install source package."
+LANG=C rpm --checksig kernel-4.18.0-193.6.3.el8_2.src.rpm | grep -F ': digests signatures OK' || die "Can't verify signature."
+rpm -ivh kernel-4.18.0-193.6.3.el8_2.src.rpm || die "Can't install source package."
 
 cd ~/rpmbuild/SOURCES/ || die "Can't chdir to ~/rpmbuild/SOURCES/ ."
 if [ ! -r ccs-patch-1.8.7-20200505.tar.gz ]
@@ -36,8 +36,8 @@ patch << "EOF" || die "Can't patch spec file."
 +%define buildid _tomoyo_1.8.7
  
  %define rpmversion 4.18.0
- %define pkgrelease 147.5.1.el8_1
-@@ -982,6 +982,10 @@
+ %define pkgrelease 193.6.3.el8_2
+@@ -1050,6 +1050,10 @@
  
  # END OF PATCH APPLICATIONS
  
@@ -47,8 +47,8 @@ patch << "EOF" || die "Can't patch spec file."
 +
  # Any further pre-build tree manipulations happen here.
  
- chmod +x scripts/checkpatch.pl
-@@ -1108,6 +1112,18 @@
+ %if %{with_realtime}
+@@ -1184,6 +1188,18 @@
      cp %{SOURCE11} certs/.
      %endif
  
