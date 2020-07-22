@@ -5604,7 +5604,6 @@ static void ccs_update_task_domain(struct ccs_request_info *r)
 	char *buf;
 	const char *cp;
 	const struct ccs_acl_info *acl = r->matched_acl;
-	r->matched_acl = NULL;
 	if (!acl || !acl->cond || !acl->cond->transit ||
 	    acl->cond->exec_transit)
 		return;
