@@ -807,6 +807,7 @@ int ccs_check_acl(struct ccs_request_info *r)
 {
 	const struct ccs_domain_info *domain = ccs_current_domain();
 	int error;
+	r->matched_acl = NULL;
 	do {
 		struct ccs_acl_info *ptr;
 		const struct list_head *list = &domain->acl_info_list;
