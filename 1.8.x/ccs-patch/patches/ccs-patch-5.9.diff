@@ -59,7 +59,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 5.8-rc7-next-20200727 2020/07/27\n");
++	printk(KERN_INFO "Hook version: 5.8-rc7-next-20200731 2020/08/03\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
@@ -94,7 +94,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  
  /* Default (no) options for the capable function */
  #define CAP_OPT_NONE 0x0
-@@ -569,7 +570,10 @@ static inline int security_syslog(int ty
+@@ -566,7 +567,10 @@ static inline int security_syslog(int ty
  static inline int security_settime64(const struct timespec64 *ts,
  				     const struct timezone *tz)
  {
@@ -106,7 +106,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_vm_enough_memory_mm(struct mm_struct *mm, long pages)
-@@ -652,18 +656,18 @@ static inline int security_sb_mount(cons
+@@ -649,18 +653,18 @@ static inline int security_sb_mount(cons
  				    const char *type, unsigned long flags,
  				    void *data)
  {
@@ -128,7 +128,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_sb_set_mnt_opts(struct super_block *sb,
-@@ -691,7 +695,7 @@ static inline int security_add_mnt_opt(c
+@@ -688,7 +692,7 @@ static inline int security_add_mnt_opt(c
  static inline int security_move_mount(const struct path *from_path,
  				      const struct path *to_path)
  {
@@ -137,7 +137,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_path_notify(const struct path *path, u64 mask,
-@@ -832,7 +836,7 @@ static inline int security_inode_setattr
+@@ -822,7 +826,7 @@ static inline int security_inode_setattr
  
  static inline int security_inode_getattr(const struct path *path)
  {
@@ -146,7 +146,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_inode_setxattr(struct dentry *dentry,
-@@ -924,7 +928,7 @@ static inline void security_file_free(st
+@@ -914,7 +918,7 @@ static inline void security_file_free(st
  static inline int security_file_ioctl(struct file *file, unsigned int cmd,
  				      unsigned long arg)
  {
@@ -155,7 +155,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_mmap_file(struct file *file, unsigned long prot,
-@@ -953,7 +957,7 @@ static inline int security_file_lock(str
+@@ -943,7 +947,7 @@ static inline int security_file_lock(str
  static inline int security_file_fcntl(struct file *file, unsigned int cmd,
  				      unsigned long arg)
  {
@@ -164,7 +164,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline void security_file_set_fowner(struct file *file)
-@@ -975,17 +979,19 @@ static inline int security_file_receive(
+@@ -965,17 +969,19 @@ static inline int security_file_receive(
  
  static inline int security_file_open(struct file *file)
  {
@@ -187,7 +187,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  
  static inline int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
  {
-@@ -1401,7 +1407,7 @@ static inline int security_unix_may_send
+@@ -1391,7 +1397,7 @@ static inline int security_unix_may_send
  static inline int security_socket_create(int family, int type,
  					 int protocol, int kern)
  {
@@ -196,7 +196,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_socket_post_create(struct socket *sock,
-@@ -1422,19 +1428,19 @@ static inline int security_socket_bind(s
+@@ -1412,19 +1418,19 @@ static inline int security_socket_bind(s
  				       struct sockaddr *address,
  				       int addrlen)
  {
@@ -219,7 +219,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_socket_accept(struct socket *sock,
-@@ -1446,7 +1452,7 @@ static inline int security_socket_accept
+@@ -1436,7 +1442,7 @@ static inline int security_socket_accept
  static inline int security_socket_sendmsg(struct socket *sock,
  					  struct msghdr *msg, int size)
  {
@@ -228,7 +228,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_socket_recvmsg(struct socket *sock,
-@@ -1733,42 +1739,42 @@ int security_path_chroot(const struct pa
+@@ -1723,42 +1729,42 @@ int security_path_chroot(const struct pa
  #else	/* CONFIG_SECURITY_PATH */
  static inline int security_path_unlink(const struct path *dir, struct dentry *dentry)
  {
@@ -278,7 +278,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  }
  
  static inline int security_path_rename(const struct path *old_dir,
-@@ -1777,22 +1783,32 @@ static inline int security_path_rename(c
+@@ -1767,22 +1773,32 @@ static inline int security_path_rename(c
  				       struct dentry *new_dentry,
  				       unsigned int flags)
  {
@@ -443,7 +443,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  	 * If pid namespaces are enabled and the current task is in a child
 --- linux-next.orig/kernel/sched/core.c
 +++ linux-next/kernel/sched/core.c
-@@ -4923,6 +4923,8 @@ int can_nice(const struct task_struct *p
+@@ -4921,6 +4921,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
  	long nice, retval;
@@ -690,7 +690,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
 --- linux-next.orig/security/security.c
 +++ linux-next/security/security.c
-@@ -1593,7 +1593,9 @@ int security_task_alloc(struct task_stru
+@@ -1584,7 +1584,9 @@ int security_task_alloc(struct task_stru
  
  	if (rc)
  		return rc;
@@ -701,7 +701,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
  	if (unlikely(rc))
  		security_task_free(task);
  	return rc;
-@@ -1602,6 +1604,7 @@ int security_task_alloc(struct task_stru
+@@ -1593,6 +1595,7 @@ int security_task_alloc(struct task_stru
  void security_task_free(struct task_struct *task)
  {
  	call_void_hook(task_free, task);
