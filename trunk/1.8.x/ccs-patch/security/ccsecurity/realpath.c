@@ -502,26 +502,24 @@ char *ccs_realpath(const struct path *path)
 			pos = ccs_get_absolute_path(path, buf, buf_len - 1);
 			ccs_realpath_unlock();
 		}
-		if (pos == ERR_PTR(-EINVAL))
-			pos = ccs_get_local_path(path->dentry, buf,
-						 buf_len - 1);
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0)
 		if (!path->mnt ||
 		    (!inode->i_op->rename && !inode->i_op->rename2 &&
 		     !(sb->s_type->fs_flags & FS_REQUIRES_DEV)))
-			pos = ccs_get_local_path(path->dentry, buf,
-						 buf_len - 1);
+			pos = ERR_PTR(-EINVAL);
 		else
 			pos = ccs_get_absolute_path(path, buf, buf_len - 1);
 #else
 		if (!path->mnt ||
 		    (!inode->i_op->rename &&
 		     !(sb->s_type->fs_flags & FS_REQUIRES_DEV)))
-			pos = ccs_get_local_path(path->dentry, buf,
-						 buf_len - 1);
+			pos = ERR_PTR(-EINVAL);
 		else
 			pos = ccs_get_absolute_path(path, buf, buf_len - 1);
 #endif
+		if (pos == ERR_PTR(-EINVAL))
+			pos = ccs_get_local_path(path->dentry, buf,
+						 buf_len - 1);
 encode:
 		if (IS_ERR(pos))
 			continue;
