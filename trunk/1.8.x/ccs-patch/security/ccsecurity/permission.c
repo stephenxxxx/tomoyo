@@ -296,11 +296,11 @@ static int __ccs_rename_permission(struct dentry *old_dentry,
 				   struct dentry *new_dentry,
 				   struct vfsmount *mnt);
 static int __ccs_rmdir_permission(struct dentry *dentry, struct vfsmount *mnt);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-static int __ccs_search_binary_handler(struct linux_binprm *bprm);
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
 static int __ccs_search_binary_handler(struct linux_binprm *bprm,
 				       struct pt_regs *regs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
+static int __ccs_search_binary_handler(struct linux_binprm *bprm);
 #endif
 static int __ccs_symlink_permission(struct dentry *dentry,
 				    struct vfsmount *mnt, const char *from);
@@ -1629,39 +1629,7 @@ static void ccs_finish_execve(int retval, struct ccs_execve *ee)
 	kfree(ee);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-
-/**
- * __ccs_search_binary_handler - Main routine for do_execve().
- *
- * @bprm: Pointer to "struct linux_binprm".
- *
- * Returns 0 on success, negative value otherwise.
- *
- * Performs permission checks for do_execve() and domain transition.
- * Domain transition by "struct ccs_domain_transition_control" and
- * "auto_domain_transition=" parameter of "struct ccs_condition" are reverted
- * if do_execve() failed.
- * Garbage collector does not remove "struct ccs_domain_info" from
- * ccs_domain_list nor kfree("struct ccs_domain_info") if the current thread is
- * marked as CCS_TASK_IS_IN_EXECVE.
- */
-static int __ccs_search_binary_handler(struct linux_binprm *bprm)
-{
-	struct ccs_execve *ee;
-	int retval;
-#ifndef CONFIG_CCSECURITY_OMIT_USERSPACE_LOADER
-	if (!ccs_policy_loaded)
-		ccsecurity_exports.load_policy(bprm->filename);
-#endif
-	retval = ccs_start_execve(bprm, &ee);
-	if (!retval)
-		retval = search_binary_handler(bprm);
-	ccs_finish_execve(retval, ee);
-	return retval;
-}
-
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
 
 /**
  * __ccs_search_binary_handler - Main routine for do_execve().
@@ -1691,6 +1659,38 @@ static int __ccs_search_binary_handler(struct linux_binprm *bprm,
 	retval = ccs_start_execve(bprm, &ee);
 	if (!retval)
 		retval = search_binary_handler(bprm, regs);
+	ccs_finish_execve(retval, ee);
+	return retval;
+}
+
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
+
+/**
+ * __ccs_search_binary_handler - Main routine for do_execve().
+ *
+ * @bprm: Pointer to "struct linux_binprm".
+ *
+ * Returns 0 on success, negative value otherwise.
+ *
+ * Performs permission checks for do_execve() and domain transition.
+ * Domain transition by "struct ccs_domain_transition_control" and
+ * "auto_domain_transition=" parameter of "struct ccs_condition" are reverted
+ * if do_execve() failed.
+ * Garbage collector does not remove "struct ccs_domain_info" from
+ * ccs_domain_list nor kfree("struct ccs_domain_info") if the current thread is
+ * marked as CCS_TASK_IS_IN_EXECVE.
+ */
+static int __ccs_search_binary_handler(struct linux_binprm *bprm)
+{
+	struct ccs_execve *ee;
+	int retval;
+#ifndef CONFIG_CCSECURITY_OMIT_USERSPACE_LOADER
+	if (!ccs_policy_loaded)
+		ccsecurity_exports.load_policy(bprm->filename);
+#endif
+	retval = ccs_start_execve(bprm, &ee);
+	if (!retval)
+		retval = search_binary_handler(bprm);
 	ccs_finish_execve(retval, ee);
 	return retval;
 }
