@@ -3348,3 +3348,17 @@ Fix 2020/07/22
       ccs_write_log2() from ccs_supervisor() from ccs_audit_log() always
       resets r->matched_acl to NULL. Change ccs_update_task_domain() not
       to reset r->matched_acl to NULL.
+
+Fix 2020/08/17
+
+    @ Fix ccs_realpath() fallback.
+
+      ccs_realpath() for 3.17+ was by error not calling ccs_get_local_path()
+      when ccs_get_absolute_path() returned -EINVAL.
+
+Fix 2020/08/19
+
+    @ Fix wrong ccs_search_binary_handler() mapping.
+
+      When support for 5.8 kernel was added, ccs_search_binary_handler() for
+      3.7- was by error mapped to wrong function.
