@@ -1262,7 +1262,7 @@ static LIST_HEAD(ccs_log);
 /* Lock for "struct list_head ccs_log". */
 static DEFINE_SPINLOCK(ccs_log_lock);
 
-/* Length of "stuct list_head ccs_log". */
+/* Length of "struct list_head ccs_log". */
 static unsigned int ccs_log_count;
 
 /* Counter for number of updates. */
