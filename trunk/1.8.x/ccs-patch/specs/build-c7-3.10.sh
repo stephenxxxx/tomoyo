@@ -10,12 +10,12 @@ die () {
 
 cd /tmp/ || die "Can't chdir to /tmp/ ."
 
-if [ ! -r kernel-3.10.0-1127.18.2.el7.src.rpm ]
+if [ ! -r kernel-3.10.0-1127.19.1.el7.src.rpm ]
 then
-    wget http://vault.centos.org/centos/7/updates/Source/SPackages/kernel-3.10.0-1127.18.2.el7.src.rpm || die "Can't download source package."
+    wget http://vault.centos.org/centos/7/updates/Source/SPackages/kernel-3.10.0-1127.19.1.el7.src.rpm || die "Can't download source package."
 fi
-LANG=C rpm --checksig kernel-3.10.0-1127.18.2.el7.src.rpm | grep -F ': rsa sha1 (md5) pgp md5 OK' || die "Can't verify signature."
-rpm -ivh kernel-3.10.0-1127.18.2.el7.src.rpm || die "Can't install source package."
+LANG=C rpm --checksig kernel-3.10.0-1127.19.1.el7.src.rpm | grep -F ': rsa sha1 (md5) pgp md5 OK' || die "Can't verify signature."
+rpm -ivh kernel-3.10.0-1127.19.1.el7.src.rpm || die "Can't install source package."
 
 cd ~/rpmbuild/SOURCES/ || die "Can't chdir to ~/rpmbuild/SOURCES/ ."
 if [ ! -r ccs-patch-1.8.7-20200820.tar.gz ]
@@ -46,7 +46,7 @@ patch << "EOF" || die "Can't patch spec file."
  Group: System Environment/Kernel
  License: GPLv2
  URL: http://www.kernel.org/
-@@ -681,13 +681,13 @@
+@@ -684,13 +684,13 @@
  %package %{?1:%{1}-}devel\
  Summary: Development package for building kernel modules to match the %{?2:%{2} }kernel\
  Group: System Environment/Kernel\
@@ -64,9 +64,9 @@ patch << "EOF" || die "Can't patch spec file."
  This package provides kernel headers and makefiles sufficient to build modules\
  against the %{?2:%{2} }kernel package.\
  %{nil}
-@@ -796,6 +796,10 @@
- 
- ApplyOptionalPatch linux-kernel-test.patch
+@@ -802,6 +802,10 @@
+ ApplyOptionalPatch debrand-rh_taint.patch
+ ApplyOptionalPatch debrand-rh-i686-cpu.patch
  
 +# TOMOYO Linux
 +tar -zxf %_sourcedir/ccs-patch-1.8.7-20200820.tar.gz
@@ -75,7 +75,7 @@ patch << "EOF" || die "Can't patch spec file."
  # Any further pre-build tree manipulations happen here.
  
  chmod +x scripts/checkpatch.pl
-@@ -834,6 +838,17 @@
+@@ -840,6 +844,17 @@
  for i in *.config
  do
    mv $i .config
