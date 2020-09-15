@@ -2025,7 +2025,7 @@ done:
  * ccs_get_condition - Parse condition part.
  *
  * @param: Pointer to "struct ccs_acl_param".
- * @pref:  Can include domain transition preference? 
+ * @pref:  Can include domain transition preference?
  *
  * Returns pointer to "struct ccs_condition" on success, NULL otherwise.
  */
