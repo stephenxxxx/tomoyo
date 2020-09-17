@@ -1534,9 +1534,13 @@ static int ccs_start_execve(struct linux_binprm *bprm,
 			    struct ccs_execve **eep)
 {
 	int retval;
-	struct ccs_security *task = ccs_current_security();
+	struct ccs_security *task;
 	struct ccs_execve *ee;
 	int idx;
+#ifndef CONFIG_CCSECURITY_OMIT_USERSPACE_LOADER
+	if (!ccs_policy_loaded)
+		ccsecurity_exports.load_policy(bprm->filename);
+#endif
 	*eep = NULL;
 	ee = kzalloc(sizeof(*ee), CCS_GFP_FLAGS);
 	if (!ee)
@@ -1546,6 +1550,7 @@ static int ccs_start_execve(struct linux_binprm *bprm,
 		kfree(ee);
 		return -ENOMEM;
 	}
+	task = ccs_current_security();
 	idx = ccs_read_lock();
 	/* ee->dump->data is allocated by ccs_dump_page(). */
 	ee->previous_domain = task->ccs_domain_info;
@@ -1651,12 +1656,7 @@ static int __ccs_search_binary_handler(struct linux_binprm *bprm,
 				       struct pt_regs *regs)
 {
 	struct ccs_execve *ee;
-	int retval;
-#ifndef CONFIG_CCSECURITY_OMIT_USERSPACE_LOADER
-	if (!ccs_policy_loaded)
-		ccsecurity_exports.load_policy(bprm->filename);
-#endif
-	retval = ccs_start_execve(bprm, &ee);
+	int retval = ccs_start_execve(bprm, &ee);
 	if (!retval)
 		retval = search_binary_handler(bprm, regs);
 	ccs_finish_execve(retval, ee);
@@ -1683,12 +1683,7 @@ static int __ccs_search_binary_handler(struct linux_binprm *bprm,
 static int __ccs_search_binary_handler(struct linux_binprm *bprm)
 {
 	struct ccs_execve *ee;
-	int retval;
-#ifndef CONFIG_CCSECURITY_OMIT_USERSPACE_LOADER
-	if (!ccs_policy_loaded)
-		ccsecurity_exports.load_policy(bprm->filename);
-#endif
-	retval = ccs_start_execve(bprm, &ee);
+	int retval = ccs_start_execve(bprm, &ee);
 	if (!retval)
 		retval = search_binary_handler(bprm);
 	ccs_finish_execve(retval, ee);
