@@ -2072,6 +2072,14 @@ static int ccs_old_mount_permission(const char *dev_name, struct nameidata *nd,
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 2, 0)
+/**
+ * __ccs_move_mount_permission - Check permission for move_mount() operation.
+ *
+ * @from_path: Pointer to "struct path".
+ * @to_path:   Pointer to "struct path".
+ *
+ * Returns 0 on success, negative value otherwise.
+ */
 static int __ccs_move_mount_permission(const struct path *from_path,
 				       const struct path *to_path)
 {
