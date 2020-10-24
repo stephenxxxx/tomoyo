@@ -379,7 +379,15 @@ static char *ccs_get_local_path(struct dentry *dentry, char * const buffer,
 	if (sb->s_magic == PROC_SUPER_MAGIC && *pos == '/') {
 		char *ep;
 		const pid_t pid = (pid_t) simple_strtoul(pos + 1, &ep, 10);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
+		if (*ep == '/' && pid && pid ==
+		    task_tgid_nr_ns(current, proc_pid_ns(sb))) {
+			pos = ep - 5;
+			if (pos < buffer)
+				goto out;
+			memmove(pos, "/self", 5);
+		}
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
 		if (*ep == '/' && pid && pid ==
 		    task_tgid_nr_ns(current, sb->s_fs_info)) {
 			pos = ep - 5;
