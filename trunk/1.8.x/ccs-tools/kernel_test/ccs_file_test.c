@@ -112,8 +112,10 @@ static void stage_file_test(void)
 		show_result(sysctl(name, 3, 0, 0, buffer, size));
 	}
 
-	show_prompt("uselib()");
-	show_result(uselib("/tmp/uselib"));
+	if (uselib("/") != EOF || errno != ENOSYS) {
+		show_prompt("uselib()");
+		show_result(uselib("/tmp/uselib"));
+	}
 
 	{
 		int pipe_fd[2] = { EOF, EOF };

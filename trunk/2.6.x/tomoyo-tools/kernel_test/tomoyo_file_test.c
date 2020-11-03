@@ -99,7 +99,9 @@ static int ftruncate_fd = EOF;
 static void stage_file_test(void)
 {
 	int fd;
-	{
+	static int version_name[] = { CTL_KERN, KERN_VERSION };
+	if (sysctl(version_name, 2, NULL, NULL, 0, 0) != EOF ||
+	    errno != ENOSYS) {
 		static int name[] = { CTL_NET, NET_IPV4,
 				      NET_IPV4_LOCAL_PORT_RANGE };
 		int buffer[2] = { 32768, 61000 };
@@ -110,8 +112,10 @@ static void stage_file_test(void)
 		show_result(sysctl(name, 3, 0, 0, buffer, size));
 	}
 
-	show_prompt("uselib()");
-	show_result(uselib("/tmp/uselib"));
+	if (uselib("/") != EOF || errno != ENOSYS) {
+		show_prompt("uselib()");
+		show_result(uselib("/tmp/uselib"));
+	}
 
 	{
 		int pipe_fd[2] = { EOF, EOF };
