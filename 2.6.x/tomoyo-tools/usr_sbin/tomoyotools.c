@@ -417,58 +417,61 @@ _Bool ccs_decode(const char *ascii, char *bin)
  */
 static _Bool ccs_correct_word2(const char *string, size_t len)
 {
+	u8 recursion = 20;
 	const char *const start = string;
 	_Bool in_repetition = false;
-	unsigned char c;
-	unsigned char d;
-	unsigned char e;
 	if (!len)
 		goto out;
 	while (len--) {
-		c = *string++;
+		unsigned char c = *string++;
 		if (c == '\\') {
 			if (!len--)
 				goto out;
 			c = *string++;
+			if (c >= '0' && c <= '3') {
+				unsigned char d;
+				unsigned char e;
+				if (!len-- || !len--)
+					goto out;
+				d = *string++;
+				e = *string++;
+				if (d < '0' || d > '7' || e < '0' || e > '7')
+					goto out;
+				c = ccs_make_byte(c, d, e);
+				if (c <= ' ' || c >= 127)
+					continue;
+				goto out;
+			}
 			switch (c) {
 			case '\\':  /* "\\" */
-				continue;
-			case '$':   /* "\$" */
 			case '+':   /* "\+" */
 			case '?':   /* "\?" */
+			case 'x':   /* "\x" */
+			case 'a':   /* "\a" */
+			case '-':   /* "\-" */
+				continue;
+			}
+			if (!recursion--)
+				goto out;
+			switch (c) {
 			case '*':   /* "\*" */
 			case '@':   /* "\@" */
-			case 'x':   /* "\x" */
+			case '$':   /* "\$" */
 			case 'X':   /* "\X" */
-			case 'a':   /* "\a" */
 			case 'A':   /* "\A" */
-			case '-':   /* "\-" */
 				continue;
 			case '{':   /* "/\{" */
 				if (string - 3 < start || *(string - 3) != '/')
-					break;
+					goto out;
 				in_repetition = true;
 				continue;
 			case '}':   /* "\}/" */
 				if (*string != '/')
-					break;
+					goto out;
 				if (!in_repetition)
-					break;
+					goto out;
 				in_repetition = false;
 				continue;
-			case '0':   /* "\ooo" */
-			case '1':
-			case '2':
-			case '3':
-				if (!len-- || !len--)
-					break;
-				d = *string++;
-				e = *string++;
-				if (d < '0' || d > '7' || e < '0' || e > '7')
-					break;
-				c = ccs_make_byte(c, d, e);
-				if (c <= ' ' || c >= 127)
-					continue;
 			}
 			goto out;
 		} else if (in_repetition && c == '/') {
@@ -497,6 +500,21 @@ _Bool ccs_correct_word(const char *string)
 }
 
 /**
+ * ccs_correct_path2 - Check whether the given pathname follows the naming rules.
+ *
+ * @filename: The pathname to check.
+ * @len:      Length of @filename.
+ *
+ * Returns true if @filename follows the naming rules, false otherwise.
+ */
+_Bool ccs_correct_path2(const char *filename, const size_t len)
+{
+	const char *cp1 = memchr(filename, '/', len);
+	const char *cp2 = memchr(filename, '.', len);
+	return cp1 && (!cp2 || (cp1 < cp2)) && ccs_correct_word2(filename, len);
+}
+
+/**
  * ccs_correct_path - Check whether the given pathname follows the naming rules.
  *
  * @filename: The pathname to check.
@@ -505,7 +523,7 @@ _Bool ccs_correct_word(const char *string)
  */
 _Bool ccs_correct_path(const char *filename)
 {
-	return *filename == '/' && ccs_correct_word(filename);
+	return ccs_correct_path2(filename, strlen(filename));
 }
 
 /**
@@ -546,16 +564,15 @@ _Bool ccs_correct_domain(const char *domainname)
 		return true;
 	while (1) {
 		const char *cp = strchr(domainname, ' ');
+		const int len = cp ? cp - domainname : strlen(domainname);
+		if (len == 0)
+			return true;
+		if (!ccs_correct_path2(domainname, len))
+			return false;
 		if (!cp)
-			break;
-		if (*domainname != '/' ||
-		    !ccs_correct_word2(domainname, cp - domainname))
-			goto out;
-		domainname = cp + 1;
+			return true;
+		domainname += len + 1;
 	}
-	return ccs_correct_path(domainname);
-out:
-	return false;
 }
 
 /**
@@ -2230,9 +2247,9 @@ unpack:
 }
 
 /**
- * ccs_check_remote_host - Check whether the remote host is running with the TOMOYO 2.5 kernel or not.
+ * ccs_check_remote_host - Check whether the remote host is running with the TOMOYO 2.6 kernel or not.
  *
- * Returns true if running with TOMOYO 2.5 kernel, false otherwise.
+ * Returns true if running with TOMOYO 2.6 kernel, false otherwise.
  */
 _Bool ccs_check_remote_host(void)
 {
@@ -2242,7 +2259,7 @@ _Bool ccs_check_remote_host(void)
 	FILE *fp = ccs_open_read("version");
 	if (!fp ||
 	    fscanf(fp, "%u.%u.%u", &major, &minor, &rev) < 2 ||
-	    major != 2 || minor != 5) {
+	    major != 2 || minor != 6) {
 		const u32 ip = ntohl(ccs_network_ip);
 		fprintf(stderr, "Can't connect to %u.%u.%u.%u:%u\n",
 			(u8) (ip >> 24), (u8) (ip >> 16),
