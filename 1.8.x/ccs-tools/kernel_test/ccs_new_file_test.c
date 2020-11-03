@@ -182,12 +182,14 @@ static void stage_file_test(void)
 		show_result(sysctl(name, 3, buffer, &size, buffer, size), 0);
 	}
 
-	policy = "file read /tmp/uselib "
-		"path1.uid=0 path1.parent.uid=0 10=10-100";
-	write_domain_policy(policy, 0);
-	show_result(uselib("/tmp/uselib"), 1);
-	write_domain_policy(policy, 1);
-	show_result(uselib("/tmp/uselib"), 0);
+	if (uselib("/") != EOF || errno != ENOSYS) {
+		policy = "file read /tmp/uselib "
+			"path1.uid=0 path1.parent.uid=0 10=10-100";
+		write_domain_policy(policy, 0);
+		show_result(uselib("/tmp/uselib"), 1);
+		write_domain_policy(policy, 1);
+		show_result(uselib("/tmp/uselib"), 0);
+	}
 
 	policy = "file write /dev/null";
 	fd = open("/dev/null", O_WRONLY);
