@@ -18,9 +18,9 @@ LANG=C rpm --checksig kernel-3.10.0-1160.2.2.el7.src.rpm | grep -F ': rsa sha1 (
 rpm -ivh kernel-3.10.0-1160.2.2.el7.src.rpm || die "Can't install source package."
 
 cd ~/rpmbuild/SOURCES/ || die "Can't chdir to ~/rpmbuild/SOURCES/ ."
-if [ ! -r ccs-patch-1.8.7-20200922.tar.gz ]
+if [ ! -r ccs-patch-1.8.8-20201111.tar.gz ]
 then
-    wget -O ccs-patch-1.8.7-20200922.tar.gz 'https://osdn.jp/frs/redir.php?f=/tomoyo/49684/ccs-patch-1.8.7-20200922.tar.gz' || die "Can't download patch."
+    wget -O ccs-patch-1.8.8-20201111.tar.gz 'https://osdn.jp/frs/redir.php?f=/tomoyo/49684/ccs-patch-1.8.8-20201111.tar.gz' || die "Can't download patch."
 fi
 
 cd ~/rpmbuild/SPECS/ || die "Can't chdir to ~/rpmbuild/SPECS/ ."
@@ -33,7 +33,7 @@ patch << "EOF" || die "Can't patch spec file."
  %define dist .el7
  
 -# % define buildid .local
-+%define buildid _tomoyo_1.8.7p2
++%define buildid _tomoyo_1.8.8
  
  # If there's no unversioned python, select version explicitly,
  # so it's possible to at least do rh-srpm.
@@ -69,7 +69,7 @@ patch << "EOF" || die "Can't patch spec file."
  ApplyOptionalPatch debrand-rh-i686-cpu.patch
  
 +# TOMOYO Linux
-+tar -zxf %_sourcedir/ccs-patch-1.8.7-20200922.tar.gz
++tar -zxf %_sourcedir/ccs-patch-1.8.8-20201111.tar.gz
 +patch -sp1 < patches/ccs-patch-3.10-centos-7.diff
 +
  # Any further pre-build tree manipulations happen here.

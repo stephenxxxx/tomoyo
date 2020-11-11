@@ -3362,3 +3362,12 @@ Fix 2020/08/19
 
       When support for 5.8 kernel was added, ccs_search_binary_handler() for
       3.7- was by error mapped to wrong function.
+
+Fix 2020/10/24
+
+    @ Fix /proc pathname calculation for Linux 5.8+ kernels.
+
+      ccs_realpath() for 5.8+ was by error not using proc_pid_ns() when
+      calculating /proc pathname.
+
+Version 1.8.8   2020/11/11   Fifteenth anniversary release.
