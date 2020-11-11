@@ -1,9 +1,9 @@
 /*
- * ccs_policy_memory_test.c
+ * tomoyo_policy_memory_test.c
  *
  * Copyright (C) 2005-2011  NTT DATA CORPORATION
  *
- * Version: 2.6.0+   2020/01/01
+ * Version: 2.6.0+   2020/11/11
  *
  * Usage: Run this program using init= boot option.
  *

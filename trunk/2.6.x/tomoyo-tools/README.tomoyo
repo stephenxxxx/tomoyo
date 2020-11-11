@@ -15,3 +15,9 @@ Version 2.6.0p1 2020/01/01   Bug fix release.
 
   /usr/lib/tomoyo/init_policy
     Remove "socket:[family=\\$:type=\\$:protocol=\\$]" from ANY_PATHNAME group.
+
+Version 2.6.0p2 2020/11/11   Bug fix release.
+
+  Loosen pathname/domainname validation.
+
+  Limit wildcard recursion depth.
