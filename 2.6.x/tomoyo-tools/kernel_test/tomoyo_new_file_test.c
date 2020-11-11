@@ -1,9 +1,9 @@
 /*
- * ccs_new_file_test.c
+ * tomoyo_new_file_test.c
  *
  * Copyright (C) 2005-2011  NTT DATA CORPORATION
  *
- * Version: 2.6.0+   2020/01/01
+ * Version: 2.6.0+   2020/11/11
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License v2 as published by the
