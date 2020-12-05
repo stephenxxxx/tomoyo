@@ -29,6 +29,41 @@
 
 <div id="changelogs">
 
+<h4>ChangeLog for ccs-patch 1.8.8</h4>
+
+<pre>
+Fix 2020/10/24
+
+    @ Fix /proc pathname calculation for Linux 5.8+ kernels.
+
+      ccs_realpath() for 5.8+ was by error not using proc_pid_ns() when
+      calculating /proc pathname.
+
+Fix 2020/08/19
+
+    @ Fix wrong ccs_search_binary_handler() mapping.
+
+      When support for 5.8 kernel was added, ccs_search_binary_handler() for
+      3.7- was by error mapped to wrong function.
+
+Fix 2020/08/17
+
+    @ Fix ccs_realpath() fallback.
+
+      ccs_realpath() for 3.17+ was by error not calling ccs_get_local_path()
+      when ccs_get_absolute_path() returned -EINVAL.
+
+Fix 2020/07/22
+
+    @ Fix domain transition preference.
+
+      The domain transition preference which was introduced in 1.8.3 is
+      by error ignored since 1.8.3p4, for ccs_update_task_domain() from
+      ccs_write_log2() from ccs_supervisor() from ccs_audit_log() always
+      resets r-&gt;matched_acl to NULL. Change ccs_update_task_domain() not
+      to reset r-&gt;matched_acl to NULL.
+</pre>
+
 <h4>ChangeLog for ccs-patch 1.8.7</h4>
 
 <pre>
