@@ -764,7 +764,7 @@ bool ccs_path_matches_pattern(const struct ccs_path_info *filename,
 	/* If @pattern doesn't contain pattern, I can use strcmp(). */
 	if (!pattern->is_patterned)
 		return !ccs_pathcmp(filename, pattern);
-	/* Dont compare if the number of '/' differs. */
+	/* Don't compare if the number of '/' differs. */
 	if (filename->depth != pattern->depth)
 		return false;
 	/* Compare the initial length without patterns. */
@@ -1786,7 +1786,7 @@ static bool ccs_print_argv0_acl(struct ccs_io_buffer *head,
 }
 
 /**
- * ccs_print_env_acl - Print an evironment variable name's ACL entry.
+ * ccs_print_env_acl - Print an environment variable name's ACL entry.
  *
  * @head: Pointer to "struct ccs_io_buffer".
  * @ptr:  Pointer to "struct ccs_env_acl_record".
@@ -3231,7 +3231,7 @@ unsigned int ccs_poll_control(struct file *file, poll_table *wait)
  * ccs_read_control - read() for /proc/ccs/ interface.
  *
  * @file:       Pointer to "struct file".
- * @buffer:     Poiner to buffer to write to.
+ * @buffer:     Pointer to buffer to write to.
  * @buffer_len: Size of @buffer.
  *
  * Returns bytes read on success, negative value otherwise.
@@ -3410,7 +3410,7 @@ void *ccs_alloc_acl_element(const u8 acl_type,
 		return ptr;
 	}
 	/*
-	 * Substract sizeof(struct ccs_condition_list *) because I eliminated
+	 * Subtract sizeof(struct ccs_condition_list *) because I eliminated
 	 * sizeof(struct ccs_condition_list *) from "struct ccs_acl_info"
 	 * but I must return the start address of "struct ccs_acl_info".
 	 */

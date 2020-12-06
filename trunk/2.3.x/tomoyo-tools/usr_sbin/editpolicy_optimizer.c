@@ -336,7 +336,7 @@ void tomoyo_editpolicy_try_optimize(struct tomoyo_domain_policy *dp, const int c
 				continue;
 			break;
 		case CCS_DIRECTIVE_ALLOW_ENV:
-			/* An environemnt variable name component. */
+			/* An environment variable name component. */
 			sarg.name = s[0];
 			tomoyo_fill_path_info(&sarg);
 			darg.name = d[0];

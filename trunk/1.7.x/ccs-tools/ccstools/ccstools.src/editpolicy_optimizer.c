@@ -391,7 +391,7 @@ void editpolicy_try_optimize(struct domain_policy *dp, const int current,
 				continue;
 			break;
 		case DIRECTIVE_ALLOW_ENV:
-			/* An environemnt variable name component. */
+			/* An environment variable name component. */
 			sarg.name = s[0];
 			fill_path_info(&sarg);
 			darg.name = d[0];

@@ -217,7 +217,7 @@ static int ccs_update_globally_readable_entry(const char *filename,
 }
 
 /**
- * ccs_is_globally_readable_file - Check if the file is unconditionnaly permitted to be open()ed for reading.
+ * ccs_is_globally_readable_file - Check if the file is unconditionally permitted to be open()ed for reading.
  *
  * @filename: The filename to check.
  *
@@ -617,7 +617,7 @@ static int ccs_update_no_rewrite_entry(const char *pattern,
 }
 
 /**
- * ccs_is_no_rewrite_file - Check if the given pathname is not permitted to be rewrited.
+ * ccs_is_no_rewrite_file - Check if the given pathname is not permitted to be rewritten.
  *
  * @filename: Filename to check.
  *

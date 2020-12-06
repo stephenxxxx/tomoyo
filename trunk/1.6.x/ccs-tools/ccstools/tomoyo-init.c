@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
 	 * unmount /sys/kernel/security/ and /sys/ automatically because
 	 * programs in this package (except this program) don't mount them
 	 * automatically. But in some environments, not unmounting them causes
-	 * boot proceedure to fail at processing /etc/fstab . If you were using
+	 * boot procedure to fail at processing /etc/fstab . If you were using
 	 * shell script version of this program with modifications to unmount
 	 * them, please enable below block and recompile.
 	 */

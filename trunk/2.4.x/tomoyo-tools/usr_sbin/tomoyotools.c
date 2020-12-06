@@ -960,7 +960,7 @@ int ccs_parse_number(const char *number, struct ccs_number_entry *entry)
  *
  * @filename: String to send to remote tomoyo-editpolicy-agent program.
  *
- * Retruns file descriptor on success, EOF otherwise.
+ * Returns file descriptor on success, EOF otherwise.
  */
 int ccs_open_stream(const char *filename)
 {
@@ -1215,7 +1215,7 @@ static void ccs_add_process_entry(const char *line, const pid_t ppid,
 /**
  * ccs_read_process_list - Read all process's information.
  *
- * @show_all: Ture if kernel threads should be included, false otherwise.
+ * @show_all: True if kernel threads should be included, false otherwise.
  *
  * Returns nothing.
  */

@@ -121,7 +121,7 @@ static bool ccs_check_envp(const char *env_name, const char *env_value,
  * @argc: Length of @argc.
  * @argv: Pointer to "struct ccs_argv_entry".
  * @envc: Length of @envp.
- * @envp: Poiner to "struct ccs_envp_entry".
+ * @envp: Pointer to "struct ccs_envp_entry".
  *
  * Returns true on success, false otherwise.
  */
@@ -268,7 +268,7 @@ static bool ccs_scan_bprm(struct ccs_execve_entry *ee,
  *
  * @target:   Pointer to "struct ccs_path_info".
  * @symlinkc: Length of @symlinkp.
- * @symlinkp: Poiner to "struct ccs_symlinkp_entry".
+ * @symlinkp: Pointer to "struct ccs_symlinkp_entry".
  *
  * Returns true on success, false otherwise.
  */

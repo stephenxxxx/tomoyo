@@ -355,7 +355,7 @@ static int ccs_audit_path_number_log(struct ccs_request_info *r,
 LIST_HEAD(ccs_globally_readable_list);
 
 /**
- * ccs_is_globally_readable_file - Check if the file is unconditionnaly permitted to be open()ed for reading.
+ * ccs_is_globally_readable_file - Check if the file is unconditionally permitted to be open()ed for reading.
  *
  * @filename: The filename to check.
  *
@@ -549,7 +549,7 @@ bool ccs_read_file_pattern(struct ccs_io_buffer *head)
 LIST_HEAD(ccs_no_rewrite_list);
 
 /**
- * ccs_is_no_rewrite_file - Check if the given pathname is not permitted to be rewrited.
+ * ccs_is_no_rewrite_file - Check if the given pathname is not permitted to be rewritten.
  *
  * @filename: Filename to check.
  *

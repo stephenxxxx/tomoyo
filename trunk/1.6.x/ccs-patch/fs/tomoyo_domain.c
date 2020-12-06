@@ -491,7 +491,7 @@ bool ccs_read_domain_keeper_policy(struct ccs_io_buffer *head)
  * @program:    The name of program.
  * @last_name:  The last component of @domainname.
  *
- * Returns true if executing @program supresses domain transition,
+ * Returns true if executing @program suppresses domain transition,
  * false otherwise.
  */
 static bool ccs_is_domain_keeper(const struct ccs_path_info *domainname,
@@ -1551,7 +1551,7 @@ static bool ccs_find_execute_handler(struct ccs_execve_entry *ee,
  *
  * @bprm: Pointer to "struct linux_binprm".
  * @pos:  Location to dump.
- * @dump: Poiner to "struct ccs_page_dump".
+ * @dump: Pointer to "struct ccs_page_dump".
  *
  * Returns true on success, false otherwise.
  */
@@ -1687,7 +1687,7 @@ void ccs_finish_execve(int retval)
 		return;
 	if (retval < 0)
 		goto out;
-	/* Proceed to next domain if execution suceeded. */
+	/* Proceed to next domain if execution succeeded. */
 	task->ccs_domain_info = ee->r.domain;
 	mb(); /* Make domain transition visible to other CPUs. */
 	/* Mark the current process as execute handler. */

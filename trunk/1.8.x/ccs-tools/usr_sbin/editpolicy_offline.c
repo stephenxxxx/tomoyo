@@ -3378,7 +3378,7 @@ static int ccs_set_mode(char *name, const char *value,
 			if (strstr(value, ccs_mode[mode]))
 				/*
 				 * Update lower 3 bits in order to distinguish
-				 * 'config' from 'CCS_CONFIG_USE_DEAFULT'.
+				 * 'config' from 'CCS_CONFIG_USE_DEFAULT'.
 				 */
 				config = (config & ~7) | mode;
 		if (config != CCS_CONFIG_USE_DEFAULT) {
