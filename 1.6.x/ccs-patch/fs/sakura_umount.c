@@ -34,7 +34,7 @@ static LIST1_HEAD(ccs_no_umount_list);
 /**
  * ccs_update_no_umount_acl - Update "struct ccs_no_umount_entry" list.
  *
- * @dir:       The name of directrory.
+ * @dir:       The name of directory.
  * @is_delete: True if it is a delete request.
  *
  * Returns 0 on success, negative value otherwise.
@@ -141,7 +141,7 @@ int ccs_may_umount(struct vfsmount *mnt)
  * @data:      String to parse.
  * @is_delete: True if it is a delete request.
  *
- * Returns 0 on sucess, negative value otherwise.
+ * Returns 0 on success, negative value otherwise.
  */
 int ccs_write_no_umount_policy(char *data, const bool is_delete)
 {

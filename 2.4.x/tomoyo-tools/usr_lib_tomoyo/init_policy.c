@@ -651,7 +651,7 @@ static void make_initializers(void)
  * @dir:  Directory to create.
  * @mode: Create mode.
  *
- * Returns 0 on success, EOF otehrwise.
+ * Returns 0 on success, EOF otherwise.
  */
 static int mkdir2(const char *dir, int mode)
 {
@@ -664,7 +664,7 @@ static int mkdir2(const char *dir, int mode)
  * @old: Symlink's content.
  * @new: Symlink to create.
  *
- * Returns 0 on success, EOF otehrwise.
+ * Returns 0 on success, EOF otherwise.
  */
 static int symlink2(const char *old, const char *new)
 {
@@ -898,7 +898,7 @@ static _Bool file_only_profile = 0;
 static const char *grant_log = "no";
 /* Should we audit access rejected logs? */
 static const char *reject_log = "yes";
-/* How many audit log entries to spool in the kenrel memory? */
+/* How many audit log entries to spool in the kernel memory? */
 static unsigned int max_audit_log = 1024;
 /* How many ACL entries to add automatically by learning mode? */
 static unsigned int max_learning_entry = 2048;

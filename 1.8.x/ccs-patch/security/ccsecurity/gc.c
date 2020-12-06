@@ -816,7 +816,7 @@ static void ccs_try_to_gc(const enum ccs_policy_id type,
 	return;
 reinject:
 	/*
-	 * We can safely reinject this element here bacause
+	 * We can safely reinject this element here because
 	 * (1) Appending list elements and removing list elements are protected
 	 *     by ccs_policy_lock mutex.
 	 * (2) Only this function removes list elements and this function is

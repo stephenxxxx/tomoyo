@@ -1451,7 +1451,7 @@ static bool ccs_find_execute_handler(struct ccs_execve *ee, const u8 type)
  *
  * @bprm: Pointer to "struct linux_binprm".
  * @pos:  Location to dump.
- * @dump: Poiner to "struct ccs_page_dump".
+ * @dump: Pointer to "struct ccs_page_dump".
  *
  * Returns true on success, false otherwise.
  */
@@ -4142,7 +4142,7 @@ static bool ccs_envp(const char *env_name, const char *env_value,
  * @argc: Length of @argc.
  * @argv: Pointer to "struct ccs_argv".
  * @envc: Length of @envp.
- * @envp: Poiner to "struct ccs_envp".
+ * @envp: Pointer to "struct ccs_envp".
  *
  * Returns true on success, false otherwise.
  */

@@ -489,7 +489,7 @@ static int ccs_write_profile(struct ccs_io_buffer *head)
 			if (strstr(cp, ccs_mode_4[mode]))
 				/*
 				 * Update lower 3 bits in order to distinguish
-				 * 'config' from 'CCS_CONFIG_USE_DEAFULT'.
+				 * 'config' from 'CCS_CONFIG_USE_DEFAULT'.
 				 */
 				config = (config & ~7) | mode;
 #ifdef CONFIG_CCSECURITY_AUDIT
@@ -1372,7 +1372,7 @@ static bool ccs_print_path_number_acl(struct ccs_io_buffer *head,
 }
 
 /**
- * ccs_print_env_acl - Print an evironment variable name's ACL entry.
+ * ccs_print_env_acl - Print an environment variable name's ACL entry.
  *
  * @head: Pointer to "struct ccs_io_buffer".
  * @ptr:  Pointer to "struct ccs_env_acl".
@@ -2591,7 +2591,7 @@ unsigned int ccs_poll_control(struct file *file, poll_table *wait)
  * ccs_read_control - read() for /proc/ccs/ interface.
  *
  * @file:       Pointer to "struct file".
- * @buffer:     Poiner to buffer to write to.
+ * @buffer:     Pointer to buffer to write to.
  * @buffer_len: Size of @buffer.
  *
  * Returns bytes read on success, negative value otherwise.

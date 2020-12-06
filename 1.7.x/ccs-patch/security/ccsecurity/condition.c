@@ -95,7 +95,7 @@ static bool ccs_envp(const char *env_name, const char *env_value,
  * @argc: Length of @argc.
  * @argv: Pointer to "struct ccs_argv_entry".
  * @envc: Length of @envp.
- * @envp: Poiner to "struct ccs_envp_entry".
+ * @envp: Pointer to "struct ccs_envp_entry".
  *
  * Returns true on success, false otherwise.
  */

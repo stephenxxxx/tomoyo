@@ -346,7 +346,7 @@ bool ccs_read_domain_keeper_policy(struct ccs_io_buffer *head)
  * @program:    The name of program.
  * @last_name:  The last component of @domainname.
  *
- * Returns true if executing @program supresses domain transition,
+ * Returns true if executing @program suppresses domain transition,
  * false otherwise.
  *
  * Caller holds ccs_read_lock().
@@ -1098,7 +1098,7 @@ static bool ccs_find_execute_handler(struct ccs_execve_entry *ee,
  *
  * @bprm: Pointer to "struct linux_binprm".
  * @pos:  Location to dump.
- * @dump: Poiner to "struct ccs_page_dump".
+ * @dump: Pointer to "struct ccs_page_dump".
  *
  * Returns true on success, false otherwise.
  */

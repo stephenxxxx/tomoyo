@@ -11,7 +11,7 @@
  * (Implementation of the Tamper-Proof Device Filesystem).
  *
  * You can pass the output of this program when you mount SYAORAN.
- * The proceedure for using SYAORAN is described in a documentation file
+ * The procedure for using SYAORAN is described in a documentation file
  * "Policy Specifications of SYAORAN filesystem".
  *
  */

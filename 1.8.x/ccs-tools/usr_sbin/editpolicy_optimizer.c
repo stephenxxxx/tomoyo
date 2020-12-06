@@ -430,7 +430,7 @@ static void editpolicy_do_optimize(char *cp, const int current,
 				continue;
 			break;
 		case DIRECTIVE_MISC_ENV:
-			/* An environemnt variable name component. */
+			/* An environment variable name component. */
 			sarg.name = s[0];
 			ccs_fill_path_info(&sarg);
 			darg.name = d[0];
