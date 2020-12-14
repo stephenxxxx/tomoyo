@@ -12,7 +12,7 @@ cd /tmp/ || die "Can't chdir to /tmp/ ."
 
 if [ ! -r kernel-2.6.18-419.el5.src.rpm ]
 then
-    wget http://vault.centos.org/5.11/updates/SRPMS/kernel-2.6.18-419.el5.src.rpm || die "Can't download source package."
+    wget https://vault.centos.org/5.11/updates/SRPMS/kernel-2.6.18-419.el5.src.rpm || die "Can't download source package."
 fi
 LANG=C rpm --checksig kernel-2.6.18-419.el5.src.rpm | grep -F ': (sha1) dsa sha1 md5 gpg OK' || die "Can't verify signature."
 rpm -ivh kernel-2.6.18-419.el5.src.rpm || die "Can't install source package."
