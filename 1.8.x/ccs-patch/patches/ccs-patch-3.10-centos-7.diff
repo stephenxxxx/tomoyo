@@ -1,6 +1,6 @@
 This is TOMOYO Linux patch for CentOS 7.
 
-Source code for this patch is http://vault.centos.org/centos/7/updates/Source/SPackages/kernel-3.10.0-1160.6.1.el7.src.rpm
+Source code for this patch is https://vault.centos.org/centos/7/updates/Source/SPackages/kernel-3.10.0-1160.6.1.el7.src.rpm
 ---
  fs/exec.c                 |    2 
  fs/open.c                 |    2 

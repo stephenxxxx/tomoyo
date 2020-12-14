@@ -1,6 +1,6 @@
 This is TOMOYO Linux patch for CentOS 5.
 
-Source code for this patch is http://vault.centos.org/5.11/updates/SRPMS/kernel-2.6.18-419.el5.src.rpm
+Source code for this patch is https://vault.centos.org/5.11/updates/SRPMS/kernel-2.6.18-419.el5.src.rpm
 ---
  arch/alpha/kernel/ptrace.c  |    5 +++++
  arch/ia64/ia32/sys_ia32.c   |    3 +++
