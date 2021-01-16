@@ -1,6 +1,6 @@
-This is TOMOYO Linux patch for kernel 5.11-rc1.
+This is TOMOYO Linux patch for kernel 5.11-rc3.
 
-Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.tar.gz
+Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc3.tar.gz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -28,8 +28,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  security/security.c       |    5 ++-
  24 files changed, 160 insertions(+), 30 deletions(-)
 
---- linux-5.11-rc1.orig/fs/exec.c
-+++ linux-5.11-rc1/fs/exec.c
+--- linux-5.11-rc3.orig/fs/exec.c
++++ linux-5.11-rc3/fs/exec.c
 @@ -1823,7 +1823,7 @@ static int bprm_execve(struct linux_binp
  	if (retval)
  		goto out;
@@ -39,8 +39,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  	if (retval < 0)
  		goto out;
  
---- linux-5.11-rc1.orig/fs/open.c
-+++ linux-5.11-rc1/fs/open.c
+--- linux-5.11-rc3.orig/fs/open.c
++++ linux-5.11-rc3/fs/open.c
 @@ -1331,6 +1331,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
   */
  SYSCALL_DEFINE0(vhangup)
@@ -50,8 +50,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  	if (capable(CAP_SYS_TTY_CONFIG)) {
  		tty_vhangup_self();
  		return 0;
---- linux-5.11-rc1.orig/fs/proc/version.c
-+++ linux-5.11-rc1/fs/proc/version.c
+--- linux-5.11-rc3.orig/fs/proc/version.c
++++ linux-5.11-rc3/fs/proc/version.c
 @@ -21,3 +21,10 @@ static int __init proc_version_init(void
  	return 0;
  }
@@ -59,12 +59,12 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 5.11-rc1 2020/12/29\n");
++	printk(KERN_INFO "Hook version: 5.11-rc3 2021/01/16\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
---- linux-5.11-rc1.orig/include/linux/sched.h
-+++ linux-5.11-rc1/include/linux/sched.h
+--- linux-5.11-rc3.orig/include/linux/sched.h
++++ linux-5.11-rc3/include/linux/sched.h
 @@ -43,6 +43,7 @@ struct backing_dev_info;
  struct bio_list;
  struct blk_plug;
@@ -84,8 +84,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  #ifdef CONFIG_GCC_PLUGIN_STACKLEAK
  	unsigned long			lowest_stack;
---- linux-5.11-rc1.orig/include/linux/security.h
-+++ linux-5.11-rc1/include/linux/security.h
+--- linux-5.11-rc3.orig/include/linux/security.h
++++ linux-5.11-rc3/include/linux/security.h
 @@ -59,6 +59,7 @@ struct fs_parameter;
  enum fs_value_type;
  struct watch;
@@ -315,8 +315,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  }
  #endif	/* CONFIG_SECURITY_PATH */
  
---- linux-5.11-rc1.orig/include/net/ip.h
-+++ linux-5.11-rc1/include/net/ip.h
+--- linux-5.11-rc3.orig/include/net/ip.h
++++ linux-5.11-rc3/include/net/ip.h
 @@ -338,6 +338,8 @@ void inet_get_local_port_range(struct ne
  #ifdef CONFIG_SYSCTL
  static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
@@ -335,8 +335,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  	return false;
  }
  
---- linux-5.11-rc1.orig/init/init_task.c
-+++ linux-5.11-rc1/init/init_task.c
+--- linux-5.11-rc3.orig/init/init_task.c
++++ linux-5.11-rc3/init/init_task.c
 @@ -212,6 +212,10 @@ struct task_struct init_task
  #ifdef CONFIG_SECCOMP
  	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
@@ -348,8 +348,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  };
  EXPORT_SYMBOL(init_task);
  
---- linux-5.11-rc1.orig/kernel/kexec.c
-+++ linux-5.11-rc1/kernel/kexec.c
+--- linux-5.11-rc3.orig/kernel/kexec.c
++++ linux-5.11-rc3/kernel/kexec.c
 @@ -16,7 +16,7 @@
  #include <linux/syscalls.h>
  #include <linux/vmalloc.h>
@@ -368,8 +368,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	/* Permit LSMs and IMA to fail the kexec */
  	result = security_kernel_load_data(LOADING_KEXEC_IMAGE, false);
---- linux-5.11-rc1.orig/kernel/module.c
-+++ linux-5.11-rc1/kernel/module.c
+--- linux-5.11-rc3.orig/kernel/module.c
++++ linux-5.11-rc3/kernel/module.c
 @@ -58,6 +58,7 @@
  #include <linux/audit.h>
  #include <uapi/linux/module.h>
@@ -396,8 +396,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	return 0;
  }
---- linux-5.11-rc1.orig/kernel/ptrace.c
-+++ linux-5.11-rc1/kernel/ptrace.c
+--- linux-5.11-rc3.orig/kernel/ptrace.c
++++ linux-5.11-rc3/kernel/ptrace.c
 @@ -1238,6 +1238,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
  {
  	struct task_struct *child;
@@ -422,8 +422,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
---- linux-5.11-rc1.orig/kernel/reboot.c
-+++ linux-5.11-rc1/kernel/reboot.c
+--- linux-5.11-rc3.orig/kernel/reboot.c
++++ linux-5.11-rc3/kernel/reboot.c
 @@ -17,6 +17,7 @@
  #include <linux/syscalls.h>
  #include <linux/syscore_ops.h>
@@ -441,8 +441,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	/*
  	 * If pid namespaces are enabled and the current task is in a child
---- linux-5.11-rc1.orig/kernel/sched/core.c
-+++ linux-5.11-rc1/kernel/sched/core.c
+--- linux-5.11-rc3.orig/kernel/sched/core.c
++++ linux-5.11-rc3/kernel/sched/core.c
 @@ -5574,6 +5574,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
@@ -452,8 +452,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	/*
  	 * Setpriority might change our priority at the same moment.
---- linux-5.11-rc1.orig/kernel/signal.c
-+++ linux-5.11-rc1/kernel/signal.c
+--- linux-5.11-rc3.orig/kernel/signal.c
++++ linux-5.11-rc3/kernel/signal.c
 @@ -3674,6 +3674,8 @@ static inline void prepare_kill_siginfo(
  SYSCALL_DEFINE2(kill, pid_t, pid, int, sig)
  {
@@ -521,8 +521,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	return do_send_specific(tgid, pid, sig, info);
  }
---- linux-5.11-rc1.orig/kernel/sys.c
-+++ linux-5.11-rc1/kernel/sys.c
+--- linux-5.11-rc3.orig/kernel/sys.c
++++ linux-5.11-rc3/kernel/sys.c
 @@ -206,6 +206,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
  
  	if (which > PRIO_USER || which < PRIO_PROCESS)
@@ -552,8 +552,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	errno = -EFAULT;
  	if (!copy_from_user(tmp, name, len)) {
---- linux-5.11-rc1.orig/kernel/time/timekeeping.c
-+++ linux-5.11-rc1/kernel/time/timekeeping.c
+--- linux-5.11-rc3.orig/kernel/time/timekeeping.c
++++ linux-5.11-rc3/kernel/time/timekeeping.c
 @@ -22,6 +22,7 @@
  #include <linux/pvclock_gtod.h>
  #include <linux/compiler.h>
@@ -587,8 +587,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  		/*
  		 * Validate if a timespec/timeval used to inject a time
---- linux-5.11-rc1.orig/net/ipv4/raw.c
-+++ linux-5.11-rc1/net/ipv4/raw.c
+--- linux-5.11-rc3.orig/net/ipv4/raw.c
++++ linux-5.11-rc3/net/ipv4/raw.c
 @@ -768,6 +768,10 @@ static int raw_recvmsg(struct sock *sk,
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -600,8 +600,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	copied = skb->len;
  	if (len < copied) {
---- linux-5.11-rc1.orig/net/ipv4/udp.c
-+++ linux-5.11-rc1/net/ipv4/udp.c
+--- linux-5.11-rc3.orig/net/ipv4/udp.c
++++ linux-5.11-rc3/net/ipv4/udp.c
 @@ -1800,6 +1800,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -611,8 +611,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	ulen = udp_skb_len(skb);
  	copied = len;
---- linux-5.11-rc1.orig/net/ipv6/raw.c
-+++ linux-5.11-rc1/net/ipv6/raw.c
+--- linux-5.11-rc3.orig/net/ipv6/raw.c
++++ linux-5.11-rc3/net/ipv6/raw.c
 @@ -480,6 +480,10 @@ static int rawv6_recvmsg(struct sock *sk
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -624,8 +624,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	copied = skb->len;
  	if (copied > len) {
---- linux-5.11-rc1.orig/net/ipv6/udp.c
-+++ linux-5.11-rc1/net/ipv6/udp.c
+--- linux-5.11-rc3.orig/net/ipv6/udp.c
++++ linux-5.11-rc3/net/ipv6/udp.c
 @@ -342,6 +342,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -635,8 +635,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  
  	ulen = udp6_skb_len(skb);
  	copied = len;
---- linux-5.11-rc1.orig/net/socket.c
-+++ linux-5.11-rc1/net/socket.c
+--- linux-5.11-rc3.orig/net/socket.c
++++ linux-5.11-rc3/net/socket.c
 @@ -1736,6 +1736,10 @@ int __sys_accept4_file(struct file *file
  	if (err < 0)
  		goto out_fd;
@@ -648,8 +648,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  	if (upeer_sockaddr) {
  		len = newsock->ops->getname(newsock,
  					(struct sockaddr *)&address, 2);
---- linux-5.11-rc1.orig/net/unix/af_unix.c
-+++ linux-5.11-rc1/net/unix/af_unix.c
+--- linux-5.11-rc3.orig/net/unix/af_unix.c
++++ linux-5.11-rc3/net/unix/af_unix.c
 @@ -2127,6 +2127,10 @@ static int unix_dgram_recvmsg(struct soc
  						EPOLLOUT | EPOLLWRNORM |
  						EPOLLWRBAND);
@@ -669,8 +669,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
  	mutex_unlock(&u->iolock);
  out:
  	return err;
---- linux-5.11-rc1.orig/security/Kconfig
-+++ linux-5.11-rc1/security/Kconfig
+--- linux-5.11-rc3.orig/security/Kconfig
++++ linux-5.11-rc3/security/Kconfig
 @@ -291,5 +291,7 @@ config LSM
  
  source "security/Kconfig.hardening"
@@ -679,8 +679,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
 +
  endmenu
  
---- linux-5.11-rc1.orig/security/Makefile
-+++ linux-5.11-rc1/security/Makefile
+--- linux-5.11-rc3.orig/security/Makefile
++++ linux-5.11-rc3/security/Makefile
 @@ -36,3 +36,6 @@ obj-$(CONFIG_BPF_LSM)			+= bpf/
  # Object integrity file lists
  subdir-$(CONFIG_INTEGRITY)		+= integrity
@@ -688,8 +688,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.11-rc1.t
 +
 +subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
---- linux-5.11-rc1.orig/security/security.c
-+++ linux-5.11-rc1/security/security.c
+--- linux-5.11-rc3.orig/security/security.c
++++ linux-5.11-rc3/security/security.c
 @@ -1586,7 +1586,9 @@ int security_task_alloc(struct task_stru
  
  	if (rc)
