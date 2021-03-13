@@ -1542,6 +1542,20 @@ static int ccs_start_execve(struct linux_binprm *bprm,
 		ccsecurity_exports.load_policy(bprm->filename);
 #endif
 	*eep = NULL;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 18, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 9, 0)
+	if (!strcmp(bprm->filename, "none")) {
+		/*
+		 * Since we can't calculate pathname when called from
+		 * call_usermodehelper_setup_file() from fork_usermode_blob(),
+		 * skip permission check and suppress domain transition.
+		 */
+		const char *s = kstrdup_const(bprm->filename, GFP_NOWAIT | __GFP_NOWARN);
+
+		if (s == bprm->filename)
+			return 0;
+		kfree_const(s);
+	}
+#endif
 	ee = kzalloc(sizeof(*ee), CCS_GFP_FLAGS);
 	if (!ee)
 		return -ENOMEM;
