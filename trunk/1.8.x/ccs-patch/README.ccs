@@ -3371,3 +3371,14 @@ Fix 2020/10/24
       calculating /proc pathname.
 
 Version 1.8.8   2020/11/11   Fifteenth anniversary release.
+
+Fix 2021/03/13
+
+    @ Skip permission checks for fileless execution requests.
+
+      Kernels from 4.18 to 5.8 are using call_usermodehelper_setup_file() for
+      starting program without a valid pathname on a filesystem.
+      /sbin/modprobe from dockerd process could not load bpfilter.ko module
+      because ccs_symlink_path() cannot calculate pathname of program without
+      a valid pathname. Thus, allow call_usermodehelper_setup_file() to bypass
+      permission checks and suppress domain transitions.
