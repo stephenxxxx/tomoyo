@@ -3732,7 +3732,7 @@ out:
 static bool ccs_kernel_service(void)
 {
 	/* Nothing to do if I am a kernel service. */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 5, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 5, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0)
 	return (current->flags & (PF_KTHREAD | PF_IO_WORKER)) == PF_KTHREAD;
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)
 	return current->flags & PF_KTHREAD;

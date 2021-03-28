@@ -1,6 +1,6 @@
 This is TOMOYO Linux patch for CentOS 8.
 
-Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SPackages/kernel-4.18.0-240.10.1.el8_3.src.rpm
+Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SPackages/kernel-4.18.0-240.15.1.el8_3.src.rpm
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -28,8 +28,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  security/security.c       |    9 +++++-
  24 files changed, 148 insertions(+), 29 deletions(-)
 
---- linux-4.18.0-240.10.1.el8.orig/fs/exec.c
-+++ linux-4.18.0-240.10.1.el8/fs/exec.c
+--- linux-4.18.0-240.15.1.el8.orig/fs/exec.c
++++ linux-4.18.0-240.15.1.el8/fs/exec.c
 @@ -1694,7 +1694,7 @@ static int exec_binprm(struct linux_binp
  	old_vpid = task_pid_nr_ns(current, task_active_pid_ns(current->parent));
  	rcu_read_unlock();
@@ -39,8 +39,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  	if (ret >= 0) {
  		audit_bprm(bprm);
  		trace_sched_process_exec(current, old_pid, bprm);
---- linux-4.18.0-240.10.1.el8.orig/fs/open.c
-+++ linux-4.18.0-240.10.1.el8/fs/open.c
+--- linux-4.18.0-240.15.1.el8.orig/fs/open.c
++++ linux-4.18.0-240.15.1.el8/fs/open.c
 @@ -1180,6 +1180,8 @@ SYSCALL_DEFINE1(close, unsigned int, fd)
   */
  SYSCALL_DEFINE0(vhangup)
@@ -50,8 +50,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  	if (capable(CAP_SYS_TTY_CONFIG)) {
  		tty_vhangup_self();
  		return 0;
---- linux-4.18.0-240.10.1.el8.orig/fs/proc/version.c
-+++ linux-4.18.0-240.10.1.el8/fs/proc/version.c
+--- linux-4.18.0-240.15.1.el8.orig/fs/proc/version.c
++++ linux-4.18.0-240.15.1.el8/fs/proc/version.c
 @@ -21,3 +21,10 @@ static int __init proc_version_init(void
  	return 0;
  }
@@ -59,12 +59,12 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 4.18.0-240.10.1.el8_3 2021/02/14\n");
++	printk(KERN_INFO "Hook version: 4.18.0-240.15.1.el8_3 2021/03/28\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
---- linux-4.18.0-240.10.1.el8.orig/include/linux/sched.h
-+++ linux-4.18.0-240.10.1.el8/include/linux/sched.h
+--- linux-4.18.0-240.15.1.el8.orig/include/linux/sched.h
++++ linux-4.18.0-240.15.1.el8/include/linux/sched.h
 @@ -38,6 +38,7 @@ struct audit_context;
  struct backing_dev_info;
  struct bio_list;
@@ -73,7 +73,7 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  struct cfs_rq;
  struct fs_struct;
  struct futex_pi_state;
-@@ -1229,6 +1230,10 @@ struct task_struct {
+@@ -1239,6 +1240,10 @@ struct task_struct {
  	/* Used by LSM modules for access restriction: */
  	void				*security;
  #endif
@@ -84,8 +84,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	/*
  	 * New fields for task_struct should be added above here, so that
---- linux-4.18.0-240.10.1.el8.orig/include/linux/security.h
-+++ linux-4.18.0-240.10.1.el8/include/linux/security.h
+--- linux-4.18.0-240.15.1.el8.orig/include/linux/security.h
++++ linux-4.18.0-240.15.1.el8/include/linux/security.h
 @@ -54,6 +54,7 @@ struct xattr;
  struct kernfs_node;
  struct xfrm_sec_ctx;
@@ -306,8 +306,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  }
  #endif	/* CONFIG_SECURITY_PATH */
  
---- linux-4.18.0-240.10.1.el8.orig/include/net/ip.h
-+++ linux-4.18.0-240.10.1.el8/include/net/ip.h
+--- linux-4.18.0-240.15.1.el8.orig/include/net/ip.h
++++ linux-4.18.0-240.15.1.el8/include/net/ip.h
 @@ -285,6 +285,8 @@ void inet_get_local_port_range(struct ne
  #ifdef CONFIG_SYSCTL
  static inline int inet_is_local_reserved_port(struct net *net, int port)
@@ -326,8 +326,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  	return 0;
  }
  
---- linux-4.18.0-240.10.1.el8.orig/init/init_task.c
-+++ linux-4.18.0-240.10.1.el8/init/init_task.c
+--- linux-4.18.0-240.15.1.el8.orig/init/init_task.c
++++ linux-4.18.0-240.15.1.el8/init/init_task.c
 @@ -186,6 +186,10 @@ struct task_struct init_task
  #ifdef CONFIG_SECURITY
  	.security	= NULL,
@@ -339,8 +339,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  };
  EXPORT_SYMBOL(init_task);
  
---- linux-4.18.0-240.10.1.el8.orig/kernel/kexec.c
-+++ linux-4.18.0-240.10.1.el8/kernel/kexec.c
+--- linux-4.18.0-240.15.1.el8.orig/kernel/kexec.c
++++ linux-4.18.0-240.15.1.el8/kernel/kexec.c
 @@ -18,7 +18,7 @@
  #include <linux/syscalls.h>
  #include <linux/vmalloc.h>
@@ -359,8 +359,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	/* Permit LSMs and IMA to fail the kexec */
  	result = security_kernel_load_data(LOADING_KEXEC_IMAGE);
---- linux-4.18.0-240.10.1.el8.orig/kernel/module.c
-+++ linux-4.18.0-240.10.1.el8/kernel/module.c
+--- linux-4.18.0-240.15.1.el8.orig/kernel/module.c
++++ linux-4.18.0-240.15.1.el8/kernel/module.c
 @@ -67,6 +67,7 @@
  #include <linux/audit.h>
  #include <uapi/linux/module.h>
@@ -387,8 +387,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	return 0;
  }
---- linux-4.18.0-240.10.1.el8.orig/kernel/ptrace.c
-+++ linux-4.18.0-240.10.1.el8/kernel/ptrace.c
+--- linux-4.18.0-240.15.1.el8.orig/kernel/ptrace.c
++++ linux-4.18.0-240.15.1.el8/kernel/ptrace.c
 @@ -1119,6 +1119,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
  {
  	struct task_struct *child;
@@ -413,8 +413,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
---- linux-4.18.0-240.10.1.el8.orig/kernel/reboot.c
-+++ linux-4.18.0-240.10.1.el8/kernel/reboot.c
+--- linux-4.18.0-240.15.1.el8.orig/kernel/reboot.c
++++ linux-4.18.0-240.15.1.el8/kernel/reboot.c
 @@ -16,6 +16,7 @@
  #include <linux/syscalls.h>
  #include <linux/syscore_ops.h>
@@ -432,9 +432,9 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	/*
  	 * If pid namespaces are enabled and the current task is in a child
---- linux-4.18.0-240.10.1.el8.orig/kernel/sched/core.c
-+++ linux-4.18.0-240.10.1.el8/kernel/sched/core.c
-@@ -4144,6 +4144,8 @@ int can_nice(const struct task_struct *p
+--- linux-4.18.0-240.15.1.el8.orig/kernel/sched/core.c
++++ linux-4.18.0-240.15.1.el8/kernel/sched/core.c
+@@ -4145,6 +4145,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
  	long nice, retval;
@@ -443,8 +443,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	/*
  	 * Setpriority might change our priority at the same moment.
---- linux-4.18.0-240.10.1.el8.orig/kernel/signal.c
-+++ linux-4.18.0-240.10.1.el8/kernel/signal.c
+--- linux-4.18.0-240.15.1.el8.orig/kernel/signal.c
++++ linux-4.18.0-240.15.1.el8/kernel/signal.c
 @@ -3533,6 +3533,8 @@ SYSCALL_DEFINE2(kill, pid_t, pid, int, s
  {
  	struct kernel_siginfo info;
@@ -490,8 +490,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  	return do_send_specific(tgid, pid, sig, info);
  }
  
---- linux-4.18.0-240.10.1.el8.orig/kernel/sys.c
-+++ linux-4.18.0-240.10.1.el8/kernel/sys.c
+--- linux-4.18.0-240.15.1.el8.orig/kernel/sys.c
++++ linux-4.18.0-240.15.1.el8/kernel/sys.c
 @@ -207,6 +207,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
  
  	if (which > PRIO_USER || which < PRIO_PROCESS)
@@ -521,8 +521,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	down_write(&uts_sem);
  	errno = -EFAULT;
---- linux-4.18.0-240.10.1.el8.orig/kernel/time/timekeeping.c
-+++ linux-4.18.0-240.10.1.el8/kernel/time/timekeeping.c
+--- linux-4.18.0-240.15.1.el8.orig/kernel/time/timekeeping.c
++++ linux-4.18.0-240.15.1.el8/kernel/time/timekeeping.c
 @@ -26,6 +26,7 @@
  #include <linux/pvclock_gtod.h>
  #include <linux/compiler.h>
@@ -556,8 +556,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  		/*
  		 * Validate if a timespec/timeval used to inject a time
---- linux-4.18.0-240.10.1.el8.orig/net/ipv4/raw.c
-+++ linux-4.18.0-240.10.1.el8/net/ipv4/raw.c
+--- linux-4.18.0-240.15.1.el8.orig/net/ipv4/raw.c
++++ linux-4.18.0-240.15.1.el8/net/ipv4/raw.c
 @@ -781,6 +781,10 @@ static int raw_recvmsg(struct sock *sk,
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -569,8 +569,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	copied = skb->len;
  	if (len < copied) {
---- linux-4.18.0-240.10.1.el8.orig/net/ipv4/udp.c
-+++ linux-4.18.0-240.10.1.el8/net/ipv4/udp.c
+--- linux-4.18.0-240.15.1.el8.orig/net/ipv4/udp.c
++++ linux-4.18.0-240.15.1.el8/net/ipv4/udp.c
 @@ -1723,6 +1723,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -580,8 +580,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	ulen = udp_skb_len(skb);
  	copied = len;
---- linux-4.18.0-240.10.1.el8.orig/net/ipv6/raw.c
-+++ linux-4.18.0-240.10.1.el8/net/ipv6/raw.c
+--- linux-4.18.0-240.15.1.el8.orig/net/ipv6/raw.c
++++ linux-4.18.0-240.15.1.el8/net/ipv6/raw.c
 @@ -485,6 +485,10 @@ static int rawv6_recvmsg(struct sock *sk
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -593,8 +593,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	copied = skb->len;
  	if (copied > len) {
---- linux-4.18.0-240.10.1.el8.orig/net/ipv6/udp.c
-+++ linux-4.18.0-240.10.1.el8/net/ipv6/udp.c
+--- linux-4.18.0-240.15.1.el8.orig/net/ipv6/udp.c
++++ linux-4.18.0-240.15.1.el8/net/ipv6/udp.c
 @@ -306,6 +306,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -604,8 +604,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  
  	ulen = udp6_skb_len(skb);
  	copied = len;
---- linux-4.18.0-240.10.1.el8.orig/net/socket.c
-+++ linux-4.18.0-240.10.1.el8/net/socket.c
+--- linux-4.18.0-240.15.1.el8.orig/net/socket.c
++++ linux-4.18.0-240.15.1.el8/net/socket.c
 @@ -1711,6 +1711,10 @@ int __sys_accept4_file(struct file *file
  	if (err < 0)
  		goto out_fd;
@@ -617,8 +617,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  	if (upeer_sockaddr) {
  		len = newsock->ops->getname(newsock,
  					(struct sockaddr *)&address, 2);
---- linux-4.18.0-240.10.1.el8.orig/net/unix/af_unix.c
-+++ linux-4.18.0-240.10.1.el8/net/unix/af_unix.c
+--- linux-4.18.0-240.15.1.el8.orig/net/unix/af_unix.c
++++ linux-4.18.0-240.15.1.el8/net/unix/af_unix.c
 @@ -2071,6 +2071,10 @@ static int unix_dgram_recvmsg(struct soc
  						EPOLLOUT | EPOLLWRNORM |
  						EPOLLWRBAND);
@@ -638,8 +638,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
  	mutex_unlock(&u->iolock);
  out:
  	return err;
---- linux-4.18.0-240.10.1.el8.orig/security/Kconfig
-+++ linux-4.18.0-240.10.1.el8/security/Kconfig
+--- linux-4.18.0-240.15.1.el8.orig/security/Kconfig
++++ linux-4.18.0-240.15.1.el8/security/Kconfig
 @@ -313,4 +313,6 @@ config DEFAULT_SECURITY
  	default "apparmor" if DEFAULT_SECURITY_APPARMOR
  	default "" if DEFAULT_SECURITY_DAC
@@ -647,8 +647,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
 +source security/ccsecurity/Kconfig
 +
  endmenu
---- linux-4.18.0-240.10.1.el8.orig/security/Makefile
-+++ linux-4.18.0-240.10.1.el8/security/Makefile
+--- linux-4.18.0-240.15.1.el8.orig/security/Makefile
++++ linux-4.18.0-240.15.1.el8/security/Makefile
 @@ -33,3 +33,6 @@ obj-$(CONFIG_INTEGRITY)			+= integrity/
  
  # Allow the kernel to be locked down
@@ -656,8 +656,8 @@ Source code for this patch is https://vault.centos.org/8.3.2011/BaseOS/Source/SP
 +
 +subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
---- linux-4.18.0-240.10.1.el8.orig/security/security.c
-+++ linux-4.18.0-240.10.1.el8/security/security.c
+--- linux-4.18.0-240.15.1.el8.orig/security/security.c
++++ linux-4.18.0-240.15.1.el8/security/security.c
 @@ -988,12 +988,19 @@ int security_file_open(struct file *file
  
  int security_task_alloc(struct task_struct *task, unsigned long clone_flags)
