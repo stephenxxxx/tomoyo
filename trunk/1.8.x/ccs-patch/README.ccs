@@ -3383,8 +3383,7 @@ Fix 2021/03/13
       a valid pathname. Thus, allow call_usermodehelper_setup_file() to bypass
       permission checks and suppress domain transitions.
 
-    @ Fix ccs_kernel_service() for Linux 5.5+ kernels.
+    @ Fix ccs_kernel_service().
 
-      Since Linux 5.5+ kernels have PF_IO_WORKER flag for the io_uring workers,
-      backport commit 9c83465f3245c2fa ("tomoyo: recognize kernel threads
-      correctly").
+      Kernels from 5.5 to 5.11 are using PF_KTHREAD flag for the io_uring
+      worker threads.
