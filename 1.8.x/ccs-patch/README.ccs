@@ -3387,3 +3387,5 @@ Fix 2021/03/13
 
       Kernels from 5.5 to 5.11 are using PF_KTHREAD flag for the io_uring
       worker threads.
+
+Version 1.8.9   2021/04/01   Bug fix release.
