@@ -29,6 +29,26 @@
 
 <div id="changelogs">
 
+<h4>ChangeLog for ccs-patch 1.8.9</h4>
+
+<pre>
+Fix 2021/03/13
+
+    @ Skip permission checks for fileless execution requests.
+
+      Kernels from 4.18 to 5.8 are using call_usermodehelper_setup_file() for
+      starting program without a valid pathname on a filesystem.
+      /sbin/modprobe from dockerd process could not load bpfilter.ko module
+      because ccs_symlink_path() cannot calculate pathname of program without
+      a valid pathname. Thus, allow call_usermodehelper_setup_file() to bypass
+      permission checks and suppress domain transitions.
+
+    @ Fix ccs_kernel_service().
+
+      Kernels from 5.5 to 5.11 are using PF_KTHREAD flag for the io_uring
+      worker threads.
+</pre>
+
 <h4>ChangeLog for ccs-patch 1.8.8</h4>
 
 <pre>

@@ -66,7 +66,13 @@
 </h3>
 <hr>
 
-<p class="timestamp"><a name="20201111">11th Nov, 2020</a></p>
+<p class="timestamp"><a name="20210401">1th April, 2021</a></p>
+<h4>ccs-patch 1.8.9 released</h4>
+<p class="article">An updated ccs-patch for the 1.8.x branch fixed several bugs.</p>
+
+<br>
+
+<p class="timestamp"><a name="20201111">11th November, 2020</a></p>
 <h4>ccs-patch 1.8.8 and tomoyo-tools 2.6.0p2 released</h4>
 <p class="article">An updated ccs-patch for the 1.8.x branch and tomoyo-tools for the 2.6.x branch fixed several bugs.</p>
 
@@ -93,12 +99,6 @@
 <p class="timestamp"><a name="20190820">20th August, 2019</a></p>
 <h4>ccs-patch 1.8.6 released</h4>
 <p class="article">An updated ccs-patch for the 1.8.x branch changed pathname calculation rule and fixed two bugs.</p>
-
-<br>
-
-<p class="timestamp"><a name="20180401">1th April, 2018</a></p>
-<h4>ccs-patch 1.8.5p2 released</h4>
-<p class="article">An updated ccs-patch for the 1.8.x branch fixed a theoretical lockup bug in initialization.</p>
 
 </div><!-- news -->
 
