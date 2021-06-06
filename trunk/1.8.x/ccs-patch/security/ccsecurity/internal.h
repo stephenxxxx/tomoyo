@@ -73,7 +73,7 @@
 #include <net/ip.h>
 #include <net/ipv6.h>
 #include <net/udp.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0) || (defined(RHEL_MAJOR) && RHEL_MAJOR >= 8 && defined(RHEL_MINOR) && RHEL_MINOR >= 4)
 #include <uapi/linux/mount.h>
 #endif
 
