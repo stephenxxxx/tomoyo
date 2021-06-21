@@ -1,6 +1,6 @@
-This is TOMOYO Linux patch for kernel 5.13-rc5.
+This is TOMOYO Linux patch for kernel 5.13-rc7.
 
-Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.tar.gz
+Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc7.tar.gz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -28,8 +28,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  security/security.c       |    5 ++-
  24 files changed, 160 insertions(+), 30 deletions(-)
 
---- linux-5.13-rc5.orig/fs/exec.c
-+++ linux-5.13-rc5/fs/exec.c
+--- linux-5.13-rc7.orig/fs/exec.c
++++ linux-5.13-rc7/fs/exec.c
 @@ -1827,7 +1827,7 @@ static int bprm_execve(struct linux_binp
  	if (retval)
  		goto out;
@@ -39,8 +39,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  	if (retval < 0)
  		goto out;
  
---- linux-5.13-rc5.orig/fs/open.c
-+++ linux-5.13-rc5/fs/open.c
+--- linux-5.13-rc7.orig/fs/open.c
++++ linux-5.13-rc7/fs/open.c
 @@ -1346,6 +1346,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
   */
  SYSCALL_DEFINE0(vhangup)
@@ -50,8 +50,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  	if (capable(CAP_SYS_TTY_CONFIG)) {
  		tty_vhangup_self();
  		return 0;
---- linux-5.13-rc5.orig/fs/proc/version.c
-+++ linux-5.13-rc5/fs/proc/version.c
+--- linux-5.13-rc7.orig/fs/proc/version.c
++++ linux-5.13-rc7/fs/proc/version.c
 @@ -21,3 +21,10 @@ static int __init proc_version_init(void
  	return 0;
  }
@@ -59,12 +59,12 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 5.13-rc5 2021/06/07\n");
++	printk(KERN_INFO "Hook version: 5.13-rc7 2021/06/21\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
---- linux-5.13-rc5.orig/include/linux/sched.h
-+++ linux-5.13-rc5/include/linux/sched.h
+--- linux-5.13-rc7.orig/include/linux/sched.h
++++ linux-5.13-rc7/include/linux/sched.h
 @@ -43,6 +43,7 @@ struct bio_list;
  struct blk_plug;
  struct bpf_local_storage;
@@ -73,7 +73,7 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  struct cfs_rq;
  struct fs_struct;
  struct futex_pi_state;
-@@ -1363,6 +1364,10 @@ struct task_struct {
+@@ -1371,6 +1372,10 @@ struct task_struct {
  	/* Used by BPF task local storage */
  	struct bpf_local_storage __rcu	*bpf_storage;
  #endif
@@ -84,8 +84,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  #ifdef CONFIG_GCC_PLUGIN_STACKLEAK
  	unsigned long			lowest_stack;
---- linux-5.13-rc5.orig/include/linux/security.h
-+++ linux-5.13-rc5/include/linux/security.h
+--- linux-5.13-rc7.orig/include/linux/security.h
++++ linux-5.13-rc7/include/linux/security.h
 @@ -59,6 +59,7 @@ struct fs_parameter;
  enum fs_value_type;
  struct watch;
@@ -315,8 +315,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  }
  #endif	/* CONFIG_SECURITY_PATH */
  
---- linux-5.13-rc5.orig/include/net/ip.h
-+++ linux-5.13-rc5/include/net/ip.h
+--- linux-5.13-rc7.orig/include/net/ip.h
++++ linux-5.13-rc7/include/net/ip.h
 @@ -338,6 +338,8 @@ void inet_get_local_port_range(struct ne
  #ifdef CONFIG_SYSCTL
  static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
@@ -335,8 +335,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  	return false;
  }
  
---- linux-5.13-rc5.orig/init/init_task.c
-+++ linux-5.13-rc5/init/init_task.c
+--- linux-5.13-rc7.orig/init/init_task.c
++++ linux-5.13-rc7/init/init_task.c
 @@ -213,6 +213,10 @@ struct task_struct init_task
  #ifdef CONFIG_SECCOMP_FILTER
  	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
@@ -348,8 +348,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  };
  EXPORT_SYMBOL(init_task);
  
---- linux-5.13-rc5.orig/kernel/kexec.c
-+++ linux-5.13-rc5/kernel/kexec.c
+--- linux-5.13-rc7.orig/kernel/kexec.c
++++ linux-5.13-rc7/kernel/kexec.c
 @@ -16,7 +16,7 @@
  #include <linux/syscalls.h>
  #include <linux/vmalloc.h>
@@ -368,8 +368,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	/* Permit LSMs and IMA to fail the kexec */
  	result = security_kernel_load_data(LOADING_KEXEC_IMAGE, false);
---- linux-5.13-rc5.orig/kernel/module.c
-+++ linux-5.13-rc5/kernel/module.c
+--- linux-5.13-rc7.orig/kernel/module.c
++++ linux-5.13-rc7/kernel/module.c
 @@ -58,6 +58,7 @@
  #include <linux/audit.h>
  #include <uapi/linux/module.h>
@@ -396,8 +396,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	return 0;
  }
---- linux-5.13-rc5.orig/kernel/ptrace.c
-+++ linux-5.13-rc5/kernel/ptrace.c
+--- linux-5.13-rc7.orig/kernel/ptrace.c
++++ linux-5.13-rc7/kernel/ptrace.c
 @@ -1279,6 +1279,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
  {
  	struct task_struct *child;
@@ -422,8 +422,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
---- linux-5.13-rc5.orig/kernel/reboot.c
-+++ linux-5.13-rc5/kernel/reboot.c
+--- linux-5.13-rc7.orig/kernel/reboot.c
++++ linux-5.13-rc7/kernel/reboot.c
 @@ -17,6 +17,7 @@
  #include <linux/syscalls.h>
  #include <linux/syscore_ops.h>
@@ -441,8 +441,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	/*
  	 * If pid namespaces are enabled and the current task is in a child
---- linux-5.13-rc5.orig/kernel/sched/core.c
-+++ linux-5.13-rc5/kernel/sched/core.c
+--- linux-5.13-rc7.orig/kernel/sched/core.c
++++ linux-5.13-rc7/kernel/sched/core.c
 @@ -5783,6 +5783,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
@@ -452,8 +452,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	/*
  	 * Setpriority might change our priority at the same moment.
---- linux-5.13-rc5.orig/kernel/signal.c
-+++ linux-5.13-rc5/kernel/signal.c
+--- linux-5.13-rc7.orig/kernel/signal.c
++++ linux-5.13-rc7/kernel/signal.c
 @@ -3739,6 +3739,8 @@ static inline void prepare_kill_siginfo(
  SYSCALL_DEFINE2(kill, pid_t, pid, int, sig)
  {
@@ -521,8 +521,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	return do_send_specific(tgid, pid, sig, info);
  }
---- linux-5.13-rc5.orig/kernel/sys.c
-+++ linux-5.13-rc5/kernel/sys.c
+--- linux-5.13-rc7.orig/kernel/sys.c
++++ linux-5.13-rc7/kernel/sys.c
 @@ -211,6 +211,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
  
  	if (which > PRIO_USER || which < PRIO_PROCESS)
@@ -552,8 +552,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	errno = -EFAULT;
  	if (!copy_from_user(tmp, name, len)) {
---- linux-5.13-rc5.orig/kernel/time/timekeeping.c
-+++ linux-5.13-rc5/kernel/time/timekeeping.c
+--- linux-5.13-rc7.orig/kernel/time/timekeeping.c
++++ linux-5.13-rc7/kernel/time/timekeeping.c
 @@ -22,6 +22,7 @@
  #include <linux/pvclock_gtod.h>
  #include <linux/compiler.h>
@@ -587,8 +587,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  		/*
  		 * Validate if a timespec/timeval used to inject a time
---- linux-5.13-rc5.orig/net/ipv4/raw.c
-+++ linux-5.13-rc5/net/ipv4/raw.c
+--- linux-5.13-rc7.orig/net/ipv4/raw.c
++++ linux-5.13-rc7/net/ipv4/raw.c
 @@ -768,6 +768,10 @@ static int raw_recvmsg(struct sock *sk,
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -600,8 +600,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	copied = skb->len;
  	if (len < copied) {
---- linux-5.13-rc5.orig/net/ipv4/udp.c
-+++ linux-5.13-rc5/net/ipv4/udp.c
+--- linux-5.13-rc7.orig/net/ipv4/udp.c
++++ linux-5.13-rc7/net/ipv4/udp.c
 @@ -1835,6 +1835,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -611,8 +611,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	ulen = udp_skb_len(skb);
  	copied = len;
---- linux-5.13-rc5.orig/net/ipv6/raw.c
-+++ linux-5.13-rc5/net/ipv6/raw.c
+--- linux-5.13-rc7.orig/net/ipv6/raw.c
++++ linux-5.13-rc7/net/ipv6/raw.c
 @@ -480,6 +480,10 @@ static int rawv6_recvmsg(struct sock *sk
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -624,8 +624,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	copied = skb->len;
  	if (copied > len) {
---- linux-5.13-rc5.orig/net/ipv6/udp.c
-+++ linux-5.13-rc5/net/ipv6/udp.c
+--- linux-5.13-rc7.orig/net/ipv6/udp.c
++++ linux-5.13-rc7/net/ipv6/udp.c
 @@ -342,6 +342,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -635,9 +635,9 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  
  	ulen = udp6_skb_len(skb);
  	copied = len;
---- linux-5.13-rc5.orig/net/socket.c
-+++ linux-5.13-rc5/net/socket.c
-@@ -1738,6 +1738,10 @@ int __sys_accept4_file(struct file *file
+--- linux-5.13-rc7.orig/net/socket.c
++++ linux-5.13-rc7/net/socket.c
+@@ -1725,6 +1725,10 @@ int __sys_accept4_file(struct file *file
  	if (err < 0)
  		goto out_fd;
  
@@ -648,9 +648,9 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  	if (upeer_sockaddr) {
  		len = newsock->ops->getname(newsock,
  					(struct sockaddr *)&address, 2);
---- linux-5.13-rc5.orig/net/unix/af_unix.c
-+++ linux-5.13-rc5/net/unix/af_unix.c
-@@ -2128,6 +2128,10 @@ static int unix_dgram_recvmsg(struct soc
+--- linux-5.13-rc7.orig/net/unix/af_unix.c
++++ linux-5.13-rc7/net/unix/af_unix.c
+@@ -2129,6 +2129,10 @@ static int unix_dgram_recvmsg(struct soc
  						EPOLLOUT | EPOLLWRNORM |
  						EPOLLWRBAND);
  
@@ -661,7 +661,7 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  	if (msg->msg_name)
  		unix_copy_addr(msg, skb->sk);
  
-@@ -2178,6 +2182,7 @@ static int unix_dgram_recvmsg(struct soc
+@@ -2179,6 +2183,7 @@ static int unix_dgram_recvmsg(struct soc
  
  out_free:
  	skb_free_datagram(sk, skb);
@@ -669,8 +669,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
  	mutex_unlock(&u->iolock);
  out:
  	return err;
---- linux-5.13-rc5.orig/security/Kconfig
-+++ linux-5.13-rc5/security/Kconfig
+--- linux-5.13-rc7.orig/security/Kconfig
++++ linux-5.13-rc7/security/Kconfig
 @@ -292,5 +292,7 @@ config LSM
  
  source "security/Kconfig.hardening"
@@ -679,8 +679,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
 +
  endmenu
  
---- linux-5.13-rc5.orig/security/Makefile
-+++ linux-5.13-rc5/security/Makefile
+--- linux-5.13-rc7.orig/security/Makefile
++++ linux-5.13-rc7/security/Makefile
 @@ -38,3 +38,6 @@ obj-$(CONFIG_SECURITY_LANDLOCK)		+= land
  # Object integrity file lists
  subdir-$(CONFIG_INTEGRITY)		+= integrity
@@ -688,8 +688,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.13-rc5.t
 +
 +subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
---- linux-5.13-rc5.orig/security/security.c
-+++ linux-5.13-rc5/security/security.c
+--- linux-5.13-rc7.orig/security/security.c
++++ linux-5.13-rc7/security/security.c
 @@ -1643,7 +1643,9 @@ int security_task_alloc(struct task_stru
  
  	if (rc)
