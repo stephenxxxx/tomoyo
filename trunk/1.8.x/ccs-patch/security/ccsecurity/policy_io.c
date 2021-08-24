@@ -3765,6 +3765,7 @@ static bool ccs_print_condition(struct ccs_io_buffer *head,
 			ccs_set_string(head, cond->transit->name);
 		}
 		/* fall through */
+		fallthrough;
 	case 1:
 		{
 			const u16 condc = cond->condc;
@@ -3867,11 +3868,13 @@ static bool ccs_print_condition(struct ccs_io_buffer *head,
 		}
 		head->r.cond_step++;
 		/* fall through */
+		fallthrough;
 	case 2:
 		if (!ccs_flush(head))
 			break;
 		head->r.cond_step++;
 		/* fall through */
+		fallthrough;
 	case 3:
 		if (cond->grant_log != CCS_GRANTLOG_AUTO)
 			ccs_io_printf(head, " grant_log=%s",
@@ -4182,6 +4185,7 @@ static void ccs_read_domain(struct ccs_io_buffer *head)
 			head->r.index = 0;
 			head->r.step++;
 			/* fall through */
+			fallthrough;
 		case 1:
 			while (head->r.index < CCS_MAX_ACL_GROUPS) {
 				i = head->r.index++;
@@ -4195,6 +4199,7 @@ static void ccs_read_domain(struct ccs_io_buffer *head)
 			head->r.step++;
 			ccs_set_lf(head);
 			/* fall through */
+			fallthrough;
 		case 2:
 			if (!ccs_read_acl(head, &domain->acl_info_list))
 				return;
@@ -4202,6 +4207,7 @@ static void ccs_read_domain(struct ccs_io_buffer *head)
 			if (!ccs_set_lf(head))
 				return;
 			/* fall through */
+			fallthrough;
 		case 3:
 			head->r.step = 0;
 			if (head->r.print_this_domain_only)
@@ -4883,6 +4889,7 @@ static int ccs_supervisor(struct ccs_request_info *r, const char *fmt, ...)
 		if (ccs_domain_quota_ok(r))
 			break;
 		/* fall through */
+		fallthrough;
 	default:
 		return 0;
 	}
@@ -6427,12 +6434,14 @@ static ssize_t ccs_write(struct file *file, const char __user *buf,
 			if (ccs_select_domain(head, cp0))
 				continue;
 			/* fall through */
+			fallthrough;
 		case CCS_EXCEPTION_POLICY:
 			if (!strcmp(cp0, "select transition_only")) {
 				head->r.print_transition_related_only = true;
 				continue;
 			}
 			/* fall through */
+			fallthrough;
 		default:
 			if (!ccs_manager()) {
 				error = -EPERM;
