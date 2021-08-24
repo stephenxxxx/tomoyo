@@ -2602,6 +2602,7 @@ static int ccs_path2_perm(const u8 operation, struct dentry *dentry1,
 		if (!d_is_dir(dentry1))
 			break;
 		/* fall through */
+		fallthrough;
 	case CCS_TYPE_PIVOT_ROOT:
 		ccs_add_slash(&buf1);
 		ccs_add_slash(&buf2);
