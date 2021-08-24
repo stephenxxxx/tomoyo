@@ -21,7 +21,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 #include <signal.h>
-#include <curses.h>
+#include <ncurses.h>
 
 enum screen_type {
 	SCREEN_EXCEPTION_LIST,

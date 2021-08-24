@@ -9,8 +9,8 @@ all: libccstools.so $(BUILD_FILES)
 
 $(BUILD_FILES): libccstools.so
 
-/usr/include/curses.h:
-	@echo "/usr/include/curses.h is missing."
+/usr/include/ncurses.h:
+	@echo "/usr/include/ncurses.h is missing."
 	@echo "Run 'yum install ncurses-devel' or 'apt-get install libncurses-dev'"
 	sleep 10
 
@@ -25,13 +25,13 @@ libccstools.so: ccstools.c ccstools.h
 .c:
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< -lccstools -L.
 
-ccs-editpolicy: ccstools.h editpolicy*.c readline.h /usr/include/curses.h libccstools.so
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-editpolicy editpolicy*.c -lncurses -ltinfo -lccstools -L. -DCOLOR_ON || \
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-editpolicy editpolicy*.c -lncurses -lccstools -L. -DCOLOR_ON
+ccs-editpolicy: ccstools.h editpolicy*.c readline.h /usr/include/ncurses.h libccstools.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-editpolicy editpolicy*.c -lncurses -ltinfo -lccstools -L. -DCOLOR_ON -DNCURSES_WIDECHAR=0 || \
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-editpolicy editpolicy*.c -lncurses -lccstools -L. -DCOLOR_ON -DNCURSES_WIDECHAR=0
 
-ccs-queryd: ccstools.h ccs-queryd.c readline.h /usr/include/curses.h libccstools.so
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-queryd ccs-queryd.c -lncurses -ltinfo -lccstools -L. || \
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-queryd ccs-queryd.c -lncurses -lccstools -L.
+ccs-queryd: ccstools.h ccs-queryd.c readline.h /usr/include/ncurses.h libccstools.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-queryd ccs-queryd.c -lncurses -ltinfo -lccstools -L. -DNCURSES_WIDECHAR=0 || \
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o ccs-queryd ccs-queryd.c -lncurses -lccstools -L. -DNCURSES_WIDECHAR=0
 
 install: all
 	mkdir -p -m 0755 $(INSTALLDIR)$(USRLIBDIR)
