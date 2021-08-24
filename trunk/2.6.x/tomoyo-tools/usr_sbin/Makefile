@@ -9,8 +9,8 @@ all: libtomoyotools.so $(BUILD_FILES)
 
 $(BUILD_FILES): libtomoyotools.so
 
-/usr/include/curses.h:
-	@echo "/usr/include/curses.h is missing."
+/usr/include/ncurses.h:
+	@echo "/usr/include/ncurses.h is missing."
 	@echo "Run 'yum install ncurses-devel' or 'apt-get install libncurses-dev'"
 	sleep 10
 
@@ -25,13 +25,13 @@ libtomoyotools.so: tomoyotools.c tomoyotools.h
 .c:
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $< -ltomoyotools -L.
 
-tomoyo-editpolicy: tomoyotools.h editpolicy*.c readline.h /usr/include/curses.h libtomoyotools.so
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-editpolicy editpolicy*.c -lncurses -ltinfo -ltomoyotools -L. -DCOLOR_ON || \
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-editpolicy editpolicy*.c -lncurses -ltomoyotools -L. -DCOLOR_ON
+tomoyo-editpolicy: tomoyotools.h editpolicy*.c readline.h /usr/include/ncurses.h libtomoyotools.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-editpolicy editpolicy*.c -lncurses -ltinfo -ltomoyotools -L. -DCOLOR_ON -DNCURSES_WIDECHAR=0 || \
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-editpolicy editpolicy*.c -lncurses -ltomoyotools -L. -DCOLOR_ON -DNCURSES_WIDECHAR=0
 
-tomoyo-queryd: tomoyotools.h tomoyo-queryd.c readline.h /usr/include/curses.h libtomoyotools.so
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-queryd tomoyo-queryd.c -lncurses -ltinfo -ltomoyotools -L. || \
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-queryd tomoyo-queryd.c -lncurses -ltomoyotools -L.
+tomoyo-queryd: tomoyotools.h tomoyo-queryd.c readline.h /usr/include/ncurses.h libtomoyotools.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-queryd tomoyo-queryd.c -lncurses -ltinfo -ltomoyotools -L. -DNCURSES_WIDECHAR=0 || \
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o tomoyo-queryd tomoyo-queryd.c -lncurses -ltomoyotools -L. -DNCURSES_WIDECHAR=0
 
 install: all
 	mkdir -p -m 0755 $(INSTALLDIR)$(USRLIBDIR)
