@@ -1,0 +1,28 @@
+About this package:
+
+This package contains userland programs for TOMOYO Linux version 2.6.
+This package is released under the GPLv2.
+
+https://tomoyo.osdn.jp/
+
+ChangeLog:
+
+Version 2.6.0   2019/03/05   Major update release.
+
+  Adjust to TOMOYO 2.6.
+
+Version 2.6.0p1 2020/01/01   Bug fix release.
+
+  /usr/lib/tomoyo/init_policy
+    Remove "socket:[family=\\$:type=\\$:protocol=\\$]" from ANY_PATHNAME group.
+
+Version 2.6.0p2 2020/11/11   Bug fix release.
+
+  Loosen pathname/domainname validation.
+
+  Limit wildcard recursion depth.
+
+Version 2.6.1 2021/09/10   Bug fix release.
+
+  Add -DNCURSES_WIDECHAR=0 to programs using ncurses library.
+  ( https://lists.gnu.org/archive/html/bug-ncurses/2021-07/msg00021.html )
