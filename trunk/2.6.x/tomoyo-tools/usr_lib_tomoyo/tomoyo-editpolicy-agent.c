@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2005-2011  NTT DATA CORPORATION
  *
- * Version: 2.6.0   2019/03/05
+ * Version: 2.6.1   2021/09/10
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License v2 as published by the
@@ -37,6 +37,13 @@
 #include <sched.h>
 #include <sys/mount.h>
 #include <errno.h>
+
+#ifndef MS_REC
+#define MS_REC          16384
+#endif
+#ifndef MS_PRIVATE
+#define MS_PRIVATE      (1<<18)
+#endif
 
 static _Bool wait_data(const int fd)
 {

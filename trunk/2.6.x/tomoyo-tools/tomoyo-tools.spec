@@ -1,8 +1,8 @@
 Summary: Userspace tools for TOMOYO Linux 2.6.x
 
 Name: tomoyo-tools
-Version: 2.6.0
-Release: 3
+Version: 2.6.1
+Release: 1
 License: GPL
 Group: System Environment/Kernel
 ExclusiveOS: Linux
@@ -15,9 +15,9 @@ Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 ##
 # BuildRequires: ncurses-devel
 Requires: ncurses
-Conflicts: tomoyo-tools < 2.6.0-3
+Conflicts: tomoyo-tools < 2.6.1-1
 
-Source0: https://osdn.dl.osdn.jp/tomoyo/70710/tomoyo-tools-2.6.0-20201111.tar.gz
+Source0: https://osdn.dl.osdn.jp/tomoyo/70710/tomoyo-tools-2.6.1-20210910.tar.gz
 
 %description
 This package contains userspace tools for administrating TOMOYO Linux 2.6.x.
@@ -52,6 +52,10 @@ ldconfig || true
 /usr/share/man/man8/*
 
 %changelog
+* Fri Sep 10 2021 2.6.1-1
+- Add -DNCURSES_WIDECHAR=0 to programs using ncurses library.
+  ( https://lists.gnu.org/archive/html/bug-ncurses/2021-07/msg00021.html )
+
 * Wed Nov 01 2020 2.6.0-3
 - Loosen pathname/domainname validation.
 - Limit wildcard recursion depth.
