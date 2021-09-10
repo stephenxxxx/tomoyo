@@ -1,7 +1,7 @@
 Summary: Userspace tools for TOMOYO Linux 1.8.x
 
 Name: ccs-tools
-Version: 1.8.7
+Version: 1.8.9
 Release: 1
 License: GPL
 Group: System Environment/Kernel
@@ -15,9 +15,9 @@ Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 ##
 # BuildRequires: ncurses-devel
 Requires: ncurses
-Conflicts: ccs-tools < 1.8.7-1
+Conflicts: ccs-tools < 1.8.9-1
 
-Source0: https://osdn.dl.osdn.jp/tomoyo/49693/ccs-tools-1.8.7-20200505.tar.gz
+Source0: https://osdn.dl.osdn.jp/tomoyo/49693/ccs-tools-1.8.9-20210910.tar.gz
 
 %description
 This package contains userspace tools for administrating TOMOYO Linux 1.8.x.
@@ -52,6 +52,10 @@ ldconfig || true
 /usr/share/man/man8/*
 
 %changelog
+* Fri Sep 10 2021 1.8.9-1
+- Add -DNCURSES_WIDECHAR=0 to programs using ncurses library.
+  ( https://lists.gnu.org/archive/html/bug-ncurses/2021-07/msg00021.html )
+
 * Tue May 05 2020 1.8.7-1
 - Loosen domainname validation and pathname validation (this change
   requires ccs-patch 1.8.7-20200505 ).

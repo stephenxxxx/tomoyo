@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2005-2011  NTT DATA CORPORATION
  *
- * Version: 2.6.0   2019/03/05
+ * Version: 2.6.1   2021/09/10
  *
  * This dummy filesystem is for 2.6.29. Build with "obj-y += dummyfs.o".
  *

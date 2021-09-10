@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2005-2011  NTT DATA CORPORATION
  *
- * Version: 2.6.0   2019/03/05
+ * Version: 2.6.1   2021/09/10
  *
  * This tool is intended to limit local port numbers that clients
  * will use when connecting to servers, so that servers can enforce
