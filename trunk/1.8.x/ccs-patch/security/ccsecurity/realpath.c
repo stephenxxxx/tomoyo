@@ -695,7 +695,21 @@ const char *ccs_get_exe(void)
 	const char *cp;
 	if (!mm)
 		return NULL;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)
+	if (current->flags & PF_KTHREAD)
+		return NULL;
+#else
+	if (segment_eq(get_fs(), KERNEL_DS))
+		return NULL;
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+	/* Not using get_mm_exe_file() as it is not exported. */
+	rcu_read_lock();
+	exe_file = rcu_dereference(mm->exe_file);
+	if (exe_file && !get_file_rcu(exe_file))
+		exe_file = NULL;
+	rcu_read_unlock();
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
 	exe_file = get_mm_exe_file(mm);
 #else
 	down_read(&mm->mmap_sem);
