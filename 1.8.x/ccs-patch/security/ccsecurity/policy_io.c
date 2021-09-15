@@ -1282,6 +1282,7 @@ static const struct proc_ops ccs_self_operations = {
 	.proc_write = ccs_write_self,
 #endif
 	.proc_read  = ccs_read_self,
+	.proc_lseek = default_llseek,
 };
 #else
 static
@@ -1304,6 +1305,7 @@ static const struct proc_ops ccs_operations = {
 	.proc_poll    = ccs_poll,
 	.proc_read    = ccs_read,
 	.proc_write   = ccs_write,
+	.proc_lseek   = default_llseek,
 };
 #else
 static
