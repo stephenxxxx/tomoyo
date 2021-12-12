@@ -6146,7 +6146,9 @@ static ssize_t ccs_read_self(struct file *file, char __user *buf, size_t count,
  */
 static int ccs_open(struct inode *inode, struct file *file)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0)
+	const u8 type = (unsigned long) pde_data(inode);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
 	const u8 type = (unsigned long) PDE_DATA(inode);
 #else
 	const u8 type = (unsigned long) PDE(inode)->data;
