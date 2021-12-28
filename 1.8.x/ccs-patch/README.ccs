@@ -3389,3 +3389,12 @@ Fix 2021/03/13
       worker threads.
 
 Version 1.8.9   2021/04/01   Bug fix release.
+
+    @ Check exceeded quota early.
+
+      Backport commit 04e57a2d952bbd34 ("tomoyo: Check exceeded quota early in
+      tomoyo_domain_quota_is_ok().") and commit f702e1107601230e ("tomoyo: use
+      hwight16() in tomoyo_domain_quota_is_ok()"), for these help reducing
+      overhead of the learning mode. Note that the former patch requires you to
+      explicitly delete "quota_exceeded" entry from the domain policy in order
+      to resume the learning mode.
