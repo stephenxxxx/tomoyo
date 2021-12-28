@@ -4792,9 +4792,10 @@ static bool ccs_domain_quota_ok(struct ccs_request_info *r)
 		return false;
 	if (!domain)
 		return true;
+	if (domain->flags[CCS_DIF_QUOTA_WARNED])
+		return false;
 	list_for_each_entry_srcu(ptr, &domain->acl_info_list, list, &ccs_ss) {
 		u16 perm;
-		u8 i;
 		if (ptr->is_deleted)
 			continue;
 		switch (ptr->type) {
@@ -4821,20 +4822,15 @@ static bool ccs_domain_quota_ok(struct ccs_request_info *r)
 		default:
 			perm = 1;
 		}
-		for (i = 0; i < 16; i++)
-			if (perm & (1 << i))
-				count++;
+		count += hweight16(perm);
 	}
 	if (count < ccs_profile(r->profile)->pref[CCS_PREF_MAX_LEARNING_ENTRY])
 		return true;
-	if (!domain->flags[CCS_DIF_QUOTA_WARNED]) {
-		domain->flags[CCS_DIF_QUOTA_WARNED] = true;
-		/* r->granted = false; */
-		ccs_write_log(r, "%s", ccs_dif[CCS_DIF_QUOTA_WARNED]);
-		printk(KERN_WARNING "WARNING: "
-		       "Domain '%s' has too many ACLs to hold. "
-		       "Stopped learning mode.\n", domain->domainname->name);
-	}
+	domain->flags[CCS_DIF_QUOTA_WARNED] = true;
+	/* r->granted = false; */
+	ccs_write_log(r, "%s", ccs_dif[CCS_DIF_QUOTA_WARNED]);
+	printk(KERN_WARNING "WARNING: Domain '%s' has too many ACLs to hold. "
+	       "Stopped learning mode.\n", domain->domainname->name);
 	return false;
 }
 
