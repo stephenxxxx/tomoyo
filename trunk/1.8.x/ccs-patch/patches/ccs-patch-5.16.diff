@@ -1,6 +1,6 @@
-This is TOMOYO Linux patch for kernel 5.16.10.
+This is TOMOYO Linux patch for kernel 5.16.14.
 
-Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.tar.gz
+Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.14.tar.gz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -28,8 +28,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  security/security.c       |    5 ++-
  24 files changed, 160 insertions(+), 30 deletions(-)
 
---- linux-5.16.10.orig/fs/exec.c
-+++ linux-5.16.10/fs/exec.c
+--- linux-5.16.14.orig/fs/exec.c
++++ linux-5.16.14/fs/exec.c
 @@ -1830,7 +1830,7 @@ static int bprm_execve(struct linux_binp
  	if (retval)
  		goto out;
@@ -39,8 +39,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  	if (retval < 0)
  		goto out;
  
---- linux-5.16.10.orig/fs/open.c
-+++ linux-5.16.10/fs/open.c
+--- linux-5.16.14.orig/fs/open.c
++++ linux-5.16.14/fs/open.c
 @@ -1373,6 +1373,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
   */
  SYSCALL_DEFINE0(vhangup)
@@ -50,8 +50,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  	if (capable(CAP_SYS_TTY_CONFIG)) {
  		tty_vhangup_self();
  		return 0;
---- linux-5.16.10.orig/fs/proc/version.c
-+++ linux-5.16.10/fs/proc/version.c
+--- linux-5.16.14.orig/fs/proc/version.c
++++ linux-5.16.14/fs/proc/version.c
 @@ -21,3 +21,10 @@ static int __init proc_version_init(void
  	return 0;
  }
@@ -59,12 +59,12 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 5.16.10 2022/02/21\n");
++	printk(KERN_INFO "Hook version: 5.16.14 2022/03/14\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
---- linux-5.16.10.orig/include/linux/sched.h
-+++ linux-5.16.10/include/linux/sched.h
+--- linux-5.16.14.orig/include/linux/sched.h
++++ linux-5.16.14/include/linux/sched.h
 @@ -44,6 +44,7 @@ struct blk_plug;
  struct bpf_local_storage;
  struct bpf_run_ctx;
@@ -84,8 +84,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  #ifdef CONFIG_TRACING
  	/* State flags for use by tracers: */
---- linux-5.16.10.orig/include/linux/security.h
-+++ linux-5.16.10/include/linux/security.h
+--- linux-5.16.14.orig/include/linux/security.h
++++ linux-5.16.14/include/linux/security.h
 @@ -59,6 +59,7 @@ struct fs_parameter;
  enum fs_value_type;
  struct watch;
@@ -315,8 +315,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  }
  #endif	/* CONFIG_SECURITY_PATH */
  
---- linux-5.16.10.orig/include/net/ip.h
-+++ linux-5.16.10/include/net/ip.h
+--- linux-5.16.14.orig/include/net/ip.h
++++ linux-5.16.14/include/net/ip.h
 @@ -344,6 +344,8 @@ void inet_get_local_port_range(struct ne
  #ifdef CONFIG_SYSCTL
  static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
@@ -335,8 +335,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  	return false;
  }
  
---- linux-5.16.10.orig/init/init_task.c
-+++ linux-5.16.10/init/init_task.c
+--- linux-5.16.14.orig/init/init_task.c
++++ linux-5.16.14/init/init_task.c
 @@ -214,6 +214,10 @@ struct task_struct init_task
  #ifdef CONFIG_SECCOMP_FILTER
  	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
@@ -348,8 +348,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  };
  EXPORT_SYMBOL(init_task);
  
---- linux-5.16.10.orig/kernel/kexec.c
-+++ linux-5.16.10/kernel/kexec.c
+--- linux-5.16.14.orig/kernel/kexec.c
++++ linux-5.16.14/kernel/kexec.c
 @@ -16,7 +16,7 @@
  #include <linux/syscalls.h>
  #include <linux/vmalloc.h>
@@ -368,8 +368,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	/* Permit LSMs and IMA to fail the kexec */
  	result = security_kernel_load_data(LOADING_KEXEC_IMAGE, false);
---- linux-5.16.10.orig/kernel/module.c
-+++ linux-5.16.10/kernel/module.c
+--- linux-5.16.14.orig/kernel/module.c
++++ linux-5.16.14/kernel/module.c
 @@ -59,6 +59,7 @@
  #include <linux/audit.h>
  #include <uapi/linux/module.h>
@@ -387,7 +387,7 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	if (strncpy_from_user(name, name_user, MODULE_NAME_LEN-1) < 0)
  		return -EFAULT;
-@@ -3834,6 +3837,8 @@ static int may_init_module(void)
+@@ -3819,6 +3822,8 @@ static int may_init_module(void)
  {
  	if (!capable(CAP_SYS_MODULE) || modules_disabled)
  		return -EPERM;
@@ -396,8 +396,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	return 0;
  }
---- linux-5.16.10.orig/kernel/ptrace.c
-+++ linux-5.16.10/kernel/ptrace.c
+--- linux-5.16.14.orig/kernel/ptrace.c
++++ linux-5.16.14/kernel/ptrace.c
 @@ -1279,6 +1279,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
  {
  	struct task_struct *child;
@@ -422,8 +422,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
---- linux-5.16.10.orig/kernel/reboot.c
-+++ linux-5.16.10/kernel/reboot.c
+--- linux-5.16.14.orig/kernel/reboot.c
++++ linux-5.16.14/kernel/reboot.c
 @@ -18,6 +18,7 @@
  #include <linux/syscalls.h>
  #include <linux/syscore_ops.h>
@@ -441,9 +441,9 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	/*
  	 * If pid namespaces are enabled and the current task is in a child
---- linux-5.16.10.orig/kernel/sched/core.c
-+++ linux-5.16.10/kernel/sched/core.c
-@@ -6925,6 +6925,8 @@ int can_nice(const struct task_struct *p
+--- linux-5.16.14.orig/kernel/sched/core.c
++++ linux-5.16.14/kernel/sched/core.c
+@@ -6934,6 +6934,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
  	long nice, retval;
@@ -452,8 +452,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	/*
  	 * Setpriority might change our priority at the same moment.
---- linux-5.16.10.orig/kernel/signal.c
-+++ linux-5.16.10/kernel/signal.c
+--- linux-5.16.14.orig/kernel/signal.c
++++ linux-5.16.14/kernel/signal.c
 @@ -3762,6 +3762,8 @@ static inline void prepare_kill_siginfo(
  SYSCALL_DEFINE2(kill, pid_t, pid, int, sig)
  {
@@ -521,8 +521,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	return do_send_specific(tgid, pid, sig, info);
  }
---- linux-5.16.10.orig/kernel/sys.c
-+++ linux-5.16.10/kernel/sys.c
+--- linux-5.16.14.orig/kernel/sys.c
++++ linux-5.16.14/kernel/sys.c
 @@ -211,6 +211,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
  
  	if (which > PRIO_USER || which < PRIO_PROCESS)
@@ -534,7 +534,7 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	/* normalize: avoid signed division (rounding problems) */
  	error = -ESRCH;
-@@ -1347,6 +1351,8 @@ SYSCALL_DEFINE2(sethostname, char __user
+@@ -1355,6 +1359,8 @@ SYSCALL_DEFINE2(sethostname, char __user
  
  	if (len < 0 || len > __NEW_UTS_LEN)
  		return -EINVAL;
@@ -543,7 +543,7 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  	errno = -EFAULT;
  	if (!copy_from_user(tmp, name, len)) {
  		struct new_utsname *u;
-@@ -1399,6 +1405,8 @@ SYSCALL_DEFINE2(setdomainname, char __us
+@@ -1407,6 +1413,8 @@ SYSCALL_DEFINE2(setdomainname, char __us
  		return -EPERM;
  	if (len < 0 || len > __NEW_UTS_LEN)
  		return -EINVAL;
@@ -552,8 +552,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	errno = -EFAULT;
  	if (!copy_from_user(tmp, name, len)) {
---- linux-5.16.10.orig/kernel/time/timekeeping.c
-+++ linux-5.16.10/kernel/time/timekeeping.c
+--- linux-5.16.14.orig/kernel/time/timekeeping.c
++++ linux-5.16.14/kernel/time/timekeeping.c
 @@ -22,6 +22,7 @@
  #include <linux/pvclock_gtod.h>
  #include <linux/compiler.h>
@@ -587,8 +587,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  		/*
  		 * Validate if a timespec/timeval used to inject a time
---- linux-5.16.10.orig/net/ipv4/raw.c
-+++ linux-5.16.10/net/ipv4/raw.c
+--- linux-5.16.14.orig/net/ipv4/raw.c
++++ linux-5.16.14/net/ipv4/raw.c
 @@ -771,6 +771,10 @@ static int raw_recvmsg(struct sock *sk,
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -600,8 +600,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	copied = skb->len;
  	if (len < copied) {
---- linux-5.16.10.orig/net/ipv4/udp.c
-+++ linux-5.16.10/net/ipv4/udp.c
+--- linux-5.16.14.orig/net/ipv4/udp.c
++++ linux-5.16.14/net/ipv4/udp.c
 @@ -1861,6 +1861,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -611,8 +611,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	ulen = udp_skb_len(skb);
  	copied = len;
---- linux-5.16.10.orig/net/ipv6/raw.c
-+++ linux-5.16.10/net/ipv6/raw.c
+--- linux-5.16.14.orig/net/ipv6/raw.c
++++ linux-5.16.14/net/ipv6/raw.c
 @@ -480,6 +480,10 @@ static int rawv6_recvmsg(struct sock *sk
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -624,8 +624,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	copied = skb->len;
  	if (copied > len) {
---- linux-5.16.10.orig/net/ipv6/udp.c
-+++ linux-5.16.10/net/ipv6/udp.c
+--- linux-5.16.14.orig/net/ipv6/udp.c
++++ linux-5.16.14/net/ipv6/udp.c
 @@ -344,6 +344,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -635,8 +635,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  
  	ulen = udp6_skb_len(skb);
  	copied = len;
---- linux-5.16.10.orig/net/socket.c
-+++ linux-5.16.10/net/socket.c
+--- linux-5.16.14.orig/net/socket.c
++++ linux-5.16.14/net/socket.c
 @@ -1778,6 +1778,10 @@ struct file *do_accept(struct file *file
  	if (err < 0)
  		goto out_fd;
@@ -648,8 +648,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  	if (upeer_sockaddr) {
  		len = newsock->ops->getname(newsock,
  					(struct sockaddr *)&address, 2);
---- linux-5.16.10.orig/net/unix/af_unix.c
-+++ linux-5.16.10/net/unix/af_unix.c
+--- linux-5.16.14.orig/net/unix/af_unix.c
++++ linux-5.16.14/net/unix/af_unix.c
 @@ -2331,6 +2331,10 @@ int __unix_dgram_recvmsg(struct sock *sk
  						EPOLLOUT | EPOLLWRNORM |
  						EPOLLWRBAND);
@@ -669,8 +669,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
  	mutex_unlock(&u->iolock);
  out:
  	return err;
---- linux-5.16.10.orig/security/Kconfig
-+++ linux-5.16.10/security/Kconfig
+--- linux-5.16.14.orig/security/Kconfig
++++ linux-5.16.14/security/Kconfig
 @@ -281,5 +281,7 @@ config LSM
  
  source "security/Kconfig.hardening"
@@ -679,8 +679,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
 +
  endmenu
  
---- linux-5.16.10.orig/security/Makefile
-+++ linux-5.16.10/security/Makefile
+--- linux-5.16.14.orig/security/Makefile
++++ linux-5.16.14/security/Makefile
 @@ -27,3 +27,6 @@ obj-$(CONFIG_SECURITY_LANDLOCK)		+= land
  
  # Object integrity file lists
@@ -688,8 +688,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.16.10.ta
 +
 +subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
---- linux-5.16.10.orig/security/security.c
-+++ linux-5.16.10/security/security.c
+--- linux-5.16.14.orig/security/security.c
++++ linux-5.16.14/security/security.c
 @@ -1656,7 +1656,9 @@ int security_task_alloc(struct task_stru
  
  	if (rc)
