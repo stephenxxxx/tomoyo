@@ -95,8 +95,12 @@ static void stage_exec_test(void)
 		try_exec("file execute " BINDIR "/true "
 			 "task.gid=0-100 exec.argc=1", argv, envp, 1);
 		argv[0] = NULL;
+		/*
+		 * Due to commit dcd46d897adb70d6 ("exec: Force single empty
+		 * string when argv is empty"), exec.argc is no longer 0.
+		 */
 		try_exec("file execute " BINDIR "/true "
-			 "task.gid=0-100 exec.argc=1", argv, envp, 0);
+			 "task.gid=0-100 exec.argc=2", argv, envp, 0);
 
 		envp[0] = "";
 		try_exec("file execute " BINDIR "/true task.gid!=100 task.euid=0 "
