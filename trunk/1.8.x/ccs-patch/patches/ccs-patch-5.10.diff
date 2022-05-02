@@ -1,6 +1,6 @@
-This is TOMOYO Linux patch for kernel 5.10.110.
+This is TOMOYO Linux patch for kernel 5.10.113.
 
-Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.10.110.tar.xz
+Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.10.113.tar.xz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -59,7 +59,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 5.10.110 2022/05/02\n");
++	printk(KERN_INFO "Hook version: 5.10.113 2022/05/02\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);

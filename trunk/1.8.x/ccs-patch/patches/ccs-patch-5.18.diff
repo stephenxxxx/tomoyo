@@ -1,6 +1,6 @@
-This is TOMOYO Linux patch for kernel 5.18-rc2.
+This is TOMOYO Linux patch for kernel 5.18-rc5.
 
-Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.18-rc2.tar.gz
+Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.18-rc5.tar.gz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -59,7 +59,7 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.18-rc2.t
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 5.18-rc2 2022/05/02\n");
++	printk(KERN_INFO "Hook version: 5.18-rc5 2022/05/02\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
