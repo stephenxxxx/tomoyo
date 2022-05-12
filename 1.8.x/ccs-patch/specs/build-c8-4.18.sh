@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# This is a kernel build script for CentOS 8's 4.18 kernel.
+# This is a kernel build script for CentOS Stream 8's 4.18 kernel.
 #
 
 die () {
@@ -10,12 +10,12 @@ die () {
 
 cd /tmp/ || die "Can't chdir to /tmp/ ."
 
-if [ ! -r kernel-4.18.0-305.25.1.el8_4.src.rpm ]
+if [ ! -r kernel-4.18.0-383.el8.src.rpm ]
 then
-    wget https://vault.centos.org/8.4.2105/BaseOS/Source/SPackages/kernel-4.18.0-305.25.1.el8_4.src.rpm || die "Can't download source package."
+    wget https://vault.centos.org/centos/8-stream/BaseOS/Source/SPackages/kernel-4.18.0-383.el8.src.rpm || die "Can't download source package."
 fi
-LANG=C rpm --checksig kernel-4.18.0-305.25.1.el8_4.src.rpm | grep -F ': digests signatures OK' || die "Can't verify signature."
-rpm -ivh kernel-4.18.0-305.25.1.el8_4.src.rpm || die "Can't install source package."
+LANG=C rpm --checksig kernel-4.18.0-383.el8.src.rpm | grep -F ': digests signatures OK' || die "Can't verify signature."
+rpm -ivh kernel-4.18.0-383.el8.src.rpm || die "Can't install source package."
 
 cd ~/rpmbuild/SOURCES/ || die "Can't chdir to ~/rpmbuild/SOURCES/ ."
 if [ ! -r ccs-patch-1.8.9-20220222.tar.gz ]
@@ -36,8 +36,8 @@ patch << "EOF" || die "Can't patch spec file."
 +%define buildid _tomoyo_1.8.9
  
  %define rpmversion 4.18.0
- %define pkgrelease 305.25.1.el8_4
-@@ -1097,6 +1097,10 @@
+ %define pkgrelease 383.el8
+@@ -1102,6 +1102,10 @@
  
  # END OF PATCH APPLICATIONS
  
@@ -48,19 +48,10 @@ patch << "EOF" || die "Can't patch spec file."
  # Any further pre-build tree manipulations happen here.
  
  %if %{with_realtime}
-@@ -1228,6 +1232,18 @@
+@@ -1233,6 +1237,9 @@
      cp %{SOURCE9} certs/.
      %endif
  
-+    # TOMOYO Linux 2.5
-+    sed -i -e 's/# CONFIG_SECURITY_PATH is not set/CONFIG_SECURITY_PATH=y/' -- .config
-+    sed -i -e 's/# CONFIG_SECURITY_TOMOYO is not set/CONFIG_SECURITY_TOMOYO=y/' -- .config
-+    echo 'CONFIG_SECURITY_TOMOYO_MAX_ACCEPT_ENTRY=2048' >> .config
-+    echo 'CONFIG_SECURITY_TOMOYO_MAX_AUDIT_LOG=1024' >> .config
-+    echo '# CONFIG_SECURITY_TOMOYO_OMIT_USERSPACE_LOADER is not set' >> .config
-+    echo 'CONFIG_SECURITY_TOMOYO_POLICY_LOADER="/sbin/tomoyo-init"' >> .config
-+    echo 'CONFIG_SECURITY_TOMOYO_ACTIVATION_TRIGGER="/usr/lib/systemd/systemd"' >> .config
-+    echo '# CONFIG_DEFAULT_SECURITY_TOMOYO is not set' >> .config
 +    # TOMOYO Linux 1.8
 +    sed -e 's@/sbin/init@/usr/lib/systemd/systemd@' -- config.ccs >> .config
 +

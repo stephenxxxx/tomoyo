@@ -431,6 +431,29 @@ static bool ccs_check_task_acl(struct ccs_request_info *r,
 
 /***** SECTION4: Standalone functions section *****/
 
+#if defined(RHEL_MAJOR) && RHEL_MAJOR == 8 && defined(RHEL_MINOR) && RHEL_MINOR >= 6
+
+/**
+ * prepare_binprm - Read the first BINPRM_BUF_SIZE bytes.
+ *
+ * @bprm: Pointer to "struct linux_binprm".
+ *
+ * This is not the same with prepare_binprm() in fs/exec.c due to not exported
+ * bprm_fill_uid()/security_bprm_repopulate_creds(). I guess that RHBZ#1993665
+ * decided to accept a not-yet-upstreamed "exec: Control flow simplifications"
+ * feature. But since this path is used by execute_handler, I assume that
+ * suid/sgid is not set on programs called via this path.
+ */
+static int prepare_binprm(struct linux_binprm *bprm)
+{
+	loff_t pos = 0;
+
+	memset(bprm->buf, 0, BINPRM_BUF_SIZE);
+	return kernel_read(bprm->file, bprm->buf, BINPRM_BUF_SIZE, &pos);
+}
+
+#endif
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
 
 /**
