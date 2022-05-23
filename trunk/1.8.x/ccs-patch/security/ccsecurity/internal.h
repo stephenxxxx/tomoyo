@@ -59,11 +59,6 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
 #include <linux/magic.h>
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-#include <linux/stdarg.h>
-#else
-#include <stdarg.h>
-#endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
 #include <linux/uaccess.h>
 #else
