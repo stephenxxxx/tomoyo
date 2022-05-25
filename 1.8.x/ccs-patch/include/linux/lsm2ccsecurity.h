@@ -49,8 +49,14 @@ int ccs_path_mkdir(const struct path *dir, struct dentry *dentry,
 		   umode_t mode);
 int ccs_path_mknod(const struct path *dir, struct dentry *dentry, umode_t mode,
 		   unsigned int dev);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 0)
+int ccs_path_rename(const struct path *old_dir, struct dentry *old_dentry,
+		    const struct path *new_dir, struct dentry *new_dentry,
+		    const unsigned int flags);
+#else
 int ccs_path_rename(const struct path *old_dir, struct dentry *old_dentry,
 		    const struct path *new_dir, struct dentry *new_dentry);
+#endif
 int ccs_path_rmdir(const struct path *dir, struct dentry *dentry);
 int ccs_path_symlink(const struct path *dir, struct dentry *dentry,
 		     const char *old_name);
@@ -201,6 +207,16 @@ static inline int ccs_path_link(struct dentry *old_dentry,
 {
 	return 0;
 }
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 0)
+static inline int ccs_path_rename(const struct path *old_dir,
+				  struct dentry *old_dentry,
+				  const struct path *new_dir,
+				  struct dentry *new_dentry,
+				  const unsigned int flags)
+{
+	return 0;
+}
+#else
 static inline int ccs_path_rename(const struct path *old_dir,
 				  struct dentry *old_dentry,
 				  const struct path *new_dir,
@@ -208,6 +224,7 @@ static inline int ccs_path_rename(const struct path *old_dir,
 {
 	return 0;
 }
+#endif
 static inline int ccs_path_chmod(const struct path *path, umode_t mode)
 {
 	return 0;
