@@ -138,11 +138,21 @@ int ccs_path_link(struct dentry *old_dentry, const struct path *new_dir,
 	return ccs_link_permission(old_dentry, new_dentry, new_dir->mnt);
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 0)
+int ccs_path_rename(const struct path *old_dir, struct dentry *old_dentry,
+		    const struct path *new_dir, struct dentry *new_dentry,
+		    const unsigned int flags)
+{
+	return ccs_rename_permission(old_dentry, new_dentry, new_dir->mnt,
+				     flags);
+}
+#else
 int ccs_path_rename(const struct path *old_dir, struct dentry *old_dentry,
 		    const struct path *new_dir, struct dentry *new_dentry)
 {
 	return ccs_rename_permission(old_dentry, new_dentry, new_dir->mnt);
 }
+#endif
 
 int ccs_path_chmod(const struct path *path, umode_t mode)
 {
