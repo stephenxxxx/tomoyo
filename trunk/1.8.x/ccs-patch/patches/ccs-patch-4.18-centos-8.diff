@@ -1,6 +1,6 @@
 This is TOMOYO Linux patch for CentOS Stream 8.
 
-Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/Source/SPackages/kernel-4.18.0-383.el8.src.rpm
+Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/Source/SPackages/kernel-4.18.0-394.el8.src.rpm
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -28,8 +28,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  security/security.c       |    5 ++-
  24 files changed, 144 insertions(+), 29 deletions(-)
 
---- linux-4.18.0-383.el8.orig/fs/exec.c
-+++ linux-4.18.0-383.el8/fs/exec.c
+--- linux-4.18.0-394.el8.orig/fs/exec.c
++++ linux-4.18.0-394.el8/fs/exec.c
 @@ -1748,7 +1748,7 @@ static int exec_binprm(struct linux_binp
  	old_vpid = task_pid_nr_ns(current, task_active_pid_ns(current->parent));
  	rcu_read_unlock();
@@ -39,9 +39,9 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	if (ret >= 0) {
  		audit_bprm(bprm);
  		trace_sched_process_exec(current, old_pid, bprm);
---- linux-4.18.0-383.el8.orig/fs/open.c
-+++ linux-4.18.0-383.el8/fs/open.c
-@@ -1237,6 +1237,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
+--- linux-4.18.0-394.el8.orig/fs/open.c
++++ linux-4.18.0-394.el8/fs/open.c
+@@ -1330,6 +1330,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
   */
  SYSCALL_DEFINE0(vhangup)
  {
@@ -50,8 +50,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	if (capable(CAP_SYS_TTY_CONFIG)) {
  		tty_vhangup_self();
  		return 0;
---- linux-4.18.0-383.el8.orig/fs/proc/version.c
-+++ linux-4.18.0-383.el8/fs/proc/version.c
+--- linux-4.18.0-394.el8.orig/fs/proc/version.c
++++ linux-4.18.0-394.el8/fs/proc/version.c
 @@ -21,3 +21,10 @@ static int __init proc_version_init(void
  	return 0;
  }
@@ -59,12 +59,12 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 4.18.0-383.el8 2022/05/11\n");
++	printk(KERN_INFO "Hook version: 4.18.0-394.el8 2022/06/17\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
---- linux-4.18.0-383.el8.orig/include/linux/sched.h
-+++ linux-4.18.0-383.el8/include/linux/sched.h
+--- linux-4.18.0-394.el8.orig/include/linux/sched.h
++++ linux-4.18.0-394.el8/include/linux/sched.h
 @@ -41,6 +41,7 @@ struct audit_context;
  struct backing_dev_info;
  struct bio_list;
@@ -73,7 +73,7 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  struct cfs_rq;
  struct fs_struct;
  struct futex_pi_state;
-@@ -1408,6 +1409,10 @@ struct task_struct {
+@@ -1432,6 +1433,10 @@ struct task_struct {
  	/* Used by LSM modules for access restriction: */
  	void				*security;
  #endif
@@ -84,8 +84,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	/*
  	 * New fields for task_struct should be added above here, so that
---- linux-4.18.0-383.el8.orig/include/linux/security.h
-+++ linux-4.18.0-383.el8/include/linux/security.h
+--- linux-4.18.0-394.el8.orig/include/linux/security.h
++++ linux-4.18.0-394.el8/include/linux/security.h
 @@ -56,6 +56,7 @@ struct mm_struct;
  struct fs_context;
  struct fs_parameter;
@@ -306,9 +306,9 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  }
  #endif	/* CONFIG_SECURITY_PATH */
  
---- linux-4.18.0-383.el8.orig/include/net/ip.h
-+++ linux-4.18.0-383.el8/include/net/ip.h
-@@ -282,6 +282,8 @@ void inet_get_local_port_range(struct ne
+--- linux-4.18.0-394.el8.orig/include/net/ip.h
++++ linux-4.18.0-394.el8/include/net/ip.h
+@@ -297,6 +297,8 @@ void inet_get_local_port_range(struct ne
  #ifdef CONFIG_SYSCTL
  static inline bool inet_is_local_reserved_port(struct net *net, int port)
  {
@@ -317,7 +317,7 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	if (!net->ipv4.sysctl_local_reserved_ports)
  		return false;
  	return test_bit(port, net->ipv4.sysctl_local_reserved_ports);
-@@ -300,6 +302,8 @@ static inline bool inet_port_requires_bi
+@@ -315,6 +317,8 @@ static inline bool inet_port_requires_bi
  #else
  static inline bool inet_is_local_reserved_port(struct net *net, int port)
  {
@@ -326,8 +326,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	return false;
  }
  
---- linux-4.18.0-383.el8.orig/init/init_task.c
-+++ linux-4.18.0-383.el8/init/init_task.c
+--- linux-4.18.0-394.el8.orig/init/init_task.c
++++ linux-4.18.0-394.el8/init/init_task.c
 @@ -217,6 +217,10 @@ struct task_struct init_task
  #ifdef CONFIG_SECURITY
  	.security	= NULL,
@@ -339,8 +339,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  };
  EXPORT_SYMBOL(init_task);
  
---- linux-4.18.0-383.el8.orig/kernel/kexec.c
-+++ linux-4.18.0-383.el8/kernel/kexec.c
+--- linux-4.18.0-394.el8.orig/kernel/kexec.c
++++ linux-4.18.0-394.el8/kernel/kexec.c
 @@ -18,7 +18,7 @@
  #include <linux/syscalls.h>
  #include <linux/vmalloc.h>
@@ -359,8 +359,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	/* Permit LSMs and IMA to fail the kexec */
  	result = security_kernel_load_data(LOADING_KEXEC_IMAGE);
---- linux-4.18.0-383.el8.orig/kernel/module.c
-+++ linux-4.18.0-383.el8/kernel/module.c
+--- linux-4.18.0-394.el8.orig/kernel/module.c
++++ linux-4.18.0-394.el8/kernel/module.c
 @@ -67,6 +67,7 @@
  #include <linux/audit.h>
  #include <uapi/linux/module.h>
@@ -387,8 +387,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	return 0;
  }
---- linux-4.18.0-383.el8.orig/kernel/ptrace.c
-+++ linux-4.18.0-383.el8/kernel/ptrace.c
+--- linux-4.18.0-394.el8.orig/kernel/ptrace.c
++++ linux-4.18.0-394.el8/kernel/ptrace.c
 @@ -1137,6 +1137,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
  {
  	struct task_struct *child;
@@ -413,8 +413,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
---- linux-4.18.0-383.el8.orig/kernel/reboot.c
-+++ linux-4.18.0-383.el8/kernel/reboot.c
+--- linux-4.18.0-394.el8.orig/kernel/reboot.c
++++ linux-4.18.0-394.el8/kernel/reboot.c
 @@ -16,6 +16,7 @@
  #include <linux/syscalls.h>
  #include <linux/syscore_ops.h>
@@ -432,9 +432,9 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	/*
  	 * If pid namespaces are enabled and the current task is in a child
---- linux-4.18.0-383.el8.orig/kernel/sched/core.c
-+++ linux-4.18.0-383.el8/kernel/sched/core.c
-@@ -5022,6 +5022,8 @@ int can_nice(const struct task_struct *p
+--- linux-4.18.0-394.el8.orig/kernel/sched/core.c
++++ linux-4.18.0-394.el8/kernel/sched/core.c
+@@ -4996,6 +4996,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
  	long nice, retval;
@@ -443,9 +443,9 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	/*
  	 * Setpriority might change our priority at the same moment.
---- linux-4.18.0-383.el8.orig/kernel/signal.c
-+++ linux-4.18.0-383.el8/kernel/signal.c
-@@ -3547,6 +3547,8 @@ SYSCALL_DEFINE2(kill, pid_t, pid, int, s
+--- linux-4.18.0-394.el8.orig/kernel/signal.c
++++ linux-4.18.0-394.el8/kernel/signal.c
+@@ -3562,6 +3562,8 @@ SYSCALL_DEFINE2(kill, pid_t, pid, int, s
  {
  	struct kernel_siginfo info;
  
@@ -454,7 +454,7 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	prepare_kill_siginfo(sig, &info);
  
  	return kill_something_info(sig, &info, pid);
-@@ -3729,6 +3731,8 @@ SYSCALL_DEFINE3(tgkill, pid_t, tgid, pid
+@@ -3744,6 +3746,8 @@ SYSCALL_DEFINE3(tgkill, pid_t, tgid, pid
  	/* This is only valid for single tasks */
  	if (pid <= 0 || tgid <= 0)
  		return -EINVAL;
@@ -463,7 +463,7 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	return do_tkill(tgid, pid, sig);
  }
-@@ -3745,6 +3749,8 @@ SYSCALL_DEFINE2(tkill, pid_t, pid, int,
+@@ -3760,6 +3764,8 @@ SYSCALL_DEFINE2(tkill, pid_t, pid, int,
  	/* This is only valid for single tasks */
  	if (pid <= 0)
  		return -EINVAL;
@@ -472,7 +472,7 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	return do_tkill(0, pid, sig);
  }
-@@ -3758,6 +3764,8 @@ static int do_rt_sigqueueinfo(pid_t pid,
+@@ -3773,6 +3779,8 @@ static int do_rt_sigqueueinfo(pid_t pid,
  	    (task_pid_vnr(current) != pid))
  		return -EPERM;
  
@@ -481,7 +481,7 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	/* POSIX.1b doesn't mention process groups.  */
  	return kill_proc_info(sig, info, pid);
  }
-@@ -3805,6 +3813,8 @@ static int do_rt_tgsigqueueinfo(pid_t tg
+@@ -3820,6 +3828,8 @@ static int do_rt_tgsigqueueinfo(pid_t tg
  	    (task_pid_vnr(current) != pid))
  		return -EPERM;
  
@@ -490,8 +490,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	return do_send_specific(tgid, pid, sig, info);
  }
  
---- linux-4.18.0-383.el8.orig/kernel/sys.c
-+++ linux-4.18.0-383.el8/kernel/sys.c
+--- linux-4.18.0-394.el8.orig/kernel/sys.c
++++ linux-4.18.0-394.el8/kernel/sys.c
 @@ -210,6 +210,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
  
  	if (which > PRIO_USER || which < PRIO_PROCESS)
@@ -521,8 +521,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	down_write(&uts_sem);
  	errno = -EFAULT;
---- linux-4.18.0-383.el8.orig/kernel/time/timekeeping.c
-+++ linux-4.18.0-383.el8/kernel/time/timekeeping.c
+--- linux-4.18.0-394.el8.orig/kernel/time/timekeeping.c
++++ linux-4.18.0-394.el8/kernel/time/timekeeping.c
 @@ -26,6 +26,7 @@
  #include <linux/pvclock_gtod.h>
  #include <linux/compiler.h>
@@ -531,7 +531,7 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  #include "tick-internal.h"
  #include "ntp_internal.h"
-@@ -2264,10 +2265,15 @@ static int timekeeping_validate_timex(co
+@@ -2266,10 +2267,15 @@ static int timekeeping_validate_timex(co
  		if (!(txc->modes & ADJ_OFFSET_READONLY) &&
  		    !capable(CAP_SYS_TIME))
  			return -EPERM;
@@ -547,7 +547,7 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  		/*
  		 * if the quartz is off by more than 10% then
  		 * something is VERY wrong!
-@@ -2282,6 +2288,8 @@ static int timekeeping_validate_timex(co
+@@ -2284,6 +2290,8 @@ static int timekeeping_validate_timex(co
  		/* In order to inject time, you gotta be super-user! */
  		if (!capable(CAP_SYS_TIME))
  			return -EPERM;
@@ -556,9 +556,9 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  		/*
  		 * Validate if a timespec/timeval used to inject a time
---- linux-4.18.0-383.el8.orig/net/ipv4/raw.c
-+++ linux-4.18.0-383.el8/net/ipv4/raw.c
-@@ -781,6 +781,10 @@ static int raw_recvmsg(struct sock *sk,
+--- linux-4.18.0-394.el8.orig/net/ipv4/raw.c
++++ linux-4.18.0-394.el8/net/ipv4/raw.c
+@@ -775,6 +775,10 @@ static int raw_recvmsg(struct sock *sk,
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
  		goto out;
@@ -569,9 +569,9 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	copied = skb->len;
  	if (len < copied) {
---- linux-4.18.0-383.el8.orig/net/ipv4/udp.c
-+++ linux-4.18.0-383.el8/net/ipv4/udp.c
-@@ -1858,6 +1858,8 @@ try_again:
+--- linux-4.18.0-394.el8.orig/net/ipv4/udp.c
++++ linux-4.18.0-394.el8/net/ipv4/udp.c
+@@ -1848,6 +1848,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
  		return err;
@@ -580,8 +580,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	ulen = udp_skb_len(skb);
  	copied = len;
---- linux-4.18.0-383.el8.orig/net/ipv6/raw.c
-+++ linux-4.18.0-383.el8/net/ipv6/raw.c
+--- linux-4.18.0-394.el8.orig/net/ipv6/raw.c
++++ linux-4.18.0-394.el8/net/ipv6/raw.c
 @@ -485,6 +485,10 @@ static int rawv6_recvmsg(struct sock *sk
  	skb = skb_recv_datagram(sk, flags, noblock, &err);
  	if (!skb)
@@ -593,8 +593,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	copied = skb->len;
  	if (copied > len) {
---- linux-4.18.0-383.el8.orig/net/ipv6/udp.c
-+++ linux-4.18.0-383.el8/net/ipv6/udp.c
+--- linux-4.18.0-394.el8.orig/net/ipv6/udp.c
++++ linux-4.18.0-394.el8/net/ipv6/udp.c
 @@ -346,6 +346,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
  	if (!skb)
@@ -604,8 +604,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  
  	ulen = udp6_skb_len(skb);
  	copied = len;
---- linux-4.18.0-383.el8.orig/net/socket.c
-+++ linux-4.18.0-383.el8/net/socket.c
+--- linux-4.18.0-394.el8.orig/net/socket.c
++++ linux-4.18.0-394.el8/net/socket.c
 @@ -1715,6 +1715,10 @@ int __sys_accept4_file(struct file *file
  	if (err < 0)
  		goto out_fd;
@@ -617,8 +617,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	if (upeer_sockaddr) {
  		len = newsock->ops->getname(newsock,
  					(struct sockaddr *)&address, 2);
---- linux-4.18.0-383.el8.orig/net/unix/af_unix.c
-+++ linux-4.18.0-383.el8/net/unix/af_unix.c
+--- linux-4.18.0-394.el8.orig/net/unix/af_unix.c
++++ linux-4.18.0-394.el8/net/unix/af_unix.c
 @@ -2165,6 +2165,10 @@ static int unix_dgram_recvmsg(struct soc
  						EPOLLOUT | EPOLLWRNORM |
  						EPOLLWRBAND);
@@ -638,8 +638,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
  	mutex_unlock(&u->iolock);
  out:
  	return err;
---- linux-4.18.0-383.el8.orig/security/Kconfig
-+++ linux-4.18.0-383.el8/security/Kconfig
+--- linux-4.18.0-394.el8.orig/security/Kconfig
++++ linux-4.18.0-394.el8/security/Kconfig
 @@ -326,4 +326,6 @@ config LSM
  
  source "security/Kconfig.hardening"
@@ -647,8 +647,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
 +source security/ccsecurity/Kconfig
 +
  endmenu
---- linux-4.18.0-383.el8.orig/security/Makefile
-+++ linux-4.18.0-383.el8/security/Makefile
+--- linux-4.18.0-394.el8.orig/security/Makefile
++++ linux-4.18.0-394.el8/security/Makefile
 @@ -35,3 +35,6 @@ obj-$(CONFIG_INTEGRITY)			+= integrity/
  
  # Allow the kernel to be locked down
@@ -656,8 +656,8 @@ Source code for this patch is https://vault.centos.org/centos/8-stream/BaseOS/So
 +
 +subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
---- linux-4.18.0-383.el8.orig/security/security.c
-+++ linux-4.18.0-383.el8/security/security.c
+--- linux-4.18.0-394.el8.orig/security/security.c
++++ linux-4.18.0-394.el8/security/security.c
 @@ -1553,7 +1553,9 @@ int security_task_alloc(struct task_stru
  
  	if (rc)
