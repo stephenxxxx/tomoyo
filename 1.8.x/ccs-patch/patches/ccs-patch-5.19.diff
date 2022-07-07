@@ -1,6 +1,6 @@
-This is TOMOYO Linux patch for kernel 5.19-rc3.
+This is TOMOYO Linux patch for kernel 5.19-rc5.
 
-Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.tar.gz
+Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc5.tar.gz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -28,8 +28,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  security/security.c       |    5 +++
  24 files changed, 150 insertions(+), 30 deletions(-)
 
---- linux-5.19-rc3.orig/fs/exec.c
-+++ linux-5.19-rc3/fs/exec.c
+--- linux-5.19-rc5.orig/fs/exec.c
++++ linux-5.19-rc5/fs/exec.c
 @@ -1835,7 +1835,7 @@ static int bprm_execve(struct linux_binp
  	if (retval)
  		goto out;
@@ -39,8 +39,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  	if (retval < 0)
  		goto out;
  
---- linux-5.19-rc3.orig/fs/open.c
-+++ linux-5.19-rc3/fs/open.c
+--- linux-5.19-rc5.orig/fs/open.c
++++ linux-5.19-rc5/fs/open.c
 @@ -1439,6 +1439,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
   */
  SYSCALL_DEFINE0(vhangup)
@@ -50,8 +50,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  	if (capable(CAP_SYS_TTY_CONFIG)) {
  		tty_vhangup_self();
  		return 0;
---- linux-5.19-rc3.orig/fs/proc/version.c
-+++ linux-5.19-rc3/fs/proc/version.c
+--- linux-5.19-rc5.orig/fs/proc/version.c
++++ linux-5.19-rc5/fs/proc/version.c
 @@ -21,3 +21,10 @@ static int __init proc_version_init(void
  	return 0;
  }
@@ -59,12 +59,12 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 5.19-rc3 2022/06/21\n");
++	printk(KERN_INFO "Hook version: 5.19-rc5 2022/07/07\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
---- linux-5.19-rc3.orig/include/linux/sched.h
-+++ linux-5.19-rc3/include/linux/sched.h
+--- linux-5.19-rc5.orig/include/linux/sched.h
++++ linux-5.19-rc5/include/linux/sched.h
 @@ -44,6 +44,7 @@ struct blk_plug;
  struct bpf_local_storage;
  struct bpf_run_ctx;
@@ -84,8 +84,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  #ifdef CONFIG_TRACING
  	/* State flags for use by tracers: */
---- linux-5.19-rc3.orig/include/linux/security.h
-+++ linux-5.19-rc3/include/linux/security.h
+--- linux-5.19-rc5.orig/include/linux/security.h
++++ linux-5.19-rc5/include/linux/security.h
 @@ -59,6 +59,7 @@ struct fs_parameter;
  enum fs_value_type;
  struct watch;
@@ -305,8 +305,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  }
  #endif	/* CONFIG_SECURITY_PATH */
  
---- linux-5.19-rc3.orig/include/net/ip.h
-+++ linux-5.19-rc3/include/net/ip.h
+--- linux-5.19-rc5.orig/include/net/ip.h
++++ linux-5.19-rc5/include/net/ip.h
 @@ -345,6 +345,8 @@ void inet_get_local_port_range(struct ne
  #ifdef CONFIG_SYSCTL
  static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
@@ -325,8 +325,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  	return false;
  }
  
---- linux-5.19-rc3.orig/init/init_task.c
-+++ linux-5.19-rc3/init/init_task.c
+--- linux-5.19-rc5.orig/init/init_task.c
++++ linux-5.19-rc5/init/init_task.c
 @@ -209,6 +209,10 @@ struct task_struct init_task
  #ifdef CONFIG_SECCOMP_FILTER
  	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
@@ -338,8 +338,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  };
  EXPORT_SYMBOL(init_task);
  
---- linux-5.19-rc3.orig/kernel/kexec.c
-+++ linux-5.19-rc3/kernel/kexec.c
+--- linux-5.19-rc5.orig/kernel/kexec.c
++++ linux-5.19-rc5/kernel/kexec.c
 @@ -16,7 +16,7 @@
  #include <linux/syscalls.h>
  #include <linux/vmalloc.h>
@@ -358,8 +358,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	/* Permit LSMs and IMA to fail the kexec */
  	result = security_kernel_load_data(LOADING_KEXEC_IMAGE, false);
---- linux-5.19-rc3.orig/kernel/module/main.c
-+++ linux-5.19-rc3/kernel/module/main.c
+--- linux-5.19-rc5.orig/kernel/module/main.c
++++ linux-5.19-rc5/kernel/module/main.c
 @@ -58,6 +58,7 @@
  
  #define CREATE_TRACE_POINTS
@@ -386,8 +386,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	return 0;
  }
---- linux-5.19-rc3.orig/kernel/ptrace.c
-+++ linux-5.19-rc3/kernel/ptrace.c
+--- linux-5.19-rc5.orig/kernel/ptrace.c
++++ linux-5.19-rc5/kernel/ptrace.c
 @@ -1271,6 +1271,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
  {
  	struct task_struct *child;
@@ -412,8 +412,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
---- linux-5.19-rc3.orig/kernel/reboot.c
-+++ linux-5.19-rc3/kernel/reboot.c
+--- linux-5.19-rc5.orig/kernel/reboot.c
++++ linux-5.19-rc5/kernel/reboot.c
 @@ -18,6 +18,7 @@
  #include <linux/syscalls.h>
  #include <linux/syscore_ops.h>
@@ -422,7 +422,7 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  /*
   * this indicates whether you can reboot with ctrl-alt-del: the default is yes
-@@ -700,6 +701,8 @@ SYSCALL_DEFINE4(reboot, int, magic1, int
+@@ -698,6 +699,8 @@ SYSCALL_DEFINE4(reboot, int, magic1, int
  			magic2 != LINUX_REBOOT_MAGIC2B &&
  			magic2 != LINUX_REBOOT_MAGIC2C))
  		return -EINVAL;
@@ -431,8 +431,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	/*
  	 * If pid namespaces are enabled and the current task is in a child
---- linux-5.19-rc3.orig/kernel/sched/core.c
-+++ linux-5.19-rc3/kernel/sched/core.c
+--- linux-5.19-rc5.orig/kernel/sched/core.c
++++ linux-5.19-rc5/kernel/sched/core.c
 @@ -7023,6 +7023,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
@@ -442,8 +442,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	/*
  	 * Setpriority might change our priority at the same moment.
---- linux-5.19-rc3.orig/kernel/signal.c
-+++ linux-5.19-rc3/kernel/signal.c
+--- linux-5.19-rc5.orig/kernel/signal.c
++++ linux-5.19-rc5/kernel/signal.c
 @@ -3770,6 +3770,8 @@ static inline void prepare_kill_siginfo(
  SYSCALL_DEFINE2(kill, pid_t, pid, int, sig)
  {
@@ -511,8 +511,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	return do_send_specific(tgid, pid, sig, info);
  }
---- linux-5.19-rc3.orig/kernel/sys.c
-+++ linux-5.19-rc3/kernel/sys.c
+--- linux-5.19-rc5.orig/kernel/sys.c
++++ linux-5.19-rc5/kernel/sys.c
 @@ -218,6 +218,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
  
  	if (which > PRIO_USER || which < PRIO_PROCESS)
@@ -542,8 +542,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	errno = -EFAULT;
  	if (!copy_from_user(tmp, name, len)) {
---- linux-5.19-rc3.orig/kernel/time/timekeeping.c
-+++ linux-5.19-rc3/kernel/time/timekeeping.c
+--- linux-5.19-rc5.orig/kernel/time/timekeeping.c
++++ linux-5.19-rc5/kernel/time/timekeeping.c
 @@ -23,6 +23,7 @@
  #include <linux/pvclock_gtod.h>
  #include <linux/compiler.h>
@@ -577,8 +577,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  		/*
  		 * Validate if a timespec/timeval used to inject a time
---- linux-5.19-rc3.orig/net/ipv4/raw.c
-+++ linux-5.19-rc3/net/ipv4/raw.c
+--- linux-5.19-rc5.orig/net/ipv4/raw.c
++++ linux-5.19-rc5/net/ipv4/raw.c
 @@ -772,6 +772,10 @@ static int raw_recvmsg(struct sock *sk,
  	skb = skb_recv_datagram(sk, flags, &err);
  	if (!skb)
@@ -590,8 +590,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	copied = skb->len;
  	if (len < copied) {
---- linux-5.19-rc3.orig/net/ipv4/udp.c
-+++ linux-5.19-rc3/net/ipv4/udp.c
+--- linux-5.19-rc5.orig/net/ipv4/udp.c
++++ linux-5.19-rc5/net/ipv4/udp.c
 @@ -1861,6 +1861,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, &off, &err);
  	if (!skb)
@@ -601,8 +601,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	ulen = udp_skb_len(skb);
  	copied = len;
---- linux-5.19-rc3.orig/net/ipv6/raw.c
-+++ linux-5.19-rc3/net/ipv6/raw.c
+--- linux-5.19-rc5.orig/net/ipv6/raw.c
++++ linux-5.19-rc5/net/ipv6/raw.c
 @@ -480,6 +480,10 @@ static int rawv6_recvmsg(struct sock *sk
  	skb = skb_recv_datagram(sk, flags, &err);
  	if (!skb)
@@ -614,8 +614,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	copied = skb->len;
  	if (copied > len) {
---- linux-5.19-rc3.orig/net/ipv6/udp.c
-+++ linux-5.19-rc3/net/ipv6/udp.c
+--- linux-5.19-rc5.orig/net/ipv6/udp.c
++++ linux-5.19-rc5/net/ipv6/udp.c
 @@ -346,6 +346,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, &off, &err);
  	if (!skb)
@@ -625,8 +625,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  
  	ulen = udp6_skb_len(skb);
  	copied = len;
---- linux-5.19-rc3.orig/net/socket.c
-+++ linux-5.19-rc3/net/socket.c
+--- linux-5.19-rc5.orig/net/socket.c
++++ linux-5.19-rc5/net/socket.c
 @@ -1858,6 +1858,10 @@ struct file *do_accept(struct file *file
  	if (err < 0)
  		goto out_fd;
@@ -638,8 +638,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  	if (upeer_sockaddr) {
  		len = newsock->ops->getname(newsock,
  					(struct sockaddr *)&address, 2);
---- linux-5.19-rc3.orig/net/unix/af_unix.c
-+++ linux-5.19-rc3/net/unix/af_unix.c
+--- linux-5.19-rc5.orig/net/unix/af_unix.c
++++ linux-5.19-rc5/net/unix/af_unix.c
 @@ -2418,6 +2418,10 @@ int __unix_dgram_recvmsg(struct sock *sk
  						EPOLLOUT | EPOLLWRNORM |
  						EPOLLWRBAND);
@@ -659,8 +659,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
  	mutex_unlock(&u->iolock);
  out:
  	return err;
---- linux-5.19-rc3.orig/security/Kconfig
-+++ linux-5.19-rc3/security/Kconfig
+--- linux-5.19-rc5.orig/security/Kconfig
++++ linux-5.19-rc5/security/Kconfig
 @@ -271,5 +271,7 @@ config LSM
  
  source "security/Kconfig.hardening"
@@ -669,8 +669,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
 +
  endmenu
  
---- linux-5.19-rc3.orig/security/Makefile
-+++ linux-5.19-rc3/security/Makefile
+--- linux-5.19-rc5.orig/security/Makefile
++++ linux-5.19-rc5/security/Makefile
 @@ -27,3 +27,6 @@ obj-$(CONFIG_SECURITY_LANDLOCK)		+= land
  
  # Object integrity file lists
@@ -678,8 +678,8 @@ Source code for this patch is https://git.kernel.org/torvalds/t/linux-5.19-rc3.t
 +
 +subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
---- linux-5.19-rc3.orig/security/security.c
-+++ linux-5.19-rc3/security/security.c
+--- linux-5.19-rc5.orig/security/security.c
++++ linux-5.19-rc5/security/security.c
 @@ -1655,7 +1655,9 @@ int security_task_alloc(struct task_stru
  
  	if (rc)
