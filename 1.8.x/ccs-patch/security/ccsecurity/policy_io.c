@@ -6033,7 +6033,7 @@ static int ccs_parse_policy(struct ccs_io_buffer *head, char *line)
 	case CCS_MANAGER:
 		return ccs_write_manager(head);
 	default:
-		return -ENOSYS;
+		return -EINVAL;
 	}
 }
 
