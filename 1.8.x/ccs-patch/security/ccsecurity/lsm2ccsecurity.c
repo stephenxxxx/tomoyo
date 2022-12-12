@@ -121,6 +121,11 @@ int ccs_path_mknod(const struct path *dir, struct dentry *dentry, umode_t mode,
 	return ccs_mknod_permission(dentry, dir->mnt, mode, dev);
 }
 
+int ccs_file_truncate(struct file *file)
+{
+	return ccs_path_truncate(&file->f_path);
+}
+
 int ccs_path_truncate(const struct path *path)
 {
 	return ccs_truncate_permission(path->dentry, path->mnt);
@@ -277,6 +282,9 @@ static struct security_hook_list ccsecurity_hooks[] = {
 	LSM_HOOK_INIT(socket_connect, ccs_socket_connect),
 	LSM_HOOK_INIT(socket_listen, ccs_socket_listen),
 	LSM_HOOK_INIT(socket_sendmsg, ccs_socket_sendmsg),
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
+	LSM_HOOK_INIT(file_truncate, ccs_file_truncate),
 #endif
 #if defined(CONFIG_SECURITY_PATH)
 	LSM_HOOK_INIT(path_unlink, ccs_path_unlink),
