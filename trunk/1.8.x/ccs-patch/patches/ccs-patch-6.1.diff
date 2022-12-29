@@ -1,6 +1,6 @@
-This is TOMOYO Linux patch for kernel 6.1.
+This is TOMOYO Linux patch for kernel 6.1.1.
 
-Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.1.tar.xz
+Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.1.1.tar.xz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -28,8 +28,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  security/security.c       |    5 +++
  24 files changed, 150 insertions(+), 30 deletions(-)
 
---- linux-6.1.orig/fs/exec.c
-+++ linux-6.1/fs/exec.c
+--- linux-6.1.1.orig/fs/exec.c
++++ linux-6.1.1/fs/exec.c
 @@ -1834,7 +1834,7 @@ static int bprm_execve(struct linux_binp
  	if (retval)
  		goto out;
@@ -39,8 +39,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  	if (retval < 0)
  		goto out;
  
---- linux-6.1.orig/fs/open.c
-+++ linux-6.1/fs/open.c
+--- linux-6.1.1.orig/fs/open.c
++++ linux-6.1.1/fs/open.c
 @@ -1471,6 +1471,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
   */
  SYSCALL_DEFINE0(vhangup)
@@ -50,8 +50,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  	if (capable(CAP_SYS_TTY_CONFIG)) {
  		tty_vhangup_self();
  		return 0;
---- linux-6.1.orig/fs/proc/version.c
-+++ linux-6.1/fs/proc/version.c
+--- linux-6.1.1.orig/fs/proc/version.c
++++ linux-6.1.1/fs/proc/version.c
 @@ -25,3 +25,10 @@ static int __init proc_version_init(void
  	return 0;
  }
@@ -59,12 +59,12 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 6.1 2022/12/12\n");
++	printk(KERN_INFO "Hook version: 6.1.1 2022/12/29\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
---- linux-6.1.orig/include/linux/sched.h
-+++ linux-6.1/include/linux/sched.h
+--- linux-6.1.1.orig/include/linux/sched.h
++++ linux-6.1.1/include/linux/sched.h
 @@ -46,6 +46,7 @@ struct blk_plug;
  struct bpf_local_storage;
  struct bpf_run_ctx;
@@ -84,8 +84,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  #ifdef CONFIG_TRACING
  	/* Bitmask and counter of trace recursion: */
---- linux-6.1.orig/include/linux/security.h
-+++ linux-6.1/include/linux/security.h
+--- linux-6.1.1.orig/include/linux/security.h
++++ linux-6.1.1/include/linux/security.h
 @@ -59,6 +59,7 @@ struct fs_parameter;
  enum fs_value_type;
  struct watch;
@@ -305,8 +305,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  }
  #endif	/* CONFIG_SECURITY_PATH */
  
---- linux-6.1.orig/include/net/ip.h
-+++ linux-6.1/include/net/ip.h
+--- linux-6.1.1.orig/include/net/ip.h
++++ linux-6.1.1/include/net/ip.h
 @@ -345,6 +345,8 @@ void inet_get_local_port_range(struct ne
  #ifdef CONFIG_SYSCTL
  static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
@@ -325,8 +325,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  	return false;
  }
  
---- linux-6.1.orig/init/init_task.c
-+++ linux-6.1/init/init_task.c
+--- linux-6.1.1.orig/init/init_task.c
++++ linux-6.1.1/init/init_task.c
 @@ -210,6 +210,10 @@ struct task_struct init_task
  #ifdef CONFIG_SECCOMP_FILTER
  	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
@@ -338,8 +338,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  };
  EXPORT_SYMBOL(init_task);
  
---- linux-6.1.orig/kernel/kexec.c
-+++ linux-6.1/kernel/kexec.c
+--- linux-6.1.1.orig/kernel/kexec.c
++++ linux-6.1.1/kernel/kexec.c
 @@ -16,7 +16,7 @@
  #include <linux/syscalls.h>
  #include <linux/vmalloc.h>
@@ -358,8 +358,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	/* Permit LSMs and IMA to fail the kexec */
  	result = security_kernel_load_data(LOADING_KEXEC_IMAGE, false);
---- linux-6.1.orig/kernel/module/main.c
-+++ linux-6.1/kernel/module/main.c
+--- linux-6.1.1.orig/kernel/module/main.c
++++ linux-6.1.1/kernel/module/main.c
 @@ -59,6 +59,7 @@
  
  #define CREATE_TRACE_POINTS
@@ -386,8 +386,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	return 0;
  }
---- linux-6.1.orig/kernel/ptrace.c
-+++ linux-6.1/kernel/ptrace.c
+--- linux-6.1.1.orig/kernel/ptrace.c
++++ linux-6.1.1/kernel/ptrace.c
 @@ -1271,6 +1271,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
  {
  	struct task_struct *child;
@@ -412,8 +412,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
---- linux-6.1.orig/kernel/reboot.c
-+++ linux-6.1/kernel/reboot.c
+--- linux-6.1.1.orig/kernel/reboot.c
++++ linux-6.1.1/kernel/reboot.c
 @@ -18,6 +18,7 @@
  #include <linux/syscalls.h>
  #include <linux/syscore_ops.h>
@@ -431,8 +431,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	/*
  	 * If pid namespaces are enabled and the current task is in a child
---- linux-6.1.orig/kernel/sched/core.c
-+++ linux-6.1/kernel/sched/core.c
+--- linux-6.1.1.orig/kernel/sched/core.c
++++ linux-6.1.1/kernel/sched/core.c
 @@ -7102,6 +7102,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
@@ -442,8 +442,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	/*
  	 * Setpriority might change our priority at the same moment.
---- linux-6.1.orig/kernel/signal.c
-+++ linux-6.1/kernel/signal.c
+--- linux-6.1.1.orig/kernel/signal.c
++++ linux-6.1.1/kernel/signal.c
 @@ -3771,6 +3771,8 @@ static inline void prepare_kill_siginfo(
  SYSCALL_DEFINE2(kill, pid_t, pid, int, sig)
  {
@@ -511,8 +511,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	return do_send_specific(tgid, pid, sig, info);
  }
---- linux-6.1.orig/kernel/sys.c
-+++ linux-6.1/kernel/sys.c
+--- linux-6.1.1.orig/kernel/sys.c
++++ linux-6.1.1/kernel/sys.c
 @@ -219,6 +219,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
  
  	if (which > PRIO_USER || which < PRIO_PROCESS)
@@ -542,8 +542,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	errno = -EFAULT;
  	if (!copy_from_user(tmp, name, len)) {
---- linux-6.1.orig/kernel/time/timekeeping.c
-+++ linux-6.1/kernel/time/timekeeping.c
+--- linux-6.1.1.orig/kernel/time/timekeeping.c
++++ linux-6.1.1/kernel/time/timekeeping.c
 @@ -24,6 +24,7 @@
  #include <linux/compiler.h>
  #include <linux/audit.h>
@@ -577,8 +577,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  		/*
  		 * Validate if a timespec/timeval used to inject a time
---- linux-6.1.orig/net/ipv4/raw.c
-+++ linux-6.1/net/ipv4/raw.c
+--- linux-6.1.1.orig/net/ipv4/raw.c
++++ linux-6.1.1/net/ipv4/raw.c
 @@ -744,6 +744,10 @@ static int raw_recvmsg(struct sock *sk,
  	skb = skb_recv_datagram(sk, flags, &err);
  	if (!skb)
@@ -590,8 +590,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	copied = skb->len;
  	if (len < copied) {
---- linux-6.1.orig/net/ipv4/udp.c
-+++ linux-6.1/net/ipv4/udp.c
+--- linux-6.1.1.orig/net/ipv4/udp.c
++++ linux-6.1.1/net/ipv4/udp.c
 @@ -1856,6 +1856,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, &off, &err);
  	if (!skb)
@@ -601,8 +601,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	ulen = udp_skb_len(skb);
  	copied = len;
---- linux-6.1.orig/net/ipv6/raw.c
-+++ linux-6.1/net/ipv6/raw.c
+--- linux-6.1.1.orig/net/ipv6/raw.c
++++ linux-6.1.1/net/ipv6/raw.c
 @@ -446,6 +446,10 @@ static int rawv6_recvmsg(struct sock *sk
  	skb = skb_recv_datagram(sk, flags, &err);
  	if (!skb)
@@ -614,8 +614,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	copied = skb->len;
  	if (copied > len) {
---- linux-6.1.orig/net/ipv6/udp.c
-+++ linux-6.1/net/ipv6/udp.c
+--- linux-6.1.1.orig/net/ipv6/udp.c
++++ linux-6.1.1/net/ipv6/udp.c
 @@ -360,6 +360,8 @@ try_again:
  	skb = __skb_recv_udp(sk, flags, &off, &err);
  	if (!skb)
@@ -625,8 +625,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  
  	ulen = udp6_skb_len(skb);
  	copied = len;
---- linux-6.1.orig/net/socket.c
-+++ linux-6.1/net/socket.c
+--- linux-6.1.1.orig/net/socket.c
++++ linux-6.1.1/net/socket.c
 @@ -1858,6 +1858,10 @@ struct file *do_accept(struct file *file
  	if (err < 0)
  		goto out_fd;
@@ -638,8 +638,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  	if (upeer_sockaddr) {
  		len = newsock->ops->getname(newsock,
  					(struct sockaddr *)&address, 2);
---- linux-6.1.orig/net/unix/af_unix.c
-+++ linux-6.1/net/unix/af_unix.c
+--- linux-6.1.1.orig/net/unix/af_unix.c
++++ linux-6.1.1/net/unix/af_unix.c
 @@ -2466,6 +2466,10 @@ int __unix_dgram_recvmsg(struct sock *sk
  						EPOLLOUT | EPOLLWRNORM |
  						EPOLLWRBAND);
@@ -659,8 +659,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
  	mutex_unlock(&u->iolock);
  out:
  	return err;
---- linux-6.1.orig/security/Kconfig
-+++ linux-6.1/security/Kconfig
+--- linux-6.1.1.orig/security/Kconfig
++++ linux-6.1.1/security/Kconfig
 @@ -260,5 +260,7 @@ config LSM
  
  source "security/Kconfig.hardening"
@@ -669,8 +669,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
 +
  endmenu
  
---- linux-6.1.orig/security/Makefile
-+++ linux-6.1/security/Makefile
+--- linux-6.1.1.orig/security/Makefile
++++ linux-6.1.1/security/Makefile
 @@ -27,3 +27,6 @@ obj-$(CONFIG_SECURITY_LANDLOCK)		+= land
  
  # Object integrity file lists
@@ -678,8 +678,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v6.x/linux
 +
 +subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
---- linux-6.1.orig/security/security.c
-+++ linux-6.1/security/security.c
+--- linux-6.1.1.orig/security/security.c
++++ linux-6.1.1/security/security.c
 @@ -1658,7 +1658,9 @@ int security_task_alloc(struct task_stru
  
  	if (rc)
