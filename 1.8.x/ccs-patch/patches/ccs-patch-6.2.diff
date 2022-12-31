@@ -1,6 +1,6 @@
-This is TOMOYO Linux patch for linux-next.
+This is TOMOYO Linux patch for kernel 6.2-rc1.
 
-Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/snapshot/linux-next-next-20221208.tar.gz
+Source code for this patch is https://git.kernel.org/torvalds/t/linux-6.2-rc1.tar.gz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
@@ -59,7 +59,7 @@ Source code for this patch is https://git.kernel.org/pub/scm/linux/kernel/git/ne
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 6.1-rc8-next-20221208 2022/12/12\n");
++	printk(KERN_INFO "Hook version: 6.2-rc1 2022/12/31\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
