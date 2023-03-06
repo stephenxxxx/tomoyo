@@ -1,20 +1,20 @@
-This is TOMOYO Linux patch for kernel 5.15.98.
+This is TOMOYO Linux patch for kernel 6.3-rc1.
 
-Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.15.98.tar.xz
+Source code for this patch is https://git.kernel.org/torvalds/t/linux-6.3-rc1.tar.gz
 ---
  fs/exec.c                 |    2 -
  fs/open.c                 |    2 +
- fs/proc/version.c         |    7 ++++
+ fs/proc/version.c         |    7 +++++
  include/linux/sched.h     |    5 +++
- include/linux/security.h  |   70 ++++++++++++++++++++++++++++------------------
+ include/linux/security.h  |   62 +++++++++++++++++++++++++---------------------
  include/net/ip.h          |    4 ++
  init/init_task.c          |    4 ++
- kernel/kexec.c            |    4 +-
- kernel/module.c           |    5 +++
- kernel/ptrace.c           |   10 ++++++
- kernel/reboot.c           |    3 +
+ kernel/kexec.c            |    4 ++
+ kernel/module/main.c      |    5 +++
+ kernel/ptrace.c           |   10 +++++++
+ kernel/reboot.c           |    3 ++
  kernel/sched/core.c       |    2 +
- kernel/signal.c           |   25 ++++++++++++++++
+ kernel/signal.c           |   25 ++++++++++++++++++
  kernel/sys.c              |    8 +++++
  kernel/time/timekeeping.c |    8 +++++
  net/ipv4/raw.c            |    4 ++
@@ -24,13 +24,13 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  net/socket.c              |    4 ++
  net/unix/af_unix.c        |    5 +++
  security/Kconfig          |    2 +
- security/Makefile         |    3 +
+ security/Makefile         |    3 ++
  security/security.c       |    5 ++-
- 24 files changed, 160 insertions(+), 30 deletions(-)
+ 24 files changed, 151 insertions(+), 31 deletions(-)
 
---- linux-5.15.98.orig/fs/exec.c
-+++ linux-5.15.98/fs/exec.c
-@@ -1841,7 +1841,7 @@ static int bprm_execve(struct linux_binp
+--- linux-6.3-rc1.orig/fs/exec.c
++++ linux-6.3-rc1/fs/exec.c
+@@ -1850,7 +1850,7 @@ static int bprm_execve(struct linux_binp
  	if (retval)
  		goto out;
  
@@ -39,9 +39,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	if (retval < 0)
  		goto out;
  
---- linux-5.15.98.orig/fs/open.c
-+++ linux-5.15.98/fs/open.c
-@@ -1370,6 +1370,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
+--- linux-6.3-rc1.orig/fs/open.c
++++ linux-6.3-rc1/fs/open.c
+@@ -1510,6 +1510,8 @@ SYSCALL_DEFINE3(close_range, unsigned in
   */
  SYSCALL_DEFINE0(vhangup)
  {
@@ -50,22 +50,22 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	if (capable(CAP_SYS_TTY_CONFIG)) {
  		tty_vhangup_self();
  		return 0;
---- linux-5.15.98.orig/fs/proc/version.c
-+++ linux-5.15.98/fs/proc/version.c
-@@ -21,3 +21,10 @@ static int __init proc_version_init(void
+--- linux-6.3-rc1.orig/fs/proc/version.c
++++ linux-6.3-rc1/fs/proc/version.c
+@@ -25,3 +25,10 @@ static int __init proc_version_init(void
  	return 0;
  }
  fs_initcall(proc_version_init);
 +
 +static int __init ccs_show_version(void)
 +{
-+	printk(KERN_INFO "Hook version: 5.15.98 2023/03/06\n");
++	printk(KERN_INFO "Hook version: 6.3-rc1 2023/03/06\n");
 +	return 0;
 +}
 +fs_initcall(ccs_show_version);
---- linux-5.15.98.orig/include/linux/sched.h
-+++ linux-5.15.98/include/linux/sched.h
-@@ -44,6 +44,7 @@ struct blk_plug;
+--- linux-6.3-rc1.orig/include/linux/sched.h
++++ linux-6.3-rc1/include/linux/sched.h
+@@ -46,6 +46,7 @@ struct blk_plug;
  struct bpf_local_storage;
  struct bpf_run_ctx;
  struct capture_control;
@@ -73,7 +73,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  struct cfs_rq;
  struct fs_struct;
  struct futex_pi_state;
-@@ -1369,6 +1370,10 @@ struct task_struct {
+@@ -1398,6 +1399,10 @@ struct task_struct {
  	/* Pause tracing: */
  	atomic_t			tracing_graph_pause;
  #endif
@@ -83,10 +83,10 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
 +#endif
  
  #ifdef CONFIG_TRACING
- 	/* State flags for use by tracers: */
---- linux-5.15.98.orig/include/linux/security.h
-+++ linux-5.15.98/include/linux/security.h
-@@ -59,6 +59,7 @@ struct fs_parameter;
+ 	/* Bitmask and counter of trace recursion: */
+--- linux-6.3-rc1.orig/include/linux/security.h
++++ linux-6.3-rc1/include/linux/security.h
+@@ -60,6 +60,7 @@ struct fs_parameter;
  enum fs_value_type;
  struct watch;
  struct watch_notification;
@@ -94,7 +94,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  /* Default (no) options for the capable function */
  #define CAP_OPT_NONE 0x0
-@@ -589,7 +590,10 @@ static inline int security_syslog(int ty
+@@ -600,7 +601,10 @@ static inline int security_syslog(int ty
  static inline int security_settime64(const struct timespec64 *ts,
  				     const struct timezone *tz)
  {
@@ -106,7 +106,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline int security_vm_enough_memory_mm(struct mm_struct *mm, long pages)
-@@ -682,18 +686,18 @@ static inline int security_sb_mount(cons
+@@ -693,18 +697,18 @@ static inline int security_sb_mount(cons
  				    const char *type, unsigned long flags,
  				    void *data)
  {
@@ -128,7 +128,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline int security_sb_set_mnt_opts(struct super_block *sb,
-@@ -721,7 +725,7 @@ static inline int security_add_mnt_opt(c
+@@ -726,7 +730,7 @@ static inline int security_sb_clone_mnt_
  static inline int security_move_mount(const struct path *from_path,
  				      const struct path *to_path)
  {
@@ -137,7 +137,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline int security_path_notify(const struct path *path, u64 mask,
-@@ -862,7 +866,7 @@ static inline int security_inode_setattr
+@@ -869,7 +873,7 @@ static inline int security_inode_setattr
  
  static inline int security_inode_getattr(const struct path *path)
  {
@@ -145,8 +145,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
 +	return ccs_inode_getattr(path);
  }
  
- static inline int security_inode_setxattr(struct user_namespace *mnt_userns,
-@@ -960,7 +964,7 @@ static inline void security_file_free(st
+ static inline int security_inode_setxattr(struct mnt_idmap *idmap,
+@@ -989,7 +993,7 @@ static inline void security_file_free(st
  static inline int security_file_ioctl(struct file *file, unsigned int cmd,
  				      unsigned long arg)
  {
@@ -155,7 +155,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline int security_mmap_file(struct file *file, unsigned long prot,
-@@ -989,7 +993,7 @@ static inline int security_file_lock(str
+@@ -1018,7 +1022,7 @@ static inline int security_file_lock(str
  static inline int security_file_fcntl(struct file *file, unsigned int cmd,
  				      unsigned long arg)
  {
@@ -164,12 +164,18 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline void security_file_set_fowner(struct file *file)
-@@ -1011,17 +1015,19 @@ static inline int security_file_receive(
+@@ -1040,22 +1044,24 @@ static inline int security_file_receive(
  
  static inline int security_file_open(struct file *file)
  {
 -	return 0;
 +	return ccs_file_open(file);
+ }
+ 
+ static inline int security_file_truncate(struct file *file)
+ {
+-	return 0;
++	return ccs_path_truncate(&file->f_path);
  }
  
  static inline int security_task_alloc(struct task_struct *task,
@@ -187,7 +193,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  static inline int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
  {
-@@ -1448,7 +1454,7 @@ static inline int security_unix_may_send
+@@ -1495,7 +1501,7 @@ static inline int security_unix_may_send
  static inline int security_socket_create(int family, int type,
  					 int protocol, int kern)
  {
@@ -196,7 +202,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline int security_socket_post_create(struct socket *sock,
-@@ -1469,19 +1475,19 @@ static inline int security_socket_bind(s
+@@ -1516,19 +1522,19 @@ static inline int security_socket_bind(s
  				       struct sockaddr *address,
  				       int addrlen)
  {
@@ -219,7 +225,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline int security_socket_accept(struct socket *sock,
-@@ -1493,7 +1499,7 @@ static inline int security_socket_accept
+@@ -1540,7 +1546,7 @@ static inline int security_socket_accept
  static inline int security_socket_sendmsg(struct socket *sock,
  					  struct msghdr *msg, int size)
  {
@@ -228,7 +234,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline int security_socket_recvmsg(struct socket *sock,
-@@ -1784,42 +1790,42 @@ int security_path_chroot(const struct pa
+@@ -1839,42 +1845,42 @@ int security_path_chroot(const struct pa
  #else	/* CONFIG_SECURITY_PATH */
  static inline int security_path_unlink(const struct path *dir, struct dentry *dentry)
  {
@@ -278,22 +284,12 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  
  static inline int security_path_rename(const struct path *old_dir,
-@@ -1828,22 +1834,32 @@ static inline int security_path_rename(c
+@@ -1883,22 +1889,22 @@ static inline int security_path_rename(c
  				       struct dentry *new_dentry,
  				       unsigned int flags)
  {
 -	return 0;
-+	/*
-+	 * Not using RENAME_EXCHANGE here in order to avoid KABI breakage
-+	 * by doing "#include <uapi/linux/fs.h>" .
-+	 */
-+	if (flags & (1 << 1)) {
-+		int err = ccs_path_rename(new_dir, new_dentry, old_dir,
-+					  old_dentry);
-+		if (err)
-+			return err;
-+	}
-+	return ccs_path_rename(old_dir, old_dentry, new_dir, new_dentry);
++	return ccs_path_rename(old_dir, old_dentry, new_dir, new_dentry, flags);
  }
  
  static inline int security_path_chmod(const struct path *path, umode_t mode)
@@ -315,9 +311,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  }
  #endif	/* CONFIG_SECURITY_PATH */
  
---- linux-5.15.98.orig/include/net/ip.h
-+++ linux-5.15.98/include/net/ip.h
-@@ -340,6 +340,8 @@ void inet_get_local_port_range(struct ne
+--- linux-6.3-rc1.orig/include/net/ip.h
++++ linux-6.3-rc1/include/net/ip.h
+@@ -346,6 +346,8 @@ void inet_sk_get_local_port_range(const
  #ifdef CONFIG_SYSCTL
  static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
  {
@@ -326,7 +322,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	if (!net->ipv4.sysctl_local_reserved_ports)
  		return false;
  	return test_bit(port, net->ipv4.sysctl_local_reserved_ports);
-@@ -358,6 +360,8 @@ static inline bool inet_port_requires_bi
+@@ -364,6 +366,8 @@ static inline bool inet_port_requires_bi
  #else
  static inline bool inet_is_local_reserved_port(struct net *net, unsigned short port)
  {
@@ -335,9 +331,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	return false;
  }
  
---- linux-5.15.98.orig/init/init_task.c
-+++ linux-5.15.98/init/init_task.c
-@@ -214,6 +214,10 @@ struct task_struct init_task
+--- linux-6.3-rc1.orig/init/init_task.c
++++ linux-6.3-rc1/init/init_task.c
+@@ -210,6 +210,10 @@ struct task_struct init_task
  #ifdef CONFIG_SECCOMP_FILTER
  	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
  #endif
@@ -348,8 +344,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  };
  EXPORT_SYMBOL(init_task);
  
---- linux-5.15.98.orig/kernel/kexec.c
-+++ linux-5.15.98/kernel/kexec.c
+--- linux-6.3-rc1.orig/kernel/kexec.c
++++ linux-6.3-rc1/kernel/kexec.c
 @@ -16,7 +16,7 @@
  #include <linux/syscalls.h>
  #include <linux/vmalloc.h>
@@ -359,26 +355,26 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  #include "kexec_internal.h"
  
  static int kimage_alloc_init(struct kimage **rimage, unsigned long entry,
-@@ -198,6 +198,8 @@ static inline int kexec_load_check(unsig
+@@ -197,6 +197,8 @@ static inline int kexec_load_check(unsig
  	/* We only trust the superuser with rebooting the system. */
- 	if (!capable(CAP_SYS_BOOT) || kexec_load_disabled)
+ 	if (!kexec_load_permitted(image_type))
  		return -EPERM;
 +	if (!ccs_capable(CCS_SYS_KEXEC_LOAD))
 +		return -EPERM;
  
  	/* Permit LSMs and IMA to fail the kexec */
  	result = security_kernel_load_data(LOADING_KEXEC_IMAGE, false);
---- linux-5.15.98.orig/kernel/module.c
-+++ linux-5.15.98/kernel/module.c
-@@ -59,6 +59,7 @@
- #include <linux/audit.h>
- #include <uapi/linux/module.h>
- #include "module-internal.h"
-+#include <linux/ccsecurity.h>
+--- linux-6.3-rc1.orig/kernel/module/main.c
++++ linux-6.3-rc1/kernel/module/main.c
+@@ -60,6 +60,7 @@
  
  #define CREATE_TRACE_POINTS
  #include <trace/events/module.h>
-@@ -918,6 +919,8 @@ SYSCALL_DEFINE2(delete_module, const cha
++#include <linux/ccsecurity.h>
+ 
+ /*
+  * Mutex protects:
+@@ -701,6 +702,8 @@ SYSCALL_DEFINE2(delete_module, const cha
  
  	if (!capable(CAP_SYS_MODULE) || modules_disabled)
  		return -EPERM;
@@ -387,7 +383,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	if (strncpy_from_user(name, name_user, MODULE_NAME_LEN-1) < 0)
  		return -EFAULT;
-@@ -3820,6 +3823,8 @@ static int may_init_module(void)
+@@ -2555,6 +2558,8 @@ static int may_init_module(void)
  {
  	if (!capable(CAP_SYS_MODULE) || modules_disabled)
  		return -EPERM;
@@ -396,9 +392,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	return 0;
  }
---- linux-5.15.98.orig/kernel/ptrace.c
-+++ linux-5.15.98/kernel/ptrace.c
-@@ -1295,6 +1295,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
+--- linux-6.3-rc1.orig/kernel/ptrace.c
++++ linux-6.3-rc1/kernel/ptrace.c
+@@ -1271,6 +1271,11 @@ SYSCALL_DEFINE4(ptrace, long, request, l
  {
  	struct task_struct *child;
  	long ret;
@@ -410,7 +406,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
-@@ -1442,6 +1447,11 @@ COMPAT_SYSCALL_DEFINE4(ptrace, compat_lo
+@@ -1410,6 +1415,11 @@ COMPAT_SYSCALL_DEFINE4(ptrace, compat_lo
  {
  	struct task_struct *child;
  	long ret;
@@ -422,8 +418,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	if (request == PTRACE_TRACEME) {
  		ret = ptrace_traceme();
---- linux-5.15.98.orig/kernel/reboot.c
-+++ linux-5.15.98/kernel/reboot.c
+--- linux-6.3-rc1.orig/kernel/reboot.c
++++ linux-6.3-rc1/kernel/reboot.c
 @@ -18,6 +18,7 @@
  #include <linux/syscalls.h>
  #include <linux/syscore_ops.h>
@@ -432,7 +428,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  /*
   * this indicates whether you can reboot with ctrl-alt-del: the default is yes
-@@ -326,6 +327,8 @@ SYSCALL_DEFINE4(reboot, int, magic1, int
+@@ -715,6 +716,8 @@ SYSCALL_DEFINE4(reboot, int, magic1, int
  			magic2 != LINUX_REBOOT_MAGIC2B &&
  			magic2 != LINUX_REBOOT_MAGIC2C))
  		return -EINVAL;
@@ -441,9 +437,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	/*
  	 * If pid namespaces are enabled and the current task is in a child
---- linux-5.15.98.orig/kernel/sched/core.c
-+++ linux-5.15.98/kernel/sched/core.c
-@@ -7030,6 +7030,8 @@ int can_nice(const struct task_struct *p
+--- linux-6.3-rc1.orig/kernel/sched/core.c
++++ linux-6.3-rc1/kernel/sched/core.c
+@@ -7203,6 +7203,8 @@ int can_nice(const struct task_struct *p
  SYSCALL_DEFINE1(nice, int, increment)
  {
  	long nice, retval;
@@ -452,9 +448,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	/*
  	 * Setpriority might change our priority at the same moment.
---- linux-5.15.98.orig/kernel/signal.c
-+++ linux-5.15.98/kernel/signal.c
-@@ -3800,6 +3800,8 @@ static inline void prepare_kill_siginfo(
+--- linux-6.3-rc1.orig/kernel/signal.c
++++ linux-6.3-rc1/kernel/signal.c
+@@ -3774,6 +3774,8 @@ static inline void prepare_kill_siginfo(
  SYSCALL_DEFINE2(kill, pid_t, pid, int, sig)
  {
  	struct kernel_siginfo info;
@@ -463,7 +459,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	prepare_kill_siginfo(sig, &info);
  
-@@ -3899,6 +3901,21 @@ SYSCALL_DEFINE4(pidfd_send_signal, int,
+@@ -3873,6 +3875,21 @@ SYSCALL_DEFINE4(pidfd_send_signal, int,
  	if (!access_pidfd_pidns(pid))
  		goto err;
  
@@ -485,7 +481,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	if (info) {
  		ret = copy_siginfo_from_user_any(&kinfo, info);
  		if (unlikely(ret))
-@@ -3983,6 +4000,8 @@ SYSCALL_DEFINE3(tgkill, pid_t, tgid, pid
+@@ -3957,6 +3974,8 @@ SYSCALL_DEFINE3(tgkill, pid_t, tgid, pid
  	/* This is only valid for single tasks */
  	if (pid <= 0 || tgid <= 0)
  		return -EINVAL;
@@ -494,7 +490,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	return do_tkill(tgid, pid, sig);
  }
-@@ -3999,6 +4018,8 @@ SYSCALL_DEFINE2(tkill, pid_t, pid, int,
+@@ -3973,6 +3992,8 @@ SYSCALL_DEFINE2(tkill, pid_t, pid, int,
  	/* This is only valid for single tasks */
  	if (pid <= 0)
  		return -EINVAL;
@@ -503,7 +499,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	return do_tkill(0, pid, sig);
  }
-@@ -4011,6 +4032,8 @@ static int do_rt_sigqueueinfo(pid_t pid,
+@@ -3985,6 +4006,8 @@ static int do_rt_sigqueueinfo(pid_t pid,
  	if ((info->si_code >= 0 || info->si_code == SI_TKILL) &&
  	    (task_pid_vnr(current) != pid))
  		return -EPERM;
@@ -512,7 +508,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	/* POSIX.1b doesn't mention process groups.  */
  	return kill_proc_info(sig, info, pid);
-@@ -4058,6 +4081,8 @@ static int do_rt_tgsigqueueinfo(pid_t tg
+@@ -4032,6 +4055,8 @@ static int do_rt_tgsigqueueinfo(pid_t tg
  	if ((info->si_code >= 0 || info->si_code == SI_TKILL) &&
  	    (task_pid_vnr(current) != pid))
  		return -EPERM;
@@ -521,9 +517,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	return do_send_specific(tgid, pid, sig, info);
  }
---- linux-5.15.98.orig/kernel/sys.c
-+++ linux-5.15.98/kernel/sys.c
-@@ -211,6 +211,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
+--- linux-6.3-rc1.orig/kernel/sys.c
++++ linux-6.3-rc1/kernel/sys.c
+@@ -219,6 +219,10 @@ SYSCALL_DEFINE3(setpriority, int, which,
  
  	if (which > PRIO_USER || which < PRIO_PROCESS)
  		goto out;
@@ -534,7 +530,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	/* normalize: avoid signed division (rounding problems) */
  	error = -ESRCH;
-@@ -1355,6 +1359,8 @@ SYSCALL_DEFINE2(sethostname, char __user
+@@ -1363,6 +1367,8 @@ SYSCALL_DEFINE2(sethostname, char __user
  
  	if (len < 0 || len > __NEW_UTS_LEN)
  		return -EINVAL;
@@ -543,7 +539,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	errno = -EFAULT;
  	if (!copy_from_user(tmp, name, len)) {
  		struct new_utsname *u;
-@@ -1407,6 +1413,8 @@ SYSCALL_DEFINE2(setdomainname, char __us
+@@ -1416,6 +1422,8 @@ SYSCALL_DEFINE2(setdomainname, char __us
  		return -EPERM;
  	if (len < 0 || len > __NEW_UTS_LEN)
  		return -EINVAL;
@@ -552,8 +548,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	errno = -EFAULT;
  	if (!copy_from_user(tmp, name, len)) {
---- linux-5.15.98.orig/kernel/time/timekeeping.c
-+++ linux-5.15.98/kernel/time/timekeeping.c
+--- linux-6.3-rc1.orig/kernel/time/timekeeping.c
++++ linux-6.3-rc1/kernel/time/timekeeping.c
 @@ -24,6 +24,7 @@
  #include <linux/compiler.h>
  #include <linux/audit.h>
@@ -562,7 +558,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  #include "tick-internal.h"
  #include "ntp_internal.h"
-@@ -2331,10 +2332,15 @@ static int timekeeping_validate_timex(co
+@@ -2348,10 +2349,15 @@ static int timekeeping_validate_timex(co
  		if (!(txc->modes & ADJ_OFFSET_READONLY) &&
  		    !capable(CAP_SYS_TIME))
  			return -EPERM;
@@ -578,7 +574,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  		/*
  		 * if the quartz is off by more than 10% then
  		 * something is VERY wrong!
-@@ -2349,6 +2355,8 @@ static int timekeeping_validate_timex(co
+@@ -2366,6 +2372,8 @@ static int timekeeping_validate_timex(co
  		/* In order to inject time, you gotta be super-user! */
  		if (!capable(CAP_SYS_TIME))
  			return -EPERM;
@@ -587,10 +583,10 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  		/*
  		 * Validate if a timespec/timeval used to inject a time
---- linux-5.15.98.orig/net/ipv4/raw.c
-+++ linux-5.15.98/net/ipv4/raw.c
-@@ -771,6 +771,10 @@ static int raw_recvmsg(struct sock *sk,
- 	skb = skb_recv_datagram(sk, flags, noblock, &err);
+--- linux-6.3-rc1.orig/net/ipv4/raw.c
++++ linux-6.3-rc1/net/ipv4/raw.c
+@@ -747,6 +747,10 @@ static int raw_recvmsg(struct sock *sk,
+ 	skb = skb_recv_datagram(sk, flags, &err);
  	if (!skb)
  		goto out;
 +	if (ccs_socket_post_recvmsg_permission(sk, skb, flags)) {
@@ -600,10 +596,10 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	copied = skb->len;
  	if (len < copied) {
---- linux-5.15.98.orig/net/ipv4/udp.c
-+++ linux-5.15.98/net/ipv4/udp.c
-@@ -1864,6 +1864,8 @@ try_again:
- 	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
+--- linux-6.3-rc1.orig/net/ipv4/udp.c
++++ linux-6.3-rc1/net/ipv4/udp.c
+@@ -1863,6 +1863,8 @@ try_again:
+ 	skb = __skb_recv_udp(sk, flags, &off, &err);
  	if (!skb)
  		return err;
 +	if (ccs_socket_post_recvmsg_permission(sk, skb, flags))
@@ -611,10 +607,10 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	ulen = udp_skb_len(skb);
  	copied = len;
---- linux-5.15.98.orig/net/ipv6/raw.c
-+++ linux-5.15.98/net/ipv6/raw.c
-@@ -480,6 +480,10 @@ static int rawv6_recvmsg(struct sock *sk
- 	skb = skb_recv_datagram(sk, flags, noblock, &err);
+--- linux-6.3-rc1.orig/net/ipv6/raw.c
++++ linux-6.3-rc1/net/ipv6/raw.c
+@@ -448,6 +448,10 @@ static int rawv6_recvmsg(struct sock *sk
+ 	skb = skb_recv_datagram(sk, flags, &err);
  	if (!skb)
  		goto out;
 +	if (ccs_socket_post_recvmsg_permission(sk, skb, flags)) {
@@ -624,10 +620,10 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	copied = skb->len;
  	if (copied > len) {
---- linux-5.15.98.orig/net/ipv6/udp.c
-+++ linux-5.15.98/net/ipv6/udp.c
-@@ -344,6 +344,8 @@ try_again:
- 	skb = __skb_recv_udp(sk, flags, noblock, &off, &err);
+--- linux-6.3-rc1.orig/net/ipv6/udp.c
++++ linux-6.3-rc1/net/ipv6/udp.c
+@@ -361,6 +361,8 @@ try_again:
+ 	skb = __skb_recv_udp(sk, flags, &off, &err);
  	if (!skb)
  		return err;
 +	if (ccs_socket_post_recvmsg_permission(sk, skb, flags))
@@ -635,9 +631,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  
  	ulen = udp6_skb_len(skb);
  	copied = len;
---- linux-5.15.98.orig/net/socket.c
-+++ linux-5.15.98/net/socket.c
-@@ -1778,6 +1778,10 @@ struct file *do_accept(struct file *file
+--- linux-6.3-rc1.orig/net/socket.c
++++ linux-6.3-rc1/net/socket.c
+@@ -1886,6 +1886,10 @@ struct file *do_accept(struct file *file
  	if (err < 0)
  		goto out_fd;
  
@@ -648,9 +644,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	if (upeer_sockaddr) {
  		len = newsock->ops->getname(newsock,
  					(struct sockaddr *)&address, 2);
---- linux-5.15.98.orig/net/unix/af_unix.c
-+++ linux-5.15.98/net/unix/af_unix.c
-@@ -2339,6 +2339,10 @@ int __unix_dgram_recvmsg(struct sock *sk
+--- linux-6.3-rc1.orig/net/unix/af_unix.c
++++ linux-6.3-rc1/net/unix/af_unix.c
+@@ -2474,6 +2474,10 @@ int __unix_dgram_recvmsg(struct sock *sk
  						EPOLLOUT | EPOLLWRNORM |
  						EPOLLWRBAND);
  
@@ -661,7 +657,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	if (msg->msg_name)
  		unix_copy_addr(msg, skb->sk);
  
-@@ -2389,6 +2393,7 @@ int __unix_dgram_recvmsg(struct sock *sk
+@@ -2524,6 +2528,7 @@ int __unix_dgram_recvmsg(struct sock *sk
  
  out_free:
  	skb_free_datagram(sk, skb);
@@ -669,9 +665,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	mutex_unlock(&u->iolock);
  out:
  	return err;
---- linux-5.15.98.orig/security/Kconfig
-+++ linux-5.15.98/security/Kconfig
-@@ -284,5 +284,7 @@ config LSM
+--- linux-6.3-rc1.orig/security/Kconfig
++++ linux-6.3-rc1/security/Kconfig
+@@ -260,5 +260,7 @@ config LSM
  
  source "security/Kconfig.hardening"
  
@@ -679,8 +675,8 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
 +
  endmenu
  
---- linux-5.15.98.orig/security/Makefile
-+++ linux-5.15.98/security/Makefile
+--- linux-6.3-rc1.orig/security/Makefile
++++ linux-6.3-rc1/security/Makefile
 @@ -27,3 +27,6 @@ obj-$(CONFIG_SECURITY_LANDLOCK)		+= land
  
  # Object integrity file lists
@@ -688,9 +684,9 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
 +
 +subdir-$(CONFIG_CCSECURITY)		+= ccsecurity
 +obj-$(CONFIG_CCSECURITY)		+= ccsecurity/
---- linux-5.15.98.orig/security/security.c
-+++ linux-5.15.98/security/security.c
-@@ -1659,7 +1659,9 @@ int security_task_alloc(struct task_stru
+--- linux-6.3-rc1.orig/security/security.c
++++ linux-6.3-rc1/security/security.c
+@@ -1734,7 +1734,9 @@ int security_task_alloc(struct task_stru
  
  	if (rc)
  		return rc;
@@ -701,7 +697,7 @@ Source code for this patch is https://www.kernel.org/pub/linux/kernel/v5.x/linux
  	if (unlikely(rc))
  		security_task_free(task);
  	return rc;
-@@ -1668,6 +1670,7 @@ int security_task_alloc(struct task_stru
+@@ -1743,6 +1745,7 @@ int security_task_alloc(struct task_stru
  void security_task_free(struct task_struct *task)
  {
  	call_void_hook(task_free, task);
