@@ -1500,7 +1500,13 @@ bool ccs_dump_page(struct linux_binprm *bprm, unsigned long pos,
 	}
 	/* Same with get_arg_page(bprm, pos, 0) in fs/exec.c */
 #ifdef CCS_BPRM_MMU
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 5, 0)
+	mmap_read_lock(bprm->mm);
+	ret = get_user_pages_remote(bprm->mm, pos, 1, FOLL_FORCE, &page, NULL);
+	mmap_read_unlock(bprm->mm);
+	if (ret <= 0)
+		return false;
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
 	mmap_read_lock(bprm->mm);
 	ret = get_user_pages_remote(bprm->mm, pos, 1, FOLL_FORCE, &page, NULL, NULL);
 	mmap_read_unlock(bprm->mm);
